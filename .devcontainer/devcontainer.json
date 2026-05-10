@@ -1,0 +1,22 @@
+{
+  "name": "Henley Hub",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "Henley Hub (dev)", "onAutoForward": "openPreview" }
+  },
+  "postCreateCommand": "npm install && npm run db:reset",
+  "postAttachCommand": "echo 'Run: npm run dev'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Prisma.prisma",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
