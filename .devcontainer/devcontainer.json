@@ -8,7 +8,7 @@
   "portsAttributes": {
     "3000": { "label": "Henley Hub (dev)", "onAutoForward": "openPreview" }
   },
-  "postCreateCommand": "npm install && npm run db:reset",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
   "postAttachCommand": "echo 'Run: npm run dev'",
   "customizations": {
     "vscode": {

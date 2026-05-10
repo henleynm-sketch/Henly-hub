@@ -11,9 +11,27 @@ QuickBooks OAuth).
 
 ## Quick start
 
+### Codespaces (recommended)
+
+Open the repo in GitHub Codespaces. The devcontainer auto-runs `.devcontainer/setup.sh`, which:
+- copies `.env.example` to `.env`
+- generates a real `AUTH_SECRET`
+- detects the Codespace forwarded URL and sets `AUTH_URL`
+- runs `npm install` and `npm run db:reset` (creates SQLite + seeds demo data)
+
+When that finishes, just run:
 ```bash
+npm run dev
+```
+Port 3000 is auto-forwarded. Sign in with `kyle@henleyhub.com` / `demo`.
+
+### Local
+
+```bash
+cp .env.example .env
+# edit .env: replace AUTH_SECRET with `openssl rand -hex 32`
 npm install
-npm run db:reset   # creates SQLite db and seeds demo data
+npm run db:reset
 npm run dev
 # open http://localhost:3000
 ```
