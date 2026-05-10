@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite has no enums; role/status fields are validated in code (see src/lib/roles.ts).
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  passwordHash String
+  role        String   // CEO | OFFICE | FIELD | SUB | CLIENT
+  focusArea   String?  // e.g. "Sales", "Production", "Design"
+  phone       String?
+  avatarUrl   String?
+  clientId    String?  // if role=CLIENT, link to the Client record they own
+  client      Client?  @relation("ClientUsers", fields: [clientId], references: [id])
+  assignedProjects ProjectAssignment[]
+  authoredLogs DailyLog[]
+  authoredMessages Message[] @relation("AuthoredMessages")
+  createdEstimates Estimate[] @relation("EstimateAuthor")
+  createdAt   DateTime @default(now())
+}
+
+model Client {
+  id           String    @id @default(cuid())
+  name         String
+  primaryEmail String?
+  primaryPhone String?
+  address      String?
+  city         String?
+  state        String?
+  zip          String?
+  stage        String    @default("LEAD") // LEAD | QUALIFIED | PROPOSAL | WON | LOST | ACTIVE | PAST
+  source       String?
+  notes        String?
+  qbCustomerId String?
+  users        User[]    @relation("ClientUsers")
+  projects     Project[]
+  threads      Thread[]
+  estimates    Estimate[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Project {
+  id           String    @id @default(cuid())
+  clientId     String
+  client       Client    @relation(fields: [clientId], references: [id])
+  name         String
+  address      String?
+  status       String    @default("PLANNING") // PLANNING | IN_PROGRESS | ON_HOLD | COMPLETE
+  startDate    DateTime?
+  targetEnd    DateTime?
+  budgetCents  Int       @default(0)
+  contractCents Int      @default(0)
+  description  String?
+  milestones   Milestone[]
+  dailyLogs    DailyLog[]
+  budgetItems  BudgetItem[]
+  documents    Document[]
+  threads      Thread[]
+  selections   Selection[]
+  assignments  ProjectAssignment[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model ProjectAssignment {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  role      String   // PM | LEAD | CREW | SUB | DESIGNER
+  project   Project  @relation(fields: [projectId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  @@unique([projectId, userId])
+}
+
+model Milestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id])
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      String    @default("PENDING") // PENDING | IN_PROGRESS | DONE | BLOCKED
+  clientVisible Boolean @default(true)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+}
+
+model Selection {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  category    String   // e.g. "Cabinets", "Flooring"
+  option      String
+  priceCents  Int      @default(0)
+  status      String   @default("PROPOSED") // PROPOSED | APPROVED | REJECTED
+  decidedAt   DateTime?
+  notes       String?
+}
+
+model BudgetItem {
+  id           String   @id @default(cuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id])
+  category     String   // Demo, Framing, Plumbing, etc.
+  description  String
+  estimateCents Int     @default(0)
+  actualCents   Int     @default(0)
+  vendor       String?
+  createdAt    DateTime @default(now())
+}
+
+model DailyLog {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  date       DateTime @default(now())
+  weather    String?
+  hoursWorked Float?
+  crewOnSite String?
+  notes      String
+  clientVisible Boolean @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  projectId  String?
+  project    Project? @relation(fields: [projectId], references: [id])
+  name       String
+  kind       String   // CONTRACT | PLAN | PERMIT | INVOICE | PHOTO | OTHER
+  url        String
+  sizeBytes  Int?
+  createdAt  DateTime @default(now())
+}
+
+model Thread {
+  id         String    @id @default(cuid())
+  clientId   String?
+  client     Client?   @relation(fields: [clientId], references: [id])
+  projectId  String?
+  project    Project?  @relation(fields: [projectId], references: [id])
+  subject    String
+  channel    String    // EMAIL | SMS | IN_APP | CALL_NOTE
+  lastAt     DateTime  @default(now())
+  unread     Int       @default(0)
+  messages   Message[]
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  threadId   String
+  thread     Thread   @relation(fields: [threadId], references: [id])
+  authorId   String?
+  author     User?    @relation("AuthoredMessages", fields: [authorId], references: [id])
+  fromName   String   // for external (client) messages without a User
+  direction  String   // IN | OUT
+  body       String
+  channel    String   // EMAIL | SMS | IN_APP | CALL_NOTE
+  sentAt     DateTime @default(now())
+}
+
+model Estimate {
+  id         String   @id @default(cuid())
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id])
+  authorId   String
+  author     User     @relation("EstimateAuthor", fields: [authorId], references: [id])
+  number     String   @unique
+  title      String
+  status     String   @default("DRAFT") // DRAFT | SENT | ACCEPTED | DECLINED
+  subtotalCents Int   @default(0)
+  taxCents   Int      @default(0)
+  totalCents Int      @default(0)
+  notes      String?
+  lineItems  EstimateLine[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model EstimateLine {
+  id          String  @id @default(cuid())
+  estimateId  String
+  estimate    Estimate @relation(fields: [estimateId], references: [id])
+  description String
+  quantity    Float    @default(1)
+  unitCents   Int      @default(0)
+  totalCents  Int      @default(0)
+  category    String?
+}
