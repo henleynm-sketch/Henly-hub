@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import SignOutButton from "@/components/SignOutButton";
+import DemoRoleSwitcher from "@/components/DemoRoleSwitcher";
 import { ROLE_LABELS, type Role } from "@/lib/roles";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -29,6 +30,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </header>
         <main className="flex-1 overflow-y-auto bg-slate-50">{children}</main>
       </div>
+      {process.env.NODE_ENV !== "production" && (
+        <DemoRoleSwitcher currentEmail={session.user.email} />
+      )}
     </div>
   );
 }

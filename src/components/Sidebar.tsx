@@ -16,6 +16,7 @@ import {
   Hammer,
   HardHat,
   Home,
+  Upload,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
@@ -32,6 +33,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/contracts", label: "Contracts", icon: ClipboardList, badge: "soon" },
     { href: "/financials", label: "Financials", icon: DollarSign },
     { href: "/files", label: "Files", icon: Folder, badge: "soon" },
+    { href: "/import", label: "Import data", icon: Upload },
     { href: "/settings", label: "Settings", icon: Settings },
   ],
   OFFICE: [
@@ -42,6 +44,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/estimates", label: "Estimates", icon: FileText },
     { href: "/contracts", label: "Contracts", icon: ClipboardList, badge: "soon" },
     { href: "/files", label: "Files", icon: Folder, badge: "soon" },
+    { href: "/import", label: "Import data", icon: Upload },
   ],
   FIELD: [
     { href: "/dashboard", label: "Today", icon: LayoutDashboard },
