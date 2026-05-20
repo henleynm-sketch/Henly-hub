@@ -54,9 +54,16 @@ model Project {
   client       Client    @relation(fields: [clientId], references: [id])
   name         String
   address      String?
-  status       String    @default("PLANNING") // PLANNING | IN_PROGRESS | ON_HOLD | COMPLETE
+  city         String?
+  projectType  String?   // Custom Home | Addition | Renovation | Kitchen | Garage | ADU | Misc Small Jobs | Handyman Services | Warranty
+  status       String    @default("PLANNING") // PLANNING | DESIGN | PERMITTING | IN_PROGRESS | FINISHING | WARRANTY | CLOSING | ON_HOLD | COMPLETE
+  currentPhase String?   // free-text operational phase (e.g. "Permitting / Design Refresh", "Finishings 80%")
+  nextStep     String?   // free-text next-action description from the operational tracker
+  team         String?   // comma-separated names of PMs / owners (free-text)
   startDate    DateTime?
+  actualStart  DateTime?
   targetEnd    DateTime?
+  actualEnd    DateTime?
   budgetCents  Int       @default(0)
   contractCents Int      @default(0)
   description  String?
