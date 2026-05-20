@@ -77,7 +77,12 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
     <>
       <PageHeader
         title={project.name}
-        subtitle={`${project.client.name} · ${project.address ?? "—"}`}
+        subtitle={[
+          project.client.name,
+          project.address,
+          project.city,
+          project.projectType,
+        ].filter(Boolean).join(" · ")}
         actions={
           <>
             <Link href={`/inbox?clientId=${project.clientId}`} className="btn-secondary">Open inbox</Link>
@@ -89,6 +94,33 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
           </>
         }
       />
+
+      {(project.currentPhase || project.nextStep) && (
+        <div className="px-6 pt-6">
+          <div className="card border-l-4 border-l-brand-500 p-5">
+            <div className="grid gap-4 md:grid-cols-3">
+              {project.currentPhase && (
+                <div>
+                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Current phase</div>
+                  <div className="mt-1 text-sm font-medium text-slate-900">{project.currentPhase}</div>
+                </div>
+              )}
+              {project.team && (
+                <div>
+                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500">With</div>
+                  <div className="mt-1 text-sm text-slate-700">{project.team}</div>
+                </div>
+              )}
+              {project.nextStep && (
+                <div className="md:col-span-1">
+                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Next step</div>
+                  <div className="mt-1 text-sm text-slate-700">{project.nextStep}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-6 p-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
@@ -229,10 +261,14 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
             <h2 className="text-sm font-semibold">Project</h2>
             <dl className="mt-3 space-y-2 text-sm">
               <Field k="Status" v={project.status.replace("_", " ").toLowerCase()} />
-              <Field k="Start" v={formatDate(project.startDate)} />
-              <Field k="Target" v={formatDate(project.targetEnd)} />
-              {showFinancials && <Field k="Contract" v={formatMoney(project.contractCents)} />}
-              {showFinancials && <Field k="Budget" v={formatMoney(project.budgetCents)} />}
+              {project.projectType && <Field k="Type" v={project.projectType} />}
+              {project.city && <Field k="City" v={project.city} />}
+              <Field k="Planned start" v={formatDate(project.startDate)} />
+              {project.actualStart && <Field k="Actual start" v={formatDate(project.actualStart)} />}
+              <Field k="Target finish" v={formatDate(project.targetEnd)} />
+              {project.actualEnd && <Field k="Actual finish" v={formatDate(project.actualEnd)} />}
+              {showFinancials && project.contractCents > 0 && <Field k="Contract" v={formatMoney(project.contractCents)} />}
+              {showFinancials && project.budgetCents > 0 && <Field k="Budget" v={formatMoney(project.budgetCents)} />}
             </dl>
           </section>
 

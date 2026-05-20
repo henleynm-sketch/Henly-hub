@@ -18,7 +18,7 @@ export default async function DashboardPage() {
     const [clientCount, activeProjects, pipelineCents, openEstimates, recentLogs, threads] =
       await Promise.all([
         prisma.client.count(),
-        prisma.project.count({ where: { status: "IN_PROGRESS" } }),
+        prisma.project.count({ where: { status: { in: ["IN_PROGRESS", "FINISHING", "PERMITTING", "DESIGN", "CLOSING"] } } }),
         prisma.estimate.aggregate({
           _sum: { totalCents: true },
           where: { status: { in: ["DRAFT", "SENT"] } },

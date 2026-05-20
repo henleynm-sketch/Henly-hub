@@ -7,7 +7,7 @@ import { canViewAllProjects } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
 import { formatRelative } from "@/lib/utils";
 
-const STAGES = ["LEAD", "QUALIFIED", "PROPOSAL", "WON", "ACTIVE", "PAST", "LOST"];
+const STAGES = ["LEAD", "ONSITE_CONSULT", "DESIGN_PROPOSAL", "PROPOSAL_SENT", "SOLD", "ACTIVE", "ON_HOLD", "WARRANTY", "PAST", "DEAD", "LOST"];
 
 export default async function ClientsPage() {
   const session = await auth();
@@ -56,7 +56,7 @@ export default async function ClientsPage() {
                     </Link>
                     <div className="text-xs text-slate-500">{c.primaryEmail ?? "—"}</div>
                   </td>
-                  <td className="px-5 py-3"><span className={stageBadge(c.stage)}>{c.stage}</span></td>
+                  <td className="px-5 py-3"><span className={stageBadge(c.stage)}>{stageLabel(c.stage)}</span></td>
                   <td className="px-5 py-3 text-slate-600">{c.source ?? "—"}</td>
                   <td className="px-5 py-3 text-slate-600">{c._count.projects}</td>
                   <td className="px-5 py-3 text-slate-600">{c._count.threads}</td>
@@ -69,30 +69,35 @@ export default async function ClientsPage() {
 
         <section>
           <h2 className="mb-3 text-sm font-semibold text-slate-700">Pipeline</h2>
-          <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-7">
-            {byStage.map((col) => (
-              <div key={col.stage} className="rounded-xl bg-slate-100/60 p-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-                    {col.stage}
-                  </span>
-                  <span className="text-xs text-slate-500">{col.items.length}</span>
+          <div className="overflow-x-auto pb-2">
+            <div className="flex gap-3 min-w-max">
+              {byStage.map((col) => (
+                <div key={col.stage} className="w-56 flex-shrink-0 rounded-xl bg-slate-100/60 p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      {stageLabel(col.stage)}
+                    </span>
+                    <span className="text-xs text-slate-500">{col.items.length}</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {col.items.slice(0, 8).map((c) => (
+                      <li key={c.id}>
+                        <Link
+                          href={`/clients/${c.id}`}
+                          className="block rounded-lg bg-white p-3 shadow-sm hover:ring-1 hover:ring-brand-500/30"
+                        >
+                          <div className="text-sm font-medium">{c.name}</div>
+                          <div className="text-xs text-slate-500">{c.city ?? c.source ?? ""}</div>
+                        </Link>
+                      </li>
+                    ))}
+                    {col.items.length > 8 && (
+                      <li className="text-xs text-slate-500 px-1">+ {col.items.length - 8} more</li>
+                    )}
+                  </ul>
                 </div>
-                <ul className="space-y-2">
-                  {col.items.map((c) => (
-                    <li key={c.id}>
-                      <Link
-                        href={`/clients/${c.id}`}
-                        className="block rounded-lg bg-white p-3 shadow-sm hover:ring-1 hover:ring-brand-500/30"
-                      >
-                        <div className="text-sm font-medium">{c.name}</div>
-                        <div className="text-xs text-slate-500">{c.city ?? c.source ?? ""}</div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
       </div>
@@ -100,12 +105,31 @@ export default async function ClientsPage() {
   );
 }
 
+function stageLabel(s: string): string {
+  const labels: Record<string, string> = {
+    LEAD: "Lead",
+    ONSITE_CONSULT: "Onsite consult",
+    DESIGN_PROPOSAL: "Design proposal",
+    PROPOSAL_SENT: "Proposal sent",
+    SOLD: "Sold",
+    ACTIVE: "Active",
+    ON_HOLD: "On hold",
+    WARRANTY: "Warranty",
+    PAST: "Past",
+    DEAD: "Dead",
+    LOST: "Lost",
+  };
+  return labels[s] ?? s;
+}
+
 function stageBadge(s: string) {
   if (s === "LEAD") return "badge-slate";
-  if (s === "QUALIFIED") return "badge-blue";
-  if (s === "PROPOSAL") return "badge-violet";
-  if (s === "WON" || s === "ACTIVE") return "badge-green";
+  if (s === "ONSITE_CONSULT") return "badge-blue";
+  if (s === "DESIGN_PROPOSAL" || s === "PROPOSAL_SENT") return "badge-violet";
+  if (s === "SOLD" || s === "ACTIVE") return "badge-green";
+  if (s === "ON_HOLD") return "badge-amber";
+  if (s === "WARRANTY") return "badge-amber";
   if (s === "PAST") return "badge-slate";
-  if (s === "LOST") return "badge-red";
+  if (s === "DEAD" || s === "LOST") return "badge-red";
   return "badge-slate";
 }
