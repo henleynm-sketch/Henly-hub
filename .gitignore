@@ -9,3 +9,4 @@ prisma/dev.db-journal
 .next/
 out/
 coverage/
+tsconfig.tsbuildinfo
