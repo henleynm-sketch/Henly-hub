@@ -10,3 +10,11 @@ prisma/dev.db-journal
 out/
 coverage/
 tsconfig.tsbuildinfo
+
+# Raw client data — sensitive PII, never commit.
+# Seed scripts read from /imports/ at runtime; keep your own exports there.
+imports/*.csv
+imports/*.xlsx
+imports/*.xls
+imports/*.json
+!imports/.gitkeep
