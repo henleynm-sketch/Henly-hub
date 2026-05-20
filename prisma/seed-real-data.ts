@@ -138,8 +138,7 @@ const CLIENTS: ClientSeed[] = [
     name: "Joyce Goodier",
     surname: "Goodier",
     city: "Fenelon Falls",
-    stage: "ACTIVE",
-    notes: "22 Bayview Lane garage permit in progress — Adam (engineer) returning Schedule 1 form. Backfill inspection coordinated with Mel and Jon Cunningham.",
+    stage: "PAST",
     projects: [{ name: "37 Bayview Road", address: "37 Bayview Road, Fenelon Falls", incomeCents: 4705896, costCents: 3978717, status: "COMPLETE" }],
   },
   {
@@ -231,8 +230,12 @@ const CLIENTS: ClientSeed[] = [
   {
     name: "James Matthews",
     surname: "Matthews",
-    stage: "PAST",
-    projects: [{ name: "22 Bayview Lane", address: "22 Bayview Lane", incomeCents: 2898000, costCents: 260000, status: "COMPLETE" }],
+    stage: "ACTIVE",
+    notes: "Active garage addition follow-up at 22 Bayview Lane. Permit Schedule 1 form re-submit in progress with Adam (engineer) and Glen for signature. Backfill inspection done Jan 13 (Mel coordinated via Jon Cunningham, building inspector). Truss/lintel details for second-floor garage windows requested by Mike — Ashley to forward to Glen.",
+    projects: [
+      { name: "22 Bayview Lane — Original", address: "22 Bayview Lane", incomeCents: 2898000, costCents: 260000, status: "COMPLETE" },
+      { name: "22 Bayview Lane — Garage Addition", address: "22 Bayview Lane", incomeCents: 0, costCents: 0, status: "IN_PROGRESS" },
+    ],
   },
   {
     name: "Karen & Steve Moote",
@@ -786,7 +789,7 @@ async function main() {
   }
 
   console.log("Assigning team to key active projects...");
-  const activeClients = ["Lynn & Wayne Hallas-Coulson", "Joyce Goodier", "Linda Paterson-Bier", "Lindsey Clegg", "Dave Bailey", "Sean & Sherri Walker"];
+  const activeClients = ["Lynn & Wayne Hallas-Coulson", "James Matthews", "Linda Paterson-Bier", "Lindsey Clegg", "Dave Bailey", "Sean & Sherri Walker", "Bryce Marshall"];
   for (const name of activeClients) {
     const c = clientByName.get(name);
     if (!c) continue;
@@ -798,6 +801,188 @@ async function main() {
         } catch {}
       }
     }
+  }
+
+  console.log("Adding milestones, selections, daily logs for active projects...");
+
+  const today = new Date();
+  const addDays = (n: number) => { const d = new Date(today); d.setDate(d.getDate() + n); return d; };
+
+  async function findProject(clientName: string, projectName: string) {
+    const c = clientByName.get(clientName);
+    if (!c) return null;
+    return prisma.project.findFirst({ where: { clientId: c.id, name: projectName } });
+  }
+
+  async function addMilestones(projectId: string, items: [string, string, number, boolean?][]) {
+    for (let i = 0; i < items.length; i++) {
+      const [title, status, dayOffset, clientVisible] = items[i];
+      await prisma.milestone.create({
+        data: {
+          projectId,
+          title,
+          status,
+          order: i,
+          dueDate: addDays(dayOffset),
+          clientVisible: clientVisible ?? true,
+        },
+      });
+    }
+  }
+
+  async function addSelections(projectId: string, items: [string, string, number, string, number?][]) {
+    for (const [category, option, priceCents, status, decidedDaysAgo] of items) {
+      await prisma.selection.create({
+        data: {
+          projectId,
+          category,
+          option,
+          priceCents,
+          status,
+          decidedAt: decidedDaysAgo !== undefined ? addDays(-decidedDaysAgo) : null,
+        },
+      });
+    }
+  }
+
+  async function addLog(projectId: string, authorId: string, dayOffset: number, notes: string, clientVisible: boolean, weather?: string, crew?: string, hours?: number) {
+    await prisma.dailyLog.create({
+      data: {
+        projectId,
+        authorId,
+        date: addDays(dayOffset),
+        notes,
+        clientVisible,
+        weather,
+        crewOnSite: crew,
+        hoursWorked: hours,
+      },
+    });
+  }
+
+  const cleggBasement = await findProject("Lindsey Clegg", "90 William Stephenson Drive — Basement");
+  if (cleggBasement) {
+    await addMilestones(cleggBasement.id, [
+      ["Initial intake call", "DONE", -95, true],
+      ["Client Vision & Design Intake completed", "DONE", -91, true],
+      ["Design proposal draft", "IN_PROGRESS", 7, true],
+      ["Design proposal review with client", "PENDING", 14, true],
+      ["Sign design proposal & pay design fee", "PENDING", 21, true],
+      ["Floor plans finalized", "PENDING", 45, true],
+      ["Construction estimate proposal", "PENDING", 60, true],
+      ["Project kickoff call", "PENDING", 70, true],
+    ]);
+    await addSelections(cleggBasement.id, [
+      ["Interior Doors", "Panel doors (3-panel); glass at wine area", 0, "PROPOSED"],
+      ["Trim — Baseboards & Casings", "Step bevel", 0, "APPROVED", 30],
+      ["Flooring — Main spaces", "Wide-plank vinyl plank, matte or satin", 0, "PROPOSED"],
+      ["Flooring — Bathroom", "Tile (different pattern than main)", 0, "PROPOSED"],
+      ["Cabinetry", "Mixed-wood stained, two-toned with accent colours", 0, "PROPOSED"],
+      ["Cabinet hardware", "Black knobs/pulls", 0, "APPROVED", 30],
+      ["Countertops", "Quartz or wood (color TBD)", 0, "PROPOSED"],
+      ["Bathroom Countertop", "Quartz", 0, "PROPOSED"],
+      ["Backsplash", "Different from countertop (color/pattern TBD)", 0, "PROPOSED"],
+      ["Accent wall feature", "Slatted wood panelling / geometric feature wall", 0, "PROPOSED"],
+      ["Fireplace", "Electric feature fireplace", 0, "PROPOSED"],
+      ["Ceiling", "Smooth, with optional faux beams as accent", 0, "PROPOSED"],
+      ["Lighting", "Pot lights + under-cabinet + LED vanity mirrors + sconces + accent", 0, "PROPOSED"],
+      ["Electrical rough-in", "EV port rough-in", 0, "APPROVED", 60],
+      ["Paint", "Neutral base with dark/bold accent colours", 0, "PROPOSED"],
+    ]);
+    await addLog(cleggBasement.id, michelle.id, -91, "Design intake form complete. Lindsay leans transitional/luxurious with bold accents. Mixed-wood stained cabinets confirmed direction. Need to mock up two-tone island vs full match in next design meeting. EV port location TBD with electrician — discussed with Lindsay's husband on garage side. Pinterest invite sent.", true);
+    await addLog(cleggBasement.id, michelle.id, -10, "Design draft v1 ready for internal review. Sam to render slatted accent wall option vs geometric panel option. Next meeting target: this week.", false);
+  }
+
+  const matthewsGarage = await findProject("James Matthews", "22 Bayview Lane — Garage Addition");
+  if (matthewsGarage) {
+    await addMilestones(matthewsGarage.id, [
+      ["Revised drawings to building inspector", "DONE", -125, true],
+      ["Backfill inspection scheduled with Mel", "DONE", -125, true],
+      ["Backfill inspection complete", "DONE", -125, true],
+      ["Truss & lintel details to Glen (engineer)", "DONE", -105, false],
+      ["Bayview window updates ordered", "DONE", -85, false],
+      ["Schedule 1 form signed by Glen", "IN_PROGRESS", 3, false],
+      ["Schedule 1 form resubmitted to permit office", "PENDING", 5, false],
+      ["Permit review complete", "PENDING", 30, true],
+      ["Permit issued", "PENDING", 45, true],
+      ["Construction start", "PENDING", 60, true],
+    ]);
+    await addLog(matthewsGarage.id, ashley.id, -2, "Followed up with Adam on Schedule 1 — he has it filled out, just needs Glen's signature. Will receive completed form for resubmission. Permit review initiated with original drawings.", false);
+    await addLog(matthewsGarage.id, ashley.id, -125, "Backfill inspection done. Building inspector Jon Cunningham received revised drawings with footing changes. $150 review fee possible. Mel coordinating online submission going forward.", false);
+    await addLog(matthewsGarage.id, mike.id, -105, "Specced truss & lintel details for second-floor garage windows — windows increased in size during change order, need confirmation that lintels were spec'd accordingly. Sent details to Glen for review.", false);
+  }
+
+  const lindaBoathouse = await findProject("Linda Paterson-Bier", "Boathouse — 137 Lightning Point Rd");
+  if (lindaBoathouse) {
+    await addMilestones(lindaBoathouse.id, [
+      ["First intake call", "DONE", -55, true],
+      ["Design call #1 — Teams", "DONE", -55, true],
+      ["Pinterest board shared", "DONE", -54, true],
+      ["Second design meeting (post-Hawaii)", "PENDING", 7, true],
+      ["Floor plan draft", "PENDING", 21, true],
+      ["Design proposal", "PENDING", 35, true],
+      ["Sign design proposal & pay design fee", "PENDING", 42, true],
+      ["Construction estimate", "PENDING", 70, true],
+    ]);
+    await addSelections(lindaBoathouse.id, [
+      ["Style direction", "Serena & Lily aesthetic (per Linda)", 0, "PROPOSED"],
+      ["Bar layout", "Bar seating on both sides of double door", 0, "PROPOSED"],
+      ["Railing — Upper decking", "Style TBD — Linda shared inspiration photos", 0, "PROPOSED"],
+    ]);
+    await addLog(lindaBoathouse.id, victoria.id, -55, "First Teams design call with Linda + Mark. Strong direction toward Serena & Lily styling. Discussed bar seating layout (both sides of double door), railing styles for upper decking. Linda shared inspiration photos via SMS. Pinterest board invite sent for ongoing collaboration.", true);
+    await addLog(lindaBoathouse.id, victoria.id, -1, "Linda back from Hawaii — second meeting requested 'soon' to keep ball rolling on boathouse. Coordinating schedule with Nick.", false);
+  }
+
+  const hallas52Mason = await findProject("Lynn & Wayne Hallas-Coulson", "52 Mason Lane");
+  if (hallas52Mason) {
+    await addMilestones(hallas52Mason.id, [
+      ["Survey complete", "DONE", -120, true],
+      ["Initial drawings", "DONE", -90, true],
+      ["Construction draws begun ($20K Feb 4)", "DONE", -106, false],
+      ["Variance application prep", "IN_PROGRESS", 7, true],
+      ["Permit application", "PENDING", 28, true],
+      ["Site scheduling with Site Supervisor", "PENDING", 35, true],
+      ["Onsite work begins", "PENDING", 56, true],
+    ]);
+    await addLog(hallas52Mason.id, nick.id, -106, "Construction draw $20K Feb 4 toward surveying, drawings, permit prep. Variance application pending. Lyn & Wayne available for builder inspector questions at 705-934-1295 (coulson.lott@gmail.com).", false);
+    await addLog(hallas52Mason.id, ashley.id, -5, "Variance application in prep. Building inspector confirmed has copy of revised drawings; may charge $150 to re-review.", false);
+  }
+
+  const baileyLakeview = await findProject("Dave Bailey", "85 & 87 Lakeview Cottage Road");
+  if (baileyLakeview) {
+    await addMilestones(baileyLakeview.id, [
+      ["Initial design call setup (Kate & Dave)", "DONE", -118, true],
+      ["Design call — Friday review", "DONE", -113, true],
+      ["Tree removal quote received from Chris ($6,400)", "DONE", -7, false],
+      ["Floor plans draft", "IN_PROGRESS", 21, true],
+      ["Site clearing scheduled", "PENDING", 28, false],
+      ["Design proposal", "PENDING", 45, true],
+    ]);
+    await addLog(baileyLakeview.id, nick.id, -118, "Set up design call directly with Aunt Kate & Uncle Dave for Friday Jan 23. Will handle until floor plans drafted then bring in Victoria. Updating BuilderTrend lead.", false);
+    await addLog(baileyLakeview.id, nick.id, -7, "Tree removal quote in from Chris: $6,400 for marked trees, excluding stump grinding. Site clearing schedule pending design approval.", false);
+  }
+
+  const seanProposal = await findProject("Sean & Sherri Walker", "Walker Family Home Update");
+  if (seanProposal) {
+    await addMilestones(seanProposal.id, [
+      ["First intake (Victoria)", "DONE", -48, true],
+      ["Onsite proposal meeting Apr 16 9am", "DONE", -34, true],
+      ["Tailored construction proposal — internal draft", "IN_PROGRESS", 7, false],
+      ["Proposal presented to Sean & Sherri", "PENDING", 14, true],
+      ["Sign proposal & deposit", "PENDING", 21, true],
+    ]);
+    await addLog(seanProposal.id, nick.id, -34, "Onsite meeting at Walker home. Demo already started by client. Reviewed scope — family home update. Will not send quote by email; tailored in-person walkthrough next. Project important to family; budget conversation deferred to in-person.", false);
+  }
+
+  const bryceMarshall = await findProject("Bryce Marshall", "Marshall — Structural review");
+  if (bryceMarshall) {
+    await addMilestones(bryceMarshall.id, [
+      ["Voicemail intake (Victoria)", "DONE", -75, true],
+      ["Onsite consultation Mar 23 12:30-1:30", "DONE", -58, true],
+      ["Structural assessment notes", "IN_PROGRESS", 7, false],
+      ["Quote for structural work", "PENDING", 21, true],
+    ]);
+    await addLog(bryceMarshall.id, nick.id, -58, "Onsite consult done at Marshall property. Structural issues confirmed — full notes pending. Will follow up with formal quote once scope is clarified.", false);
   }
 
   console.log("Creating SMS threads + messages from Quo...");
