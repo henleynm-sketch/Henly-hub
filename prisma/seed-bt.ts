@@ -780,6 +780,163 @@ async function main() {
   }
 
   // -----------------------------------------------------------------------
+  // HubSpot import — filter 7,405 → real homeowner leads only
+  // -----------------------------------------------------------------------
+  const PERSONAL_EMAIL_DOMAINS = new Set([
+    "gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "yahoo.ca", "icloud.com",
+    "rogers.com", "rogers.ca", "sympatico.ca", "bell.net", "live.com", "me.com",
+    "aol.com", "telus.net", "mail.com", "msn.com", "shaw.ca", "cogeco.ca", "nexicom.net",
+  ]);
+  const HUBSPOT_VENDOR_DOMAINS = new Set([
+    "kawarthalakes.ca", "gentek.ca", "yelp.com", "slack.com", "hubspot.com", "meta.com",
+    "jobtread.com", "jobbuddy.com", "quo.com", "calendly.com", "dricore.com", "tarion.com",
+    "rbc.com", "cra-arc.gc.ca", "squareup.com", "squaretrade.com", "onstar.com",
+    "danmartell.com", "brevosend.com", "barrietrim.com", "centurymill.com", "donlealumber.com",
+    "monaghanlumber.com", "handleylumber.com", "technometalpost.com", "gni.ca", "pandadoc.net",
+    "macklawyers.ca", "remaxjazz.com", "ritsontile.com", "scugoglumber.com", "anco.com",
+    "henleycontracting.com",
+  ]);
+
+  // Words that strongly suggest a vendor/sub/business, not a homeowner lead.
+  // We reject if the email local-part OR the contact's name contains any of these.
+  const VENDOR_KEYWORDS = [
+    "construction", "contracting", "contractor", "construx", "drywall", "stone", "tile",
+    "concrete", "electric", "electrical", "plumbing", "plumb", "roofing", "siding",
+    "framing", "carpentry", "carpenter", "painting", "painter", "painters", "flooring", "floors",
+    "demolition", "excavation", "landscape", "landscaping", "hvac", "heating", "cooling",
+    "windows", "doors", "railing", "railings", "deck", "decking", "exteriors", "exterior",
+    "cabinet", "kitchens", "countertop", "supply", "supplies", "lumber", "wholesale",
+    "industrial", "commercial", "trades", "design", "renovations",
+    "remodel", "builders", "masonry", "mason", "stucco", "insulation",
+    "rentals", "rental", "asphalt", "paving", "septic", "drilling", "disposal",
+    "guard", "glass", "fence", "fencing", "concrete", "metal", "steel", "geotech",
+    "engineering", "surveyor", "surveying", "appraisal", "inspection", "inspector",
+    "sunrock", "duradek", "homecovered", "tarion", "centurystone",
+  ];
+
+  // Generic role-based inboxes that aren't a homeowner
+  const GENERIC_LOCAL_PARTS = new Set([
+    "info", "sales", "office", "admin", "support", "contact", "hello", "service",
+    "billing", "accounts", "marketing", "noreply", "no-reply", "donotreply",
+  ]);
+
+  function looksLikeVendor(text: string): boolean {
+    const t = text.toLowerCase();
+    return VENDOR_KEYWORDS.some((kw) => t.includes(kw));
+  }
+
+  function isRealHubSpotLead(row: Record<string, any>): boolean {
+    const email = String(row["Email"] ?? "").trim().toLowerCase();
+    const fn = String(row["First Name"] ?? "").trim();
+    const ln = String(row["Last Name"] ?? "").trim();
+    const phone = String(row["Phone Number"] ?? row["Phone"] ?? "").trim();
+    if (!fn && !ln) return false;
+    if (!email && !phone) return false;
+    if (fn.includes("@")) return false;
+
+    const domain = email.includes("@") ? email.split("@")[1] : "";
+    const localPart = email.includes("@") ? email.split("@")[0] : "";
+    if (HUBSPOT_VENDOR_DOMAINS.has(domain)) return false;
+    if (email.includes("noreply") || email.includes("@city") || email.includes("@gov") || email.includes("municipal")) return false;
+    if (GENERIC_LOCAL_PARTS.has(localPart)) return false;
+
+    // Reject if the email local-part, full email, OR name contains a vendor keyword
+    const fullName = `${fn} ${ln}`.trim();
+    if (looksLikeVendor(localPart)) return false;
+    if (looksLikeVendor(domain)) return false;
+    if (looksLikeVendor(fullName)) return false;
+
+    // Reject obvious business names (have Ltd / Inc / LLC / Corp / Co. / Group / Services)
+    if (/\b(ltd|inc|llc|corp|co\.|group|services|solutions|technologies|partners|consulting|industries)\b/i.test(fullName)) return false;
+
+    // Accept personal email
+    if (PERSONAL_EMAIL_DOMAINS.has(domain)) return true;
+
+    // Accept if has any form-submission evidence
+    if (row["Description of first engagement"]) return true;
+    if (row["Customer Value Rank"]) return true;
+
+    // Last resort: accept if has both email + phone + city (engaged contact)
+    if (email && phone && row["City"]) return true;
+
+    return false;
+  }
+
+  console.log("\nImporting HubSpot leads (filtered from 7,405)...");
+  const hubspotPath = path.join(IMPORTS_DIR, "hubspot-allcontacts.csv");
+  let hubspotAdded = 0, hubspotMatched = 0, hubspotSkipped = 0;
+  if (fs.existsSync(hubspotPath)) {
+    const wb = XLSX.readFile(hubspotPath);
+    const hsRows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: null, raw: false }) as Record<string, any>[];
+
+    // Build email + phone lookup for existing clients
+    const existingByEmail = new Map<string, string>();
+    const existingByPhone = new Map<string, string>();
+    const allExisting = await prisma.client.findMany();
+    for (const c of allExisting) {
+      if (c.primaryEmail) existingByEmail.set(c.primaryEmail.toLowerCase(), c.id);
+      if (c.primaryPhone) existingByPhone.set(normalizePhone(c.primaryPhone), c.id);
+    }
+
+    for (const row of hsRows) {
+      if (!isRealHubSpotLead(row)) { hubspotSkipped += 1; continue; }
+      const email = String(row["Email"] ?? "").trim().toLowerCase();
+      const phone = String(row["Phone Number"] ?? row["Phone"] ?? "").trim();
+      const normPhone = phone ? normalizePhone(phone) : "";
+      if (email && existingByEmail.has(email)) { hubspotMatched += 1; continue; }
+      if (normPhone && existingByPhone.has(normPhone)) { hubspotMatched += 1; continue; }
+
+      const fn = String(row["First Name"] ?? "").trim();
+      const ln = String(row["Last Name"] ?? "").trim();
+      const name = `${fn} ${ln}`.trim() || email || "Unnamed HubSpot lead";
+
+      const lifecycle = String(row["Lifecycle Stage"] ?? "").trim();
+      const stage = lifecycle === "Opportunity" ? "ONSITE_CONSULT" : lifecycle === "Customer" ? "PAST" : "LEAD";
+
+      const noteParts: string[] = [];
+      if (row["Description of first engagement"]) noteParts.push(`First engagement: ${row["Description of first engagement"]}`);
+      if (row["Type of first engagement"]) noteParts.push(`Type: ${row["Type of first engagement"]}`);
+      if (row["Customer Value Rank"]) noteParts.push(`Value rank: ${row["Customer Value Rank"]}`);
+
+      // Parse HubSpot Create Date for accurate sorting
+      let createdAt: Date | null = null;
+      const cdRaw = String(row["Create Date"] ?? "").trim();
+      if (cdRaw) {
+        const parsed = new Date(cdRaw);
+        if (!isNaN(parsed.getTime())) createdAt = parsed;
+      }
+
+      const formattedPhone = formatPhone(phone);
+      const c = await prisma.client.create({
+        data: {
+          name,
+          primaryEmail: row["Email"] || null,
+          primaryPhone: formattedPhone,
+          city: row["City"] ?? null,
+          stage,
+          source: "HubSpot",
+          notes: noteParts.length > 0 ? noteParts.join("\n") : null,
+          ...(createdAt ? { createdAt } : {}),
+        },
+      });
+      // Mirror into the in-memory indexes used by the rest of the seed
+      clientByName.set(name, c.id);
+      if (ln) {
+        const variants = new Set<string>([ln.toLowerCase()]);
+        for (const part of ln.split(/[-\s]/)) {
+          if (part.length >= 3) variants.add(part.toLowerCase());
+        }
+        for (const v of variants) {
+          if (!clientBySurname.has(v)) clientBySurname.set(v, c.id);
+        }
+      }
+      if (formattedPhone) clientByPhone.set(normalizePhone(formattedPhone), c.id);
+      hubspotAdded += 1;
+    }
+  }
+  console.log(`  HubSpot: ${hubspotAdded} new, ${hubspotMatched} matched existing, ${hubspotSkipped} filtered out`);
+
+  // -----------------------------------------------------------------------
   // SMS-only leads — Quo conversations with no BT/Tracker counterpart
   // -----------------------------------------------------------------------
   console.log("\nCreating SMS-only lead records...");
