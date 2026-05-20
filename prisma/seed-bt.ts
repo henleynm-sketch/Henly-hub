@@ -395,7 +395,7 @@ async function main() {
       notes: constructionMatch?.["Notes"] ?? null,
     });
 
-    await prisma.project.create({
+    const project = await prisma.project.create({
       data: {
         clientId: cid,
         name: label,
@@ -412,9 +412,52 @@ async function main() {
         actualEnd: actualEnd ? new Date(actualEnd) : null,
       },
     });
+
+    // Create Milestone records from the Tracker's milestone columns
+    const milestoneColumns = [
+      "Prelim Designs",
+      "Preliminary Estimating",
+      "Deposit for Construction",
+      "Detailed Design",
+      "Detailed Estimating",
+      "Permitting",
+      "Selections",
+      "Contracts",
+      "Final Package",
+    ];
+    for (let i = 0; i < milestoneColumns.length; i++) {
+      const col = milestoneColumns[i];
+      const raw = row[col];
+      if (raw === null || raw === undefined || raw === "" || raw === "Blank") continue;
+      const v = String(raw).trim();
+      let status: string;
+      let dueDate: Date | null = null;
+      if (raw instanceof Date) {
+        status = "DONE";
+        dueDate = raw;
+      } else if (v.toLowerCase() === "complete" || v.toLowerCase() === "yes") {
+        status = "DONE";
+      } else if (v.toLowerCase() === "start" || v.toLowerCase() === "pending") {
+        status = "PENDING";
+      } else if (v.toLowerCase().includes("progress") || v.toLowerCase() === "run the prompt") {
+        status = "IN_PROGRESS";
+      } else {
+        status = "PENDING";
+      }
+      await prisma.milestone.create({
+        data: {
+          projectId: project.id,
+          title: col,
+          status,
+          order: i,
+          clientVisible: true,
+          dueDate,
+        },
+      });
+    }
     trackerProjectCount += 1;
   }
-  console.log(`  Created ${trackerProjectCount} active projects from Tracker.`);
+  console.log(`  Created ${trackerProjectCount} active projects from Tracker (with milestone tracking).`);
 
   // -----------------------------------------------------------------------
   // Add Construction-only projects (not in Tracker but appear in C&W sheet)
@@ -575,6 +618,166 @@ async function main() {
     histClientCount += 1;
   }
   console.log(`  Created ${histClientCount} historical clients.`);
+
+  // -----------------------------------------------------------------------
+  // Project enrichment — SMS-grounded milestones + daily logs
+  // -----------------------------------------------------------------------
+  console.log("\nAdding project-specific milestones and daily logs from SMS context...");
+
+  const today = new Date();
+  const addDays = (n: number) => { const d = new Date(today); d.setDate(d.getDate() + n); return d; };
+
+  async function findProjectByContains(needle: string) {
+    return prisma.project.findFirst({ where: { name: { contains: needle } } });
+  }
+
+  async function addExtraMilestones(projectId: string, items: [string, string, number, boolean?][], baseOrder = 100) {
+    for (let i = 0; i < items.length; i++) {
+      const [title, status, dayOffset, clientVisible] = items[i];
+      await prisma.milestone.create({
+        data: {
+          projectId,
+          title,
+          status,
+          order: baseOrder + i,
+          dueDate: addDays(dayOffset),
+          clientVisible: clientVisible ?? false,
+        },
+      });
+    }
+  }
+
+  async function addLog(projectId: string, authorId: string, dayOffset: number, notes: string, clientVisible: boolean) {
+    await prisma.dailyLog.create({
+      data: {
+        projectId,
+        authorId,
+        date: addDays(dayOffset),
+        notes,
+        clientVisible,
+      },
+    });
+  }
+
+  const matthewsAddition = await findProjectByContains("22 Bayview Lane");
+  if (matthewsAddition) {
+    await addExtraMilestones(matthewsAddition.id, [
+      ["Revised drawings to building inspector", "DONE", -125, true],
+      ["Backfill inspection complete", "DONE", -125, true],
+      ["Truss & lintel details to Glen (engineer)", "DONE", -105, false],
+      ["Bayview window updates ordered", "DONE", -85, false],
+      ["Schedule 1 form signed by Glen", "IN_PROGRESS", 3, false],
+      ["Schedule 1 form resubmitted to permit office", "PENDING", 5, false],
+      ["Permit resubmission for detached garage", "IN_PROGRESS", 7, true],
+      ["Approve 9 garage POs (~$154K)", "IN_PROGRESS", 5, false],
+    ]);
+    await addLog(matthewsAddition.id, ashley.id, -2, "Followed up with Adam on Schedule 1 — he has it filled out, just needs Glen's signature. Will receive completed form for resubmission. Permit review initiated with original drawings.", false);
+    await addLog(matthewsAddition.id, mike.id, -105, "Specced truss & lintel details for second-floor garage windows — windows increased in size during change order, need confirmation that lintels were spec'd accordingly. Sent details to Glen for review.", false);
+    await addLog(matthewsAddition.id, rui.id, -7, "Construction in taping phase. Corner Post $59,541 processed. Glen Harris invoices #1274/1276 clarified. Approve 9 garage POs (~$154K) — permit resubmission for detached garage #1 priority.", true);
+  }
+
+  const lindaBoathouse = await findProjectByContains("Paterson-Bier");
+  if (lindaBoathouse) {
+    await addExtraMilestones(lindaBoathouse.id, [
+      ["First intake call", "DONE", -55, true],
+      ["Design call #1 — Teams", "DONE", -55, true],
+      ["Pinterest board shared", "DONE", -54, true],
+      ["Second design meeting (post-Hawaii)", "PENDING", 7, true],
+      ["Floor plan draft", "PENDING", 21, true],
+      ["Design proposal", "PENDING", 35, true],
+    ]);
+    await prisma.selection.createMany({
+      data: [
+        { projectId: lindaBoathouse.id, category: "Style direction", option: "Serena & Lily aesthetic (per Linda)", priceCents: 0, status: "PROPOSED" },
+        { projectId: lindaBoathouse.id, category: "Bar layout", option: "Bar seating on both sides of double door", priceCents: 0, status: "PROPOSED" },
+        { projectId: lindaBoathouse.id, category: "Railing — Upper decking", option: "Style TBD — Linda shared inspiration photos", priceCents: 0, status: "PROPOSED" },
+      ],
+    });
+    await addLog(lindaBoathouse.id, victoria.id, -55, "First Teams design call with Linda + Mark. Strong direction toward Serena & Lily styling. Discussed bar seating layout (both sides of double door), railing styles for upper decking. Pinterest board invite sent for ongoing collaboration.", true);
+    await addLog(lindaBoathouse.id, victoria.id, -1, "Linda back from Hawaii — second meeting requested 'soon' to keep ball rolling on boathouse. Coordinating schedule with Nick. Project currently flagged ON HOLD.", false);
+  }
+
+  const anderson = await findProjectByContains("Anderson");
+  if (anderson) {
+    await addExtraMilestones(anderson.id, [
+      ["Construction start", "DONE", -260, true],
+      ["Framing complete", "DONE", -160, true],
+      ["Mechanical rough-in", "DONE", -120, true],
+      ["Drywall & taping", "DONE", -80, true],
+      ["Trim delivery (Tues)", "PENDING", 2, false],
+      ["Glenn install (Thurs)", "PENDING", 4, false],
+      ["Kitchen install (next week)", "PENDING", 7, true],
+      ["Final 10% draw at occupancy", "PENDING", 14, true],
+      ["Occupancy — Nelson family", "PENDING", 14, true],
+      ["CO 0010 Fireplace finalize", "IN_PROGRESS", 7, false],
+    ]);
+    await addLog(anderson.id, rui.id, -1, "Finishings ~80%. Trim delivery Tuesday, Glenn install Thursday, kitchen install next week. 6 overdue POs to chase. 25% draw invoiced Apr 15. 9 approved COs ($28,822) at 0% invoiced — need to bill. CO 0010 Fireplace DRAFT 3+ months (~$6K actual, ~$14K pending). Fireplace framing mismatch flagged Apr 16.", false);
+  }
+
+  const sheehan = await findProjectByContains("Sheehan");
+  if (sheehan) {
+    await addExtraMilestones(sheehan.id, [
+      ["Prelim drawings", "DONE", -240, true],
+      ["Detailed design", "DONE", -180, true],
+      ["Permit application drafted", "DONE", -90, false],
+      ["Awaiting owner permit authorization", "IN_PROGRESS", 5, false],
+      ["CLOCA boundary confirmation", "DONE", -14, false],
+      ["Carlos/Moffatt Roofing response", "DONE", -6, false],
+      ["Permit submitted", "PENDING", 14, true],
+      ["Design refresh — update floor plans + pricing", "IN_PROGRESS", 21, true],
+    ]);
+    await addLog(sheehan.id, ashley.id, -2, "Ashley awaiting owner authorization to submit permit — Rui to follow up, cc Nick for extra nudge. Nick requesting follow-up emails. Victoria to run project through workflow for design + estimate refresh: update floor plans, revise pricing for current year, set new design package standards.", false);
+    await addLog(sheehan.id, ashley.id, -14, "CLOCA boundary confirmed. Carlos/Moffatt Roofing replied May 14 with updated quote. Ready to package permit submission once authorization in.", false);
+  }
+
+  const bailey = await findProjectByContains("Bailey");
+  if (bailey) {
+    await addExtraMilestones(bailey.id, [
+      ["Initial design call setup (Kate & Dave)", "DONE", -118, true],
+      ["Design call — Friday review", "DONE", -113, true],
+      ["Tree removal quote received from Chris ($6,400)", "DONE", -7, false],
+      ["Floor plan review with Kate", "PENDING", 14, true],
+      ["Variance application", "IN_PROGRESS", 21, false],
+      ["Site clearing scheduled", "PENDING", 28, false],
+    ]);
+    await addLog(bailey.id, nick.id, -118, "Set up design call directly with Aunt Kate & Uncle Dave for Friday Jan 23. Will handle until floor plans drafted then bring in Victoria. Updating BuilderTrend lead.", false);
+    await addLog(bailey.id, nick.id, -7, "Tree removal quote in from Chris: $6,400 for marked trees at 87 Lakeview Cottage Road, excluding stump grinding. Site clearing schedule pending design approval.", false);
+  }
+
+  const lee = await findProjectByContains("Lekani");
+  if (lee) {
+    await addExtraMilestones(lee.id, [
+      ["Construction start", "DONE", -185, true],
+      ["Framing complete", "DONE", -120, true],
+      ["Mechanical rough-in", "DONE", -90, true],
+      ["Drywall & taping", "DONE", -60, true],
+      ["Painting 30% complete", "DONE", -45, true],
+      ["Finishings (10% remaining)", "IN_PROGRESS", -5, true],
+      ["Final walkthrough", "PENDING", 14, true],
+      ["Closeout", "PENDING", 21, true],
+    ]);
+    await addLog(lee.id, rui.id, -3, "Project 90% complete, painting nearly done. 18 days past projected completion (Apr 15) — pushing for final close in next 2 weeks.", false);
+  }
+
+  const joblin = await findProjectByContains("Joblin");
+  if (joblin) {
+    await addExtraMilestones(joblin.id, [
+      ["Construction start", "DONE", -210, true],
+      ["Demolition", "DONE", -200, true],
+      ["Framing & mechanicals", "DONE", -150, true],
+      ["Drywall complete", "DONE", -90, true],
+      ["Countertop install (9:30 AM today)", "IN_PROGRESS", 0, true],
+      ["HD orders pickup (Morningside)", "IN_PROGRESS", 0, false],
+      ["Final invoices reconciled", "IN_PROGRESS", 2, false],
+      ["Occupancy this week", "PENDING", 5, true],
+    ]);
+    await addLog(joblin.id, andrew.id, 0, "Countertop install 9:30 AM. HD orders #616251437 & #616256046 ready for pickup at Morningside 7027. Josh & Rui need to connect TODAY on outstanding invoices & final bill. C&H Glass $1,808 due. Durham Flooring payments need verification. Occupancy targeted for this week — PRE-COMPLETION CRITICAL.", false);
+  }
+
+  const hallasC = await findProjectByContains("Marconi");
+  if (hallasC) {
+    await addLog(hallasC.id, victoria.id, -3, "Kitchen coordination phase. Drywall & taping underway. Josh on site for ordering. Anco Contracting (Paul Marconi's company) is the billing entity.", false);
+  }
 
   // -----------------------------------------------------------------------
   // SMS-only leads — Quo conversations with no BT/Tracker counterpart
