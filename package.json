@@ -13,7 +13,9 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:quo": "tsx prisma/seed-quo-messages.ts",
+    "db:seed:real": "tsx prisma/seed-real-data.ts",
     "db:reset": "prisma db push --force-reset && npm run db:seed",
+    "db:reset:real": "prisma db push --force-reset && npm run db:seed:real",
     "postinstall": "prisma generate"
   },
   "dependencies": {
