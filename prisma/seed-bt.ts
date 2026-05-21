@@ -9,6 +9,48 @@ const prisma = new PrismaClient();
 const IMPORTS_DIR = path.join(process.cwd(), "imports");
 
 // -----------------------------------------------------------------------------
+// Source-agnostic column aliases
+// -----------------------------------------------------------------------------
+// When we switch from BuilderTrend to JobTread (or anywhere else), the column
+// names in the exports change but the underlying concepts don't. This map lets
+// the seed read whichever column name is actually present in the file. Add the
+// JT (or any other source's) names to each list and the seed adapts.
+
+const COLUMN_ALIASES = {
+  // Project / opportunity identification
+  projectName: ["Project Name", "Opportunity Title", "Job", "Job Name", "Title", "Opportunity"],
+  client: ["Client", "Client Name", "Customer", "Customer Name", "Contact"],
+  clientFirstName: ["First Name", "Client First Name", "Customer First Name"],
+  clientLastName: ["Last Name", "Client Last Name", "Customer Last Name", "Surname"],
+  email: ["Email", "Email Address", "Client Email", "Primary Email"],
+  phone: ["Phone", "Phone Number", "Primary Phone", "Cell", "Cell Phone", "Mobile"],
+  address: ["Address", "Street Address", "Project Address", "Billing Address", "Billing Address*"],
+  city: ["City", "Town", "City (Contact)", "City(Opp)"],
+  state: ["State", "Province", "Prov", "Prov (Contact)", "Prov(Opp)"],
+  zip: ["Zip", "Zip Code", "Postal", "Postal Code", "Postal (Contact)", "Postal(Opp)"],
+
+  // Project metadata
+  projectType: ["Project Type", "Type", "Job Type", "Project Type*"],
+  status: ["Status", "Job Status", "Lead Status", "Phase", "Stage", "Current Phase"],
+  nextStep: ["Next Step", "Critical Next Step", "Notes", "Action"],
+  team: ["With", "PM(s)", "Owner", "Project Manager", "Salesperson", "Assigned To"],
+
+  // Financials / dates
+  estimatedRevenue: ["Est. Revenue", "Estimated Revenue", "Project Budget", "Estimated Budget", "Budget"],
+  startDate: ["Proj. Start", "Projected Start", "Start Date", "Actual Start"],
+  endDate: ["Proj. Completion", "Actual Completion", "End Date", "Completion Date", "Sold Date"],
+  source: ["Source", "Lead Source", "Lead Source*", "Original Source", "Referral Source"],
+  notes: ["Notes", "Description", "Comments", "Notes / Description"],
+};
+
+function pick(row: Record<string, any>, field: keyof typeof COLUMN_ALIASES): any {
+  for (const alias of COLUMN_ALIASES[field]) {
+    if (row[alias] !== null && row[alias] !== undefined && row[alias] !== "") return row[alias];
+  }
+  return null;
+}
+
+// -----------------------------------------------------------------------------
 // XLSX helpers
 // -----------------------------------------------------------------------------
 
