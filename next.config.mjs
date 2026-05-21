@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const allowedOrigins = [];
+const allowedOrigins = ["*.app.github.dev", "*.github.dev", "localhost:3000"];
 
 if (process.env.CODESPACE_NAME) {
   const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN || "app.github.dev";
