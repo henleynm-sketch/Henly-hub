@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "jobtread": {
+      "type": "http",
+      "url": "https://api.jobtread.com/mcp?henley_contracting_ltd"
+    }
+  }
+}
