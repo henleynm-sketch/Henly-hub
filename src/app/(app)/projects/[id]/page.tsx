@@ -3,20 +3,105 @@ import { notFound, redirect } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { canSeeFinancials, canViewAllProjects } from "@/lib/roles";
+import { canSeeFinancials, canViewAllProjects, isInternal } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
 import { formatDate, formatMoney, formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import DailyLogForm from "@/components/DailyLogForm";
+import TimeClockTab from "@/components/TimeClockTab";
+import TimeReviewTab from "@/components/TimeReviewTab";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
-export default async function ProjectDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProjectDetail({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const { id: projectId } = await params;
+  const { tab = "overview" } = await searchParams;
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
   const role = session.user.role as Role;
   const userId = session.user.id;
+
+  // Guard active tab based on role permissions
+  let activeTab = tab;
+  if (activeTab === "time-clock" && !isInternal(role)) {
+    activeTab = "overview";
+  }
+  if (activeTab === "time-review" && role !== "CEO" && role !== "OFFICE") {
+    activeTab = "overview";
+  }
+
+  // Load tab-specific data
+  let assignedProjects: any[] = [];
+  let activeSession: any = null;
+  let recentEntries: any[] = [];
+  let reviewEntries: any[] = [];
+
+  if (activeTab === "time-clock") {
+    assignedProjects = await prisma.project.findMany({
+      where: {
+        assignments: {
+          some: { userId: session.user.id }
+        }
+      },
+      select: {
+        id: true,
+        name: true
+      }
+    });
+
+    activeSession = await prisma.timeEntry.findFirst({
+      where: {
+        userId: session.user.id,
+        clockOut: null
+      },
+      include: {
+        project: {
+          select: { name: true }
+        }
+      }
+    });
+
+    recentEntries = await prisma.timeEntry.findMany({
+      where: {
+        userId: session.user.id,
+        projectId
+      },
+      include: {
+        project: {
+          select: { name: true }
+        }
+      },
+      orderBy: {
+        clockIn: "desc"
+      },
+      take: 10
+    });
+  }
+
+  if (activeTab === "time-review") {
+    reviewEntries = await prisma.timeEntry.findMany({
+      where: {
+        projectId
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: {
+        clockIn: "desc"
+      }
+    });
+  }
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -152,7 +237,48 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
         </div>
       )}
 
-      <div className="grid gap-6 p-6 lg:grid-cols-3">
+      {isInternal(role) && (
+        <div className="border-b border-slate-200 bg-white px-6">
+          <div className="-mb-px flex gap-6">
+            <Link
+              href={`/projects/${project.id}?tab=overview`}
+              className={`border-b-2 py-3 text-sm font-medium transition-colors ${
+                activeTab === "overview"
+                  ? "border-brand-600 text-brand-600 font-semibold"
+                  : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+              }`}
+            >
+              Overview
+            </Link>
+            <Link
+              href={`/projects/${project.id}?tab=time-clock`}
+              className={`border-b-2 py-3 text-sm font-medium transition-colors ${
+                activeTab === "time-clock"
+                  ? "border-brand-600 text-brand-600 font-semibold"
+                  : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+              }`}
+            >
+              Time Clock
+            </Link>
+            {(role === "CEO" || role === "OFFICE") && (
+              <Link
+                href={`/projects/${project.id}?tab=time-review`}
+                className={`border-b-2 py-3 text-sm font-medium transition-colors ${
+                  activeTab === "time-review"
+                    ? "border-brand-600 text-brand-600 font-semibold"
+                    : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                }`}
+              >
+                Time Review
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="p-6">
+        {activeTab === "overview" ? (
+          <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <section className="card">
             <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
@@ -350,6 +476,20 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
             </section>
           )}
         </div>
+      </div>
+    ) : activeTab === "time-clock" ? (
+          <TimeClockTab
+            currentProjectId={projectId}
+            assignedProjects={assignedProjects}
+            activeSession={activeSession}
+            recentEntries={recentEntries}
+          />
+        ) : (
+          <TimeReviewTab
+            projectId={projectId}
+            entries={reviewEntries}
+          />
+        )}
       </div>
     </>
   );

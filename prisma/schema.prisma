@@ -24,6 +24,8 @@ model User {
   authoredLogs DailyLog[]
   authoredMessages Message[] @relation("AuthoredMessages")
   createdEstimates Estimate[] @relation("EstimateAuthor")
+  timeEntries TimeEntry[]
+  approvedTimeEntries TimeEntry[] @relation("TimeEntryApprover")
   createdAt   DateTime @default(now())
 }
 
@@ -74,6 +76,7 @@ model Project {
   threads      Thread[]
   selections   Selection[]
   assignments  ProjectAssignment[]
+  timeEntries  TimeEntry[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -205,4 +208,23 @@ model EstimateLine {
   unitCents   Int      @default(0)
   totalCents  Int      @default(0)
   category    String?
+}
+
+model TimeEntry {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  projectId    String
+  project      Project   @relation(fields: [projectId], references: [id])
+  costCode     String
+  clockIn      DateTime  @default(now())
+  clockOut     DateTime?
+  hours        Float?
+  approved     Boolean   @default(false)
+  approvedById String?
+  approvedBy   User?     @relation("TimeEntryApprover", fields: [approvedById], references: [id])
+  approvedAt   DateTime?
+  qbReady      Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
