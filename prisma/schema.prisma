@@ -137,6 +137,7 @@ model DailyLog {
   crewOnSite String?
   notes      String
   clientVisible Boolean @default(false)
+  photos     String?
   createdAt  DateTime @default(now())
 }
 

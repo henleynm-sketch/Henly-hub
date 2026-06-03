@@ -7,6 +7,7 @@ type Log = {
   id: string;
   notes: string;
   date: Date;
+  photos?: string | null;
   project: { id: string; name: string };
   author: { name: string };
 };
@@ -92,15 +93,41 @@ export default function OfficeDashboard({
             </div>
             <ul className="divide-y divide-slate-100">
               {recentLogs.length === 0 && <li className="p-5 text-sm text-slate-500">No logs yet.</li>}
-              {recentLogs.map((l) => (
-                <li key={l.id} className="px-5 py-3">
-                  <div className="text-sm font-medium">{l.project.name}</div>
-                  <div className="text-xs text-slate-500">
-                    {l.author.name} · {formatRelative(l.date)}
-                  </div>
-                  <div className="mt-1 line-clamp-2 text-sm text-slate-600">{l.notes}</div>
-                </li>
-              ))}
+              {recentLogs.map((l) => {
+                let photoUrls: string[] = [];
+                if (l.photos) {
+                  try {
+                    photoUrls = JSON.parse(l.photos);
+                  } catch (e) {
+                    // Ignore parsing error
+                  }
+                }
+                return (
+                  <li key={l.id} className="px-5 py-3">
+                    <div className="text-sm font-medium">{l.project.name}</div>
+                    <div className="text-xs text-slate-500">
+                      {l.author.name} · {formatRelative(l.date)}
+                    </div>
+                    <div className="mt-1 line-clamp-2 text-sm text-slate-600">{l.notes}</div>
+                    {photoUrls.length > 0 && (
+                      <div className="mt-1.5 flex gap-1">
+                        {photoUrls.slice(0, 5).map((url, idx) => (
+                          <div
+                            key={idx}
+                            className="aspect-square w-8 h-8 overflow-hidden rounded border border-slate-100 bg-slate-50"
+                          >
+                            <img
+                              src={url}
+                              alt="Log preview"
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </section>
         </div>

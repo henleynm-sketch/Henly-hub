@@ -2,7 +2,7 @@ import PageHeader from "@/components/PageHeader";
 import { formatDate, formatRelative } from "@/lib/utils";
 
 type Milestone = { id: string; title: string; status: string; dueDate: Date | null };
-type Log = { id: string; date: Date; notes: string; author: { name: string } };
+type Log = { id: string; date: Date; notes: string; photos?: string | null; author: { name: string } };
 type Project = {
   id: string;
   name: string;
@@ -90,14 +90,44 @@ export default function ClientDashboard({
             {project.dailyLogs.length === 0 && (
               <li className="px-5 py-4 text-sm text-slate-500">No updates yet.</li>
             )}
-            {project.dailyLogs.map((l) => (
-              <li key={l.id} className="px-5 py-3">
-                <div className="text-xs text-slate-500">
-                  {l.author.name} · {formatRelative(l.date)}
-                </div>
-                <div className="mt-1 text-sm text-slate-700">{l.notes}</div>
-              </li>
-            ))}
+            {project.dailyLogs.map((l) => {
+              let photoUrls: string[] = [];
+              if (l.photos) {
+                try {
+                  photoUrls = JSON.parse(l.photos);
+                } catch (e) {
+                  // Ignore parsing error
+                }
+              }
+              return (
+                <li key={l.id} className="px-5 py-3">
+                  <div className="text-xs text-slate-500">
+                    {l.author.name} · {formatRelative(l.date)}
+                  </div>
+                  <div className="mt-1 text-sm text-slate-700">{l.notes}</div>
+                  {photoUrls.length > 0 && (
+                    <div className="mt-2.5 flex flex-wrap gap-2">
+                      {photoUrls.map((url, idx) => (
+                        <a
+                          key={idx}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group relative block aspect-square w-16 h-16 md:w-20 md:h-20 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 shadow-sm"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={url}
+                            alt={`Attachment ${idx + 1}`}
+                            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </section>
       </div>

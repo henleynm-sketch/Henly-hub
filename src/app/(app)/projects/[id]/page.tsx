@@ -7,6 +7,9 @@ import { canSeeFinancials, canViewAllProjects } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
 import { formatDate, formatMoney, formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
+import DailyLogForm from "@/components/DailyLogForm";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
 
 export default async function ProjectDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id: projectId } = await params;
@@ -47,6 +50,32 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
     if (role === "CLIENT" || role === "SUB") return;
     const notes = String(formData.get("notes") || "").trim();
     if (!notes) return;
+
+    const photos = formData.getAll("photos") as File[];
+    const savedUrls: string[] = [];
+
+    if (photos && photos.length > 0) {
+      const uploadDir = path.join(process.cwd(), "public", "uploads", "daily-logs");
+      await mkdir(uploadDir, { recursive: true });
+
+      for (const file of photos) {
+        if (!file || file.size === 0) continue;
+
+        if (!file.type.startsWith("image/")) {
+          throw new Error("Only image files are allowed.");
+        }
+
+        const uniqueId = crypto.randomUUID();
+        const ext = path.extname(file.name) || ".jpg";
+        const filename = `${uniqueId}${ext}`;
+        const filePath = path.join(uploadDir, filename);
+
+        const buffer = Buffer.from(await file.arrayBuffer());
+        await writeFile(filePath, new Uint8Array(buffer));
+        savedUrls.push(`/uploads/daily-logs/${filename}`);
+      }
+    }
+
     await prisma.dailyLog.create({
       data: {
         projectId,
@@ -56,6 +85,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
         crewOnSite: String(formData.get("crew") || "") || null,
         hoursWorked: Number(formData.get("hours") || 0) || null,
         clientVisible: formData.get("clientVisible") === "on",
+        photos: savedUrls.length > 0 ? JSON.stringify(savedUrls) : null,
       },
     });
     revalidatePath(`/projects/${projectId}`);
@@ -165,20 +195,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
               <span className="text-xs text-slate-500">{project.dailyLogs.length} recent</span>
             </div>
             {(role === "CEO" || role === "OFFICE" || role === "FIELD") && (
-              <form action={addLog} className="space-y-2 border-b border-slate-100 px-5 py-4">
-                <textarea name="notes" rows={2} className="input" placeholder="What happened on site today?" required />
-                <div className="grid grid-cols-3 gap-2">
-                  <input name="weather" className="input" placeholder="Weather" />
-                  <input name="crew" className="input" placeholder="Crew on site" />
-                  <input name="hours" type="number" step="0.5" className="input" placeholder="Crew hours" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 text-xs text-slate-600">
-                    <input type="checkbox" name="clientVisible" /> Share with client
-                  </label>
-                  <button className="btn-primary text-xs">Post log</button>
-                </div>
-              </form>
+              <DailyLogForm addLogAction={addLog} />
             )}
             <ul className="divide-y divide-slate-100">
               {project.dailyLogs.length === 0 && (
@@ -186,6 +203,16 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
               )}
               {project.dailyLogs.map((l) => {
                 if (role === "CLIENT" && !l.clientVisible) return null;
+                
+                let photoUrls: string[] = [];
+                if (l.photos) {
+                  try {
+                    photoUrls = JSON.parse(l.photos);
+                  } catch (e) {
+                    // Ignore parsing error
+                  }
+                }
+
                 return (
                   <li key={l.id} className="px-5 py-3">
                     <div className="flex items-center justify-between text-xs text-slate-500">
@@ -193,7 +220,29 @@ export default async function ProjectDetail({ params }: { params: Promise<{ id: 
                       {l.clientVisible && <span className="badge-green">visible to client</span>}
                     </div>
                     <div className="mt-1 text-sm text-slate-700">{l.notes}</div>
-                    <div className="mt-1 text-xs text-slate-500 space-x-3">
+                    
+                    {photoUrls.length > 0 && (
+                      <div className="mt-2.5 flex flex-wrap gap-2">
+                        {photoUrls.map((url, idx) => (
+                          <a
+                            key={idx}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group relative block aspect-square w-20 h-20 md:w-24 md:h-24 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 shadow-sm"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={url}
+                              alt={`Attachment ${idx + 1}`}
+                              className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                            />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="mt-2 text-xs text-slate-500 space-x-3">
                       {l.weather && <span>☀ {l.weather}</span>}
                       {l.crewOnSite && <span>👷 {l.crewOnSite}</span>}
                       {l.hoursWorked != null && <span>⏱ {l.hoursWorked}h</span>}
