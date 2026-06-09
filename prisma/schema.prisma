@@ -20,6 +20,7 @@ model User {
   avatarUrl   String?
   clientId    String?  // if role=CLIENT, link to the Client record they own
   client      Client?  @relation("ClientUsers", fields: [clientId], references: [id])
+  qbEmployeeId String?
   assignedProjects ProjectAssignment[]
   authoredLogs DailyLog[]
   authoredMessages Message[] @relation("AuthoredMessages")
@@ -225,6 +226,8 @@ model TimeEntry {
   approvedBy   User?     @relation("TimeEntryApprover", fields: [approvedById], references: [id])
   approvedAt   DateTime?
   qbReady      Boolean   @default(false)
+  qbTimeActivityId String?
+  qbSyncedAt   DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }

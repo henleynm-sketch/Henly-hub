@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import type { Role } from "@/lib/roles";
 import { isInternal } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
+import { pushTimeActivityToQBO } from "@/app/(app)/integrations/quickbooks/pushTimeActivity";
 
 export async function clockInAction(projectId: string, costCode: string) {
   const me = await auth();
@@ -109,6 +110,11 @@ export async function approveTimeEntryAction(timeEntryId: string, projectId: str
       qbReady: true,
     },
   });
+
+  const sync = await pushTimeActivityToQBO(timeEntryId);
+  if (!sync.ok) {
+    console.error("QBO push failed:", sync.error);
+  }
 
   revalidatePath(`/projects/${projectId}`);
 }

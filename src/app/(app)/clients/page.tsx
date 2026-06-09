@@ -113,7 +113,7 @@ export default async function ClientsPage({
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
             <Link
               href={buildHref({ stage: undefined, page: "1" })}
-              className={`badge ${!stage ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+              className={`badge ${!stage ? "bg-accent text-white" : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink-soft hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"}`}
             >
               All <span className="ml-1 opacity-70">{totalCount.toLocaleString()}</span>
             </Link>
@@ -125,7 +125,7 @@ export default async function ClientsPage({
                 <Link
                   key={s}
                   href={buildHref({ stage: active ? undefined : s, page: "1" })}
-                  className={`badge ${active ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                  className={`badge ${active ? "bg-accent text-white" : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink-soft hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"}`}
                 >
                   {stageLabel(s)} <span className="ml-1 opacity-70">{count}</span>
                 </Link>
@@ -135,10 +135,10 @@ export default async function ClientsPage({
 
           {sources.length > 1 && (
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <span className="text-xs uppercase tracking-wide text-slate-500 mr-1">Source:</span>
+              <span className="text-xs uppercase tracking-wide text-ink-soft mr-1">Source:</span>
               <Link
                 href={buildHref({ source: undefined, page: "1" })}
-                className={`badge ${!source ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                className={`badge ${!source ? "bg-accent text-white" : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink-soft hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"}`}
               >
                 All
               </Link>
@@ -149,7 +149,7 @@ export default async function ClientsPage({
                   <Link
                     key={sourceLabel}
                     href={buildHref({ source: active ? undefined : sourceLabel, page: "1" })}
-                    className={`badge ${active ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                    className={`badge ${active ? "bg-accent text-white" : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink-soft hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"}`}
                   >
                     {sourceLabel} <span className="ml-1 opacity-70">{s._count}</span>
                   </Link>
@@ -159,9 +159,9 @@ export default async function ClientsPage({
           )}
         </section>
 
-        <section className="card overflow-x-auto">
+        <section className="glass-card overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-black/5 dark:bg-white/5 text-xs uppercase tracking-wide text-ink-soft">
               <tr>
                 <th className="px-5 py-3 text-left font-medium">Client</th>
                 <th className="px-5 py-3 text-left font-medium">Stage</th>
@@ -171,34 +171,34 @@ export default async function ClientsPage({
                 <th className="px-5 py-3 text-left font-medium">Updated</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-glass-border">
               {clients.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-5 py-8 text-center text-sm text-slate-500">
+                  <td colSpan={6} className="px-5 py-8 text-center text-sm text-ink-soft">
                     No clients match those filters.
                   </td>
                 </tr>
               )}
               {clients.map((c) => (
-                <tr key={c.id} className="hover:bg-slate-50">
+                <tr key={c.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                   <td className="px-5 py-3">
-                    <Link href={`/clients/${c.id}`} className="font-medium text-slate-900 hover:text-brand-700">
+                    <Link href={`/clients/${c.id}`} className="font-medium text-ink hover:text-accent">
                       {c.name}
                     </Link>
-                    <div className="text-xs text-slate-500">{c.primaryEmail ?? c.primaryPhone ?? "—"}</div>
+                    <div className="text-xs text-ink-soft">{c.primaryEmail ?? c.primaryPhone ?? "—"}</div>
                   </td>
                   <td className="px-5 py-3"><span className={stageBadge(c.stage)}>{stageLabel(c.stage)}</span></td>
-                  <td className="px-5 py-3 text-slate-600">{c.source ?? "—"}</td>
-                  <td className="px-5 py-3 text-slate-600">{c._count.projects}</td>
-                  <td className="px-5 py-3 text-slate-600">{c._count.threads}</td>
-                  <td className="px-5 py-3 text-slate-500">{formatRelative(c.updatedAt)}</td>
+                  <td className="px-5 py-3 text-ink-soft">{c.source ?? "—"}</td>
+                  <td className="px-5 py-3 text-ink-soft">{c._count.projects}</td>
+                  <td className="px-5 py-3 text-ink-soft">{c._count.threads}</td>
+                  <td className="px-5 py-3 text-ink-soft">{formatRelative(c.updatedAt)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3 text-sm">
-              <span className="text-slate-500">
+            <div className="flex items-center justify-between border-t border-glass-border px-5 py-3 text-sm">
+              <span className="text-ink-soft">
                 Page {page} of {totalPages} · showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} of {totalCount.toLocaleString()}
               </span>
               <div className="flex gap-2">
@@ -214,33 +214,33 @@ export default async function ClientsPage({
         </section>
 
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-slate-700">
-            Pipeline {hasFilters && <span className="text-xs font-normal text-slate-500">(reflects current filters)</span>}
+          <h2 className="mb-3 text-sm font-semibold text-ink">
+            Pipeline {hasFilters && <span className="text-xs font-normal text-ink-soft">(reflects current filters)</span>}
           </h2>
           <div className="overflow-x-auto pb-2">
             <div className="flex gap-3 min-w-max">
               {byStage.map((col) => (
-                <div key={col.stage} className="w-56 flex-shrink-0 rounded-xl bg-slate-100/60 p-3">
+                <div key={col.stage} className="w-56 flex-shrink-0 rounded-xl bg-black/5 dark:bg-white/5 border border-glass-border p-3">
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
                       {stageLabel(col.stage)}
                     </span>
-                    <span className="text-xs text-slate-500">{col.items.length}</span>
+                    <span className="text-xs text-ink-muted">{col.items.length}</span>
                   </div>
                   <ul className="space-y-2">
                     {col.items.slice(0, 8).map((c) => (
                       <li key={c.id}>
                         <Link
                           href={`/clients/${c.id}`}
-                          className="block rounded-lg bg-white p-3 shadow-sm hover:ring-1 hover:ring-brand-500/30"
+                          className="block p-3 glass-card hover:ring-1 hover:ring-accent/30"
                         >
-                          <div className="text-sm font-medium">{c.name}</div>
-                          <div className="text-xs text-slate-500">{c.city ?? c.source ?? ""}</div>
+                          <div className="text-sm font-medium text-ink">{c.name}</div>
+                          <div className="text-xs text-ink-soft">{c.city ?? c.source ?? ""}</div>
                         </Link>
                       </li>
                     ))}
                     {col.items.length > 8 && (
-                      <li className="text-xs text-slate-500 px-1">+ {col.items.length - 8} more</li>
+                      <li className="text-xs text-ink-muted px-1">+ {col.items.length - 8} more</li>
                     )}
                   </ul>
                 </div>

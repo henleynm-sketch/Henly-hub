@@ -64,27 +64,27 @@ export default function OfficeDashboard({
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Inbox Activity */}
           <section className="glass-card lg:col-span-2">
-            <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
-              <h2 className="text-sm font-semibold text-white">Recent inbox activity</h2>
+            <div className="flex items-center justify-between border-b border-glass-border px-5 py-4">
+              <h2 className="text-sm font-semibold text-ink">Recent inbox activity</h2>
               <Link href="/inbox" className="text-xs text-accent hover:text-accent-hover hover:underline transition-colors">Open inbox</Link>
             </div>
-            <ul className="divide-y divide-white/5">
-              {threads.length === 0 && <li className="p-5 text-sm text-slate-550">Nothing yet.</li>}
+            <ul className="divide-y divide-glass-border">
+              {threads.length === 0 && <li className="p-5 text-sm text-ink-soft">Nothing yet.</li>}
               {threads.map((t) => (
-                <li key={t.id} className="flex items-start gap-3 px-5 py-3.5 hover:bg-white/[0.02] transition-colors">
+                <li key={t.id} className="flex items-start gap-3 px-5 py-3.5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                   <ChannelDot channel={t.channel} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="truncate text-sm font-semibold text-white">{t.client?.name ?? "Unknown"}</span>
-                      <span className="text-xs text-slate-500 font-medium">· {t.channel.toLowerCase()}</span>
+                      <span className="truncate text-sm font-semibold text-ink">{t.client?.name ?? "Unknown"}</span>
+                      <span className="text-xs text-ink-soft/60 font-medium">· {t.channel.toLowerCase()}</span>
                       {t.unread > 0 && <span className="badge-blue ml-1.5">{t.unread} new</span>}
                     </div>
-                    <div className="truncate text-sm text-slate-300 mt-0.5">{t.subject}</div>
+                    <div className="truncate text-sm text-ink mt-0.5 font-semibold">{t.subject}</div>
                     {t.messages[0] && (
-                      <div className="mt-1 truncate text-xs text-slate-450 leading-relaxed">{t.messages[0].body}</div>
+                      <div className="mt-1 truncate text-xs text-ink-soft leading-relaxed">{t.messages[0].body}</div>
                     )}
                   </div>
-                  <div className="text-xs text-slate-500 font-medium whitespace-nowrap">{formatRelative(t.lastAt)}</div>
+                  <div className="text-xs text-ink-soft/60 font-medium whitespace-nowrap">{formatRelative(t.lastAt)}</div>
                 </li>
               ))}
             </ul>

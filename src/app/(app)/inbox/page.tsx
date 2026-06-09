@@ -5,13 +5,14 @@ import { redirect } from "next/navigation";
 import { formatRelative } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
+import { Send, MessageSquare } from "lucide-react";
 
-const CHANNELS: { value: string; label: string; tone: string }[] = [
-  { value: "ALL", label: "All channels", tone: "bg-slate-400" },
-  { value: "EMAIL", label: "Email", tone: "bg-blue-500" },
-  { value: "SMS", label: "SMS", tone: "bg-emerald-500" },
-  { value: "IN_APP", label: "Hub message", tone: "bg-violet-500" },
-  { value: "CALL_NOTE", label: "Call notes", tone: "bg-amber-500" },
+const CHANNELS: { value: string; label: string; color: string }[] = [
+  { value: "ALL", label: "All channels", color: "#a29ef8" },
+  { value: "EMAIL", label: "Email", color: "#0a84ff" },
+  { value: "SMS", label: "SMS", color: "#30d158" },
+  { value: "IN_APP", label: "Hub message", color: "#5e5ce6" },
+  { value: "CALL_NOTE", label: "Call notes", color: "#ff9f0a" },
 ];
 
 export default async function InboxPage({
@@ -87,121 +88,230 @@ export default async function InboxPage({
     revalidatePath("/inbox");
   }
 
+  const getChannelTagClass = (channel: string) => {
+    switch (channel.toUpperCase()) {
+      case "IN_APP":
+        return "bg-[#5e5ce6]/15 text-[#a29ef8]";
+      case "SMS":
+        return "bg-[#30d158]/15 text-[#30d158]";
+      case "EMAIL":
+        return "bg-[#0a84ff]/15 text-[#0a84ff]";
+      case "CALL_NOTE":
+        return "bg-[#ff9f0a]/15 text-[#ff9f0a]";
+      default:
+        return "bg-black/5 dark:bg-white/5 text-ink-soft";
+    }
+  };
+
+  const getChannelBadge = (channel: string) => {
+    return channel.replace("_", " ").toUpperCase();
+  };
+
+  const getInitials = (name: string | null) => {
+    if (!name) return "?";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
   return (
     <>
       <PageHeader
-        title="Unified inbox"
+        title="Unified Inbox"
         subtitle="Email, SMS, in-app messages, and call notes — one thread per client."
       />
-      <div className="grid grid-cols-12 gap-0 border-t border-slate-200">
-        <aside className="col-span-12 border-r border-slate-200 bg-white md:col-span-4 lg:col-span-3">
-          <div className="flex flex-wrap gap-1 border-b border-slate-200 p-3">
-            {CHANNELS.map((c) => {
-              const active = (sp.channel ?? "ALL") === c.value;
-              return (
-                <a
-                  key={c.value}
-                  href={`/inbox?channel=${c.value}${activeId ? `&threadId=${activeId}` : ""}`}
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs ${
-                    active ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-100"
-                  }`}
-                >
-                  <span className={`h-1.5 w-1.5 rounded-full ${c.tone}`} />
-                  {c.label}
-                </a>
-              );
-            })}
-          </div>
-          <ul className="max-h-[calc(100vh-12rem)] overflow-y-auto divide-y divide-slate-100">
-            {threads.length === 0 && (
-              <li className="p-5 text-sm text-slate-500">No threads in this view.</li>
-            )}
-            {threads.map((t) => {
-              const active = t.id === activeId;
-              return (
-                <li key={t.id}>
-                  <a
-                    href={`/inbox?threadId=${t.id}${sp.channel ? `&channel=${sp.channel}` : ""}`}
-                    className={`block px-4 py-3 ${active ? "bg-brand-50/60" : "hover:bg-slate-50"}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="truncate text-sm font-medium">
-                        {t.client?.name ?? "Internal"}
-                      </span>
-                      <span className="text-xs text-slate-400">{formatRelative(t.lastAt)}</span>
-                    </div>
-                    <div className="truncate text-sm text-slate-600">{t.subject}</div>
-                    {t.messages[0] && (
-                      <div className="truncate text-xs text-slate-500">{t.messages[0].body}</div>
-                    )}
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="badge-slate text-[10px]">{t.channel.replace("_", " ")}</span>
-                      {t.project && (
-                        <span className="text-[10px] text-slate-500">· {t.project.name}</span>
-                      )}
-                      {t.unread > 0 && <span className="badge-blue text-[10px]">{t.unread} new</span>}
-                    </div>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </aside>
 
-        <section className="col-span-12 flex flex-col bg-slate-50 md:col-span-8 lg:col-span-9">
-          {!activeThread ? (
-            <div className="flex flex-1 items-center justify-center text-sm text-slate-500">
-              Select a thread.
-            </div>
-          ) : (
-            <>
-              <div className="border-b border-slate-200 bg-white px-6 py-4">
-                <div className="text-sm text-slate-500">{activeThread.channel.replace("_", " ")}</div>
-                <h2 className="text-base font-semibold">{activeThread.subject}</h2>
-                <div className="text-xs text-slate-500">
-                  {activeThread.client?.name}
-                  {activeThread.project && ` · ${activeThread.project.name}`}
-                </div>
-              </div>
-              <div className="flex-1 space-y-3 overflow-y-auto p-6">
-                {activeThread.messages.map((m) => (
-                  <div
-                    key={m.id}
-                    className={`max-w-2xl rounded-2xl px-4 py-2 text-sm ${
-                      m.direction === "OUT"
-                        ? "ml-auto bg-brand-600 text-white"
-                        : "bg-white border border-slate-200 text-slate-800"
+      <div className="mx-auto max-w-7xl p-6">
+        <div
+          style={{ backgroundColor: "var(--color-surface, rgba(30, 31, 35, 0.45))" }}
+          className="glass-card grid grid-cols-12 overflow-hidden border border-glass-border"
+        >
+          {/* Thread List Column */}
+          <aside className="col-span-12 md:col-span-5 lg:col-span-4 border-r border-glass-border flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] overflow-hidden">
+            {/* Channel Filters */}
+            <div className="flex flex-wrap gap-1.5 border-b border-glass-border p-3.5 bg-black/5 dark:bg-white/5 shrink-0">
+              {CHANNELS.map((c) => {
+                const active = (sp.channel ?? "ALL") === c.value;
+                return (
+                  <a
+                    key={c.value}
+                    href={`/inbox?channel=${c.value}${activeId ? `&threadId=${activeId}` : ""}`}
+                    className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider transition-all border border-transparent ${
+                      active
+                        ? "bg-[#0a84ff]/15 border-[#0a84ff]/30 text-[#0a84ff]"
+                        : "bg-black/5 dark:bg-white/5 text-ink-soft border-glass-border hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"
                     }`}
                   >
-                    <div className={`mb-1 text-[10px] uppercase tracking-wide ${
-                      m.direction === "OUT" ? "text-brand-100" : "text-slate-500"
-                    }`}>
-                      {m.direction === "OUT" ? `${m.author?.name ?? "Henley"} via ${m.channel}` : `${m.fromName} via ${m.channel}`}
-                      {" · "}
-                      {formatRelative(m.sentAt)}
-                    </div>
-                    <div className="whitespace-pre-wrap">{m.body}</div>
+                    <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
+                    {c.label}
+                  </a>
+                );
+              })}
+            </div>
+
+            {/* Threads List */}
+            <div className="flex-1 overflow-y-auto divide-y divide-glass-border">
+              {threads.length === 0 && (
+                <div className="p-6 text-center text-sm text-ink-soft">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <MessageSquare className="h-8 w-8 text-ink-muted" />
+                    <p className="font-semibold text-ink">No threads found</p>
+                    <p className="text-xs text-ink-muted">There are no messages matching this channel filter.</p>
                   </div>
-                ))}
+                </div>
+              )}
+              {threads.map((t) => {
+                const active = t.id === activeId;
+                return (
+                  <a
+                    key={t.id}
+                    href={`/inbox?threadId=${t.id}${sp.channel ? `&channel=${sp.channel}` : ""}`}
+                    className={`block px-4 py-3.5 border-b border-glass-border transition-colors relative ${
+                      active ? "bg-[#0a84ff]/12" : "hover:bg-black/5 dark:hover:bg-white/5"
+                    }`}
+                  >
+                    {/* Active Left Hairline Indicator */}
+                    {active && (
+                      <span className="absolute left-0 top-2 bottom-2 w-[3px] bg-[#0a84ff] rounded-r-md" />
+                    )}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-xs font-semibold text-ink">
+                        {t.client?.name ?? "Internal Info"}
+                      </span>
+                      <span className="text-[10px] text-ink-soft/60 shrink-0 font-medium">{formatRelative(t.lastAt)}</span>
+                    </div>
+                    <div className="truncate text-sm font-semibold text-ink mt-1">{t.subject}</div>
+                    {t.messages[0] && (
+                      <div className="truncate text-xs text-ink-soft mt-0.5 font-normal leading-normal">{t.messages[0].body}</div>
+                    )}
+                    <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+                      <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${getChannelTagClass(t.channel)}`}>
+                        {t.channel.replace("_", " ")}
+                      </span>
+                      {t.project && (
+                        <span className="text-[10px] text-ink-soft/50 truncate max-w-[120px]">
+                          · {t.project.name}
+                        </span>
+                      )}
+                      {t.unread > 0 && (
+                        <span className="ml-auto bg-[#0a84ff] text-white text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full shrink-0">
+                          {t.unread} new
+                        </span>
+                      )}
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </aside>
+
+          {/* Conversation Pane Column */}
+          <section className="col-span-12 md:col-span-7 lg:col-span-8 flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] overflow-hidden bg-black/10 dark:bg-white/5">
+            {!activeThread ? (
+              <div className="flex flex-1 flex-col items-center justify-center text-ink-soft gap-2">
+                <MessageSquare className="h-10 w-10 text-ink-muted animate-pulse" />
+                <p className="font-semibold text-ink">Select a thread</p>
+                <p className="text-xs text-ink-muted">Choose a conversation from the sidebar to start reading.</p>
               </div>
-              <form action={send} className="border-t border-slate-200 bg-white p-4">
-                <input type="hidden" name="threadId" value={activeThread.id} />
-                <textarea
-                  name="body"
-                  rows={2}
-                  className="input"
-                  placeholder={`Reply via ${activeThread.channel.replace("_", " ").toLowerCase()}...`}
-                />
-                <div className="mt-2 flex items-center justify-between">
-                  <div className="text-xs text-slate-500">
+            ) : (
+              <>
+                {/* Convo Header */}
+                <div className="border-b border-glass-border bg-black/5 dark:bg-white/5 px-6 py-4 flex items-center gap-3 shrink-0">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent font-semibold text-sm">
+                    {getInitials(activeThread.client?.name ?? "I")}
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-ink leading-tight">{activeThread.subject}</h2>
+                    <div className="text-xs text-ink-soft mt-0.5 font-medium leading-normal">
+                      {activeThread.client?.name ?? "Internal Info"}
+                      {activeThread.project && ` · ${activeThread.project.name}`}
+                    </div>
+                  </div>
+                  <span className="ml-auto text-[10px] font-bold tracking-wider uppercase bg-black/10 dark:bg-white/10 text-ink-soft px-2.5 py-1 rounded border border-glass-border shrink-0">
+                    {getChannelBadge(activeThread.channel)}
+                  </span>
+                </div>
+
+                {/* Messages Stream */}
+                <div id="messages-area" className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
+                  <div className="text-center my-2 shrink-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-ink-soft/40 px-2 py-1 bg-black/5 dark:bg-white/5 rounded-md border border-glass-border/40">
+                      {activeThread.channel.replace("_", " ")} Thread
+                    </span>
+                  </div>
+
+                  {activeThread.messages.map((m) => {
+                    const isSent = m.direction === "OUT";
+                    return (
+                      <div
+                        key={m.id}
+                        className={`flex flex-col max-w-[75%] ${isSent ? "ml-auto items-end" : "mr-auto items-start"}`}
+                      >
+                        {/* Message Sender & Time */}
+                        <div className="mb-1 text-[10px] text-ink-soft/50 uppercase tracking-wider font-semibold px-1 flex items-center gap-1.5">
+                          <span>
+                            {isSent ? `${m.author?.name ?? "Henley"} via ${m.channel.replace("_", " ")}` : `${m.fromName} via ${m.channel.replace("_", " ")}`}
+                          </span>
+                          <span>·</span>
+                          <span>{formatRelative(m.sentAt)}</span>
+                        </div>
+
+                        {/* Message Bubble with macOS custom corners */}
+                        <div
+                          className={`px-4 py-2.5 text-[13.5px] leading-relaxed shadow-sm transition-transform ${
+                            isSent
+                              ? "bg-[#2c6cf6] text-white rounded-2xl rounded-br-sm"
+                              : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink rounded-2xl rounded-bl-sm"
+                          }`}
+                        >
+                          <div className="whitespace-pre-wrap">{m.body}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Reply Bar */}
+                <form action={send} className="border-t border-glass-border bg-black/5 dark:bg-white/5 p-4 shrink-0">
+                  <input type="hidden" name="threadId" value={activeThread.id} />
+                  <div className="flex items-center gap-3 bg-black/10 dark:bg-white/5 border border-glass-border focus-within:border-[rgba(10,132,255,0.4)] rounded-xl p-2 transition">
+                    <textarea
+                      name="body"
+                      rows={1}
+                      className="flex-1 bg-transparent border-none outline-none text-[13.5px] text-ink placeholder:text-ink-soft/50 resize-none py-1.5 px-1 font-normal leading-normal"
+                      placeholder={`Reply via ${activeThread.channel.replace("_", " ").toLowerCase()}...`}
+                    />
+                    <button
+                      type="submit"
+                      className="w-8 h-8 rounded-full bg-[#0a84ff] hover:bg-[#0070e3] transition flex items-center justify-center text-white shrink-0 shadow-sm"
+                      title="Send Message"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="text-[10px] text-ink-soft/40 text-center mt-2.5 font-medium">
                     Replies go out on the same channel as the thread. Email/SMS gateways are stubbed.
                   </div>
-                  <button className="btn-primary" type="submit">Send</button>
-                </div>
-              </form>
-            </>
-          )}
-        </section>
+                </form>
+
+                {/* Auto-scroll to bottom script */}
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      (function() {
+                        const el = document.getElementById('messages-area');
+                        if (el) el.scrollTop = el.scrollHeight;
+                      })();
+                    `,
+                  }}
+                />
+              </>
+            )}
+          </section>
+        </div>
       </div>
     </>
   );

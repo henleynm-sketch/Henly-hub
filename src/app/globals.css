@@ -416,15 +416,17 @@ body {
   background: var(--color-surface) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border: 1px solid var(--color-border) !important;
+  border: 1px solid var(--glass-border) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
   border-radius: 12px !important;
 }
 
 .light .glass-card:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-3px) !important;
+  border-color: var(--glass-border-strong) !important;
+  box-shadow: var(--glass-lift-shadow), 0 0 0 1px var(--glass-glow), 0 0 22px var(--glass-glow-soft) !important;
 }
+
 
 .light .card {
   background-color: var(--color-surface) !important;
@@ -452,4 +454,163 @@ body {
   color: #FFFFFF !important;
   box-shadow: 0 6px 20px rgba(232, 98, 26, 0.4) !important;
 }
+
+/* ============================================================
+   HENLEY HUB — visibility & hover patch  (v2)
+   Append to the BOTTOM of src/app/globals.css.
+
+   v2 changes vs v1:
+   - Theme-selector agnostic: works whether your toggle uses
+     .dark/.light, html.dark, or [data-theme]; OS fallback too.
+   - Card class confirmed as .glass-card (no edit needed).
+   - Adds a scoped fix for the CRM table row-dimming (Image 5).
+   ============================================================ */
+
+/* ---- 1. Per-mode tokens ----------------------------------- */
+/* Dark is the base; OS-light fills in if no explicit class set; */
+/* an explicit toggle class/attribute ALWAYS wins.               */
+
+:root {
+  --fog:   #9AA0AA;
+  --mist:  #C7CBD1;
+  --white: #FFFFFF;
+  --glass-border:        rgba(255,255,255,.16);
+  --glass-border-strong: rgba(255,255,255,.26);
+  --glass-glow:          rgba(255,255,255,.60);
+  --glass-glow-soft:     rgba(255,255,255,.16);
+  --glass-lift-shadow:   0 12px 40px rgba(0,0,0,.42);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not(.dark):not([data-theme="dark"]):not([data-mode="dark"]) {
+    --fog:   #5A616B;
+    --mist:  #3A3F47;
+    --white: #0A0A0B;
+    --glass-border:        rgba(0,0,0,.14);
+    --glass-border-strong: rgba(0,0,0,.24);
+    --glass-glow:          rgba(92,124,250,.45);
+    --glass-glow-soft:     rgba(92,124,250,.18);
+    --glass-lift-shadow:   0 12px 32px rgba(0,0,0,.16);
+  }
+}
+
+.dark, html.dark, [data-theme="dark"], [data-mode="dark"] {
+  --fog:   #9AA0AA;
+  --mist:  #C7CBD1;
+  --white: #FFFFFF;
+  --glass-border:        rgba(255,255,255,.16);
+  --glass-border-strong: rgba(255,255,255,.26);
+  --glass-glow:          rgba(255,255,255,.60);
+  --glass-glow-soft:     rgba(255,255,255,.16);
+  --glass-lift-shadow:   0 12px 40px rgba(0,0,0,.42);
+}
+
+.light, html.light, [data-theme="light"], [data-mode="light"] {
+  --fog:   #5A616B;
+  --mist:  #3A3F47;
+  --white: #0A0A0B;
+  --glass-border:        rgba(0,0,0,.14);
+  --glass-border-strong: rgba(0,0,0,.24);
+  --glass-glow:          rgba(92,124,250,.45);
+  --glass-glow-soft:     rgba(92,124,250,.18);
+  --glass-lift-shadow:   0 12px 32px rgba(0,0,0,.16);
+}
+
+/* ---- 2. Universal hover: glow + 3D lift ------------------- */
+.glass-card,
+.glass-raised,
+[data-glass] {
+  border: 1px solid var(--glass-border);
+  transition:
+    transform 140ms cubic-bezier(.2,.8,.2,1),
+    box-shadow 140ms cubic-bezier(.2,.8,.2,1),
+    border-color 140ms cubic-bezier(.2,.8,.2,1);
+  will-change: transform;
+}
+
+.glass-card:hover,
+.glass-raised:hover,
+[data-glass]:hover {
+  transform: translateY(-3px);
+  border-color: var(--glass-border-strong);
+  box-shadow:
+    var(--glass-lift-shadow),
+    0 0 0 1px var(--glass-glow),
+    0 0 22px var(--glass-glow-soft);
+}
+
+.glass-card:focus-visible,
+.glass-raised:focus-visible,
+[data-glass]:focus-visible {
+  outline: none;
+  border-color: var(--glass-border-strong);
+  box-shadow: 0 0 0 2px var(--glass-glow), 0 0 18px var(--glass-glow-soft);
+}
+
+/* ---- 3. Honor reduced motion ------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card, .glass-raised, [data-glass] {
+    transition: box-shadow 140ms ease, border-color 140ms ease;
+  }
+  .glass-card:hover, .glass-raised:hover, [data-glass]:hover {
+    transform: none;   /* keep glow, drop lift */
+  }
+}
+
+/* ---- 4. Text contrast safety net -------------------------- */
+.text-fog  { color: var(--fog)  !important; }
+.text-mist { color: var(--mist) !important; }
+
+/* ---- 5. CRM table row-dimming fix (Image 5) --------------- */
+/* The non-first rows render dimmed (~uniform grey wash). This  */
+/* forces every row + its cells to full opacity and readable    */
+/* text. Scope to your CRM table wrapper if it bleeds into       */
+/* other tables — e.g. .crm-table tbody tr.                      */
+table tbody tr,
+table tbody tr td,
+table tbody tr th {
+  opacity: 1 !important;
+}
+table tbody tr td { color: var(--white); }
+table tbody tr td .muted,
+table tbody tr td small { color: var(--fog); }
+
+/* ---- 6. System-wide slate color overrides in dark mode ---- */
+html:not(.light) .text-slate-900,
+:root:not(.light) .text-slate-900 {
+  color: var(--text-primary) !important;
+}
+html:not(.light) .text-slate-800,
+:root:not(.light) .text-slate-800 {
+  color: var(--text-secondary) !important;
+}
+html:not(.light) .text-slate-700,
+:root:not(.light) .text-slate-700 {
+  color: var(--text-secondary) !important;
+}
+html:not(.light) .text-slate-650,
+:root:not(.light) .text-slate-650 {
+  color: var(--text-secondary) !important;
+}
+html:not(.light) .text-slate-600,
+:root:not(.light) .text-slate-600 {
+  color: var(--text-secondary) !important;
+}
+html:not(.light) .text-slate-500,
+:root:not(.light) .text-slate-500 {
+  color: var(--text-secondary) !important;
+}
+html:not(.light) .bg-slate-50,
+:root:not(.light) .bg-slate-50 {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+html:not(.light) .bg-slate-100,
+:root:not(.light) .bg-slate-100 {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+html:not(.light) .border-slate-100,
+:root:not(.light) .border-slate-100 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
 
