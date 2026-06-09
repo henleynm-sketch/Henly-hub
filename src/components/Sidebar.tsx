@@ -84,11 +84,15 @@ export default function Sidebar({
 
   return (
     <GlassSidebar>
-      <div className="flex h-14 items-center gap-2 border-b border-white/5 px-4">
+      {/* Brand logo header */}
+      <div className="flex h-14 items-center gap-2.5 border-b border-glass-border px-4">
         <div className="grid h-7 w-7 place-items-center rounded-md bg-accent text-white shadow-[0_2px_8px_rgba(92,124,250,0.3)]">
           <span className="text-xs font-extrabold tracking-tight">H</span>
         </div>
-        <div className="text-sm font-semibold tracking-tight text-white">Henley Hub</div>
+        <div>
+          <div className="text-sm font-bold tracking-tight text-ink leading-none">Henley Hub</div>
+          <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Contracting</div>
+        </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
@@ -101,16 +105,16 @@ export default function Sidebar({
                 <Link
                   href={it.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-150 border",
+                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-200 border transform active:scale-98",
                     active
-                      ? "bg-accent/20 border-accent/25 text-white font-semibold shadow-sm"
-                      : "text-slate-400 border-transparent hover:bg-white/5 hover:text-white"
+                      ? "bg-accent/10 border-accent/20 text-accent font-semibold shadow-[0_2px_10px_rgba(92,124,250,0.08)]"
+                      : "text-ink-soft border-transparent hover:bg-black/5 dark:hover:bg-white/5 hover:text-ink"
                   )}
                 >
-                  <Icon size={16} className={active ? "text-accent" : "text-slate-400"} />
+                  <Icon size={16} className={active ? "text-accent animate-pulse" : "text-ink-soft"} />
                   <span className="flex-1">{it.label}</span>
                   {it.badge && (
-                    <span className="rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[9px] font-bold uppercase text-slate-400">
+                    <span className="rounded-full bg-glass-bg border border-glass-border px-2 py-0.5 text-[9px] font-bold uppercase text-ink-soft">
                       {it.badge}
                     </span>
                   )}
@@ -130,13 +134,13 @@ export default function Sidebar({
                 <Link
                   href="/integrations/quickbooks"
                   className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-150 border",
+                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-200 border transform active:scale-98",
                     pathname.startsWith("/integrations/quickbooks")
-                      ? "bg-accent/20 border-accent/25 text-white font-semibold shadow-sm"
-                      : "text-slate-400 border-transparent hover:bg-white/5 hover:text-white"
+                      ? "bg-accent/10 border-accent/20 text-accent font-semibold shadow-[0_2px_10px_rgba(92,124,250,0.08)]"
+                      : "text-ink-soft border-transparent hover:bg-black/5 dark:hover:bg-white/5 hover:text-ink"
                   )}
                 >
-                  <HardHat size={16} className={pathname.startsWith("/integrations/quickbooks") ? "text-accent" : "text-slate-400"} />
+                  <HardHat size={16} className={pathname.startsWith("/integrations/quickbooks") ? "text-accent animate-pulse" : "text-ink-soft"} />
                   QuickBooks
                   <span className="ml-auto badge-amber text-[9px] px-1.5 py-0">setup</span>
                 </Link>
@@ -146,9 +150,10 @@ export default function Sidebar({
         )}
       </nav>
 
-      <div className="border-t border-white/5 p-3">
-        <div className="flex items-center gap-3 rounded-lg bg-white/3 border border-white/5 p-2">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-accent text-xs font-bold text-white shadow-[0_2px_6px_rgba(92,124,250,0.25)]">
+      {/* User profile section at bottom */}
+      <div className="border-t border-glass-border p-3">
+        <div className="flex items-center gap-3 rounded-lg bg-glass-bg border border-glass-border p-2 shadow-sm">
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-accent text-xs font-bold text-white shadow-[0_2px_6px_rgba(92,124,250,0.25)] shrink-0">
             {userName
               .split(" ")
               .map((p) => p[0])
@@ -156,8 +161,8 @@ export default function Sidebar({
               .join("")}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold text-white">{userName}</div>
-            <div className="truncate text-xs text-slate-400">
+            <div className="truncate text-sm font-semibold text-ink">{userName}</div>
+            <div className="truncate text-xs text-ink-soft">
               {focusArea ? `${focusArea} · ${userEmail}` : userEmail}
             </div>
           </div>

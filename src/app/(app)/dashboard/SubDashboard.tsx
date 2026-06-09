@@ -27,10 +27,10 @@ export default function SubDashboard({
       />
       <div className="grid gap-6 p-6 md:grid-cols-2">
         {projects.length === 0 && (
-          <div className="card p-5 text-sm text-slate-450">No scopes assigned yet.</div>
+          <div className="glass-card p-5 text-sm text-slate-450">No scopes assigned yet.</div>
         )}
         {projects.map((p) => (
-          <Link key={p.id} href={`/projects/${p.id}`} className="card p-5 border border-white/5 hover:border-accent/40 hover:shadow-glass group transition-all">
+          <Link key={p.id} href={`/projects/${p.id}`} className="glass-card p-5 group">
             <div className="flex items-center justify-between">
               <div className="text-sm font-semibold text-white group-hover:text-accent transition-colors">{p.name}</div>
               <span className="badge-violet">Subcontract</span>

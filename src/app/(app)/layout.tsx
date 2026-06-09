@@ -5,6 +5,7 @@ import SignOutButton from "@/components/SignOutButton";
 import DemoRoleSwitcher from "@/components/DemoRoleSwitcher";
 import { ROLE_LABELS, type Role } from "@/lib/roles";
 import { GlassTopbar } from "@/components/ui/GlassTopbar";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -13,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const role = session.user.role as Role;
 
   return (
-    <div className="flex min-h-screen bg-canvas text-white">
+    <div className="flex min-h-screen bg-transparent text-ink">
       <Sidebar
         role={role}
         userName={session.user.name ?? "User"}
@@ -23,11 +24,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <GlassTopbar>
-          <div className="text-sm text-slate-400">
-            <span className="font-semibold text-white">{ROLE_LABELS[role]}</span>
-            {session.user.focusArea && <span className="ml-2 border-l border-white/10 pl-2">· {session.user.focusArea}</span>}
+          <div className="text-sm text-ink-soft">
+            <span className="font-semibold text-ink">{ROLE_LABELS[role]}</span>
+            {session.user.focusArea && (
+              <span className="ml-2 border-l border-glass-border pl-2">
+                · {session.user.focusArea}
+              </span>
+            )}
           </div>
-          <div className="text-xs text-slate-500 font-mono">Henley Hub · v0.1</div>
+          <div className="flex items-center gap-4">
+            <span className="text-xs text-slate-500 font-mono hidden sm:inline">Henley Hub · v0.1</span>
+            <ThemeToggle />
+          </div>
         </GlassTopbar>
         <main className="flex-1 overflow-y-auto bg-canvas/40">{children}</main>
       </div>

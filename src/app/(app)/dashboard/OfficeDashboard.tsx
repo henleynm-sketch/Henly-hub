@@ -63,7 +63,7 @@ export default function OfficeDashboard({
         {/* Dashboard Grid */}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Inbox Activity */}
-          <section className="card lg:col-span-2">
+          <section className="glass-card lg:col-span-2">
             <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
               <h2 className="text-sm font-semibold text-white">Recent inbox activity</h2>
               <Link href="/inbox" className="text-xs text-accent hover:text-accent-hover hover:underline transition-colors">Open inbox</Link>
@@ -91,7 +91,7 @@ export default function OfficeDashboard({
           </section>
 
           {/* Daily Logs */}
-          <section className="card">
+          <section className="glass-card">
             <div className="border-b border-white/5 px-5 py-4">
               <h2 className="text-sm font-semibold text-white">Latest daily logs</h2>
             </div>

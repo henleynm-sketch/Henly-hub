@@ -45,7 +45,7 @@ export default function ClientDashboard({
       />
       <div className="space-y-6 p-6">
         {/* Progress Card */}
-        <div className="card p-5">
+        <div className="glass-card p-5">
           <div className="flex items-end justify-between">
             <div>
               <div className="label text-slate-400">Progress</div>
@@ -65,7 +65,7 @@ export default function ClientDashboard({
         </div>
 
         {/* Milestones Card */}
-        <section className="card">
+        <section className="glass-card">
           <div className="border-b border-white/5 px-5 py-4">
             <h2 className="text-sm font-semibold text-white">Milestones</h2>
           </div>
@@ -85,7 +85,7 @@ export default function ClientDashboard({
         </section>
 
         {/* Recent Updates Card */}
-        <section className="card">
+        <section className="glass-card">
           <div className="border-b border-white/5 px-5 py-4">
             <h2 className="text-sm font-semibold text-white">Recent updates from the team</h2>
           </div>
