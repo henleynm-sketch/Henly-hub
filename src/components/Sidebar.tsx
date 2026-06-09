@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
+import { GlassSidebar } from "@/components/ui/GlassSidebar";
 
 type Item = { href: string; label: string; icon: React.ElementType; badge?: string };
 
@@ -82,12 +83,12 @@ export default function Sidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-col md:border-r md:border-slate-200 md:bg-white">
-      <div className="flex h-14 items-center gap-2 border-b border-slate-200 px-4">
-        <div className="grid h-7 w-7 place-items-center rounded-md bg-brand-600 text-white">
-          <span className="text-xs font-bold">H</span>
+    <GlassSidebar>
+      <div className="flex h-14 items-center gap-2 border-b border-white/5 px-4">
+        <div className="grid h-7 w-7 place-items-center rounded-md bg-accent text-white shadow-[0_2px_8px_rgba(92,124,250,0.3)]">
+          <span className="text-xs font-extrabold tracking-tight">H</span>
         </div>
-        <div className="text-sm font-semibold tracking-tight">Henley Hub</div>
+        <div className="text-sm font-semibold tracking-tight text-white">Henley Hub</div>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
@@ -100,16 +101,16 @@ export default function Sidebar({
                 <Link
                   href={it.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm",
+                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-150 border",
                     active
-                      ? "bg-brand-50 text-brand-700 font-medium"
-                      : "text-slate-600 hover:bg-slate-100"
+                      ? "bg-accent/20 border-accent/25 text-white font-semibold shadow-sm"
+                      : "text-slate-400 border-transparent hover:bg-white/5 hover:text-white"
                   )}
                 >
-                  <Icon size={16} />
+                  <Icon size={16} className={active ? "text-accent" : "text-slate-400"} />
                   <span className="flex-1">{it.label}</span>
                   {it.badge && (
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium uppercase text-slate-500">
+                    <span className="rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[9px] font-bold uppercase text-slate-400">
                       {it.badge}
                     </span>
                   )}
@@ -121,18 +122,23 @@ export default function Sidebar({
 
         {(role === "CEO" || role === "OFFICE") && (
           <div className="mt-6">
-            <div className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
               Integrations
             </div>
             <ul className="mt-2 space-y-1">
               <li>
                 <Link
                   href="/integrations/quickbooks"
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100"
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-150 border",
+                    pathname.startsWith("/integrations/quickbooks")
+                      ? "bg-accent/20 border-accent/25 text-white font-semibold shadow-sm"
+                      : "text-slate-400 border-transparent hover:bg-white/5 hover:text-white"
+                  )}
                 >
-                  <HardHat size={16} />
+                  <HardHat size={16} className={pathname.startsWith("/integrations/quickbooks") ? "text-accent" : "text-slate-400"} />
                   QuickBooks
-                  <span className="ml-auto badge-amber">setup</span>
+                  <span className="ml-auto badge-amber text-[9px] px-1.5 py-0">setup</span>
                 </Link>
               </li>
             </ul>
@@ -140,9 +146,9 @@ export default function Sidebar({
         )}
       </nav>
 
-      <div className="border-t border-slate-200 p-3">
-        <div className="flex items-center gap-3 rounded-lg bg-slate-50 p-2">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-brand-600 text-xs font-semibold text-white">
+      <div className="border-t border-white/5 p-3">
+        <div className="flex items-center gap-3 rounded-lg bg-white/3 border border-white/5 p-2">
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-accent text-xs font-bold text-white shadow-[0_2px_6px_rgba(92,124,250,0.25)]">
             {userName
               .split(" ")
               .map((p) => p[0])
@@ -150,14 +156,14 @@ export default function Sidebar({
               .join("")}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-medium">{userName}</div>
-            <div className="truncate text-xs text-slate-500">
+            <div className="truncate text-sm font-semibold text-white">{userName}</div>
+            <div className="truncate text-xs text-slate-400">
               {focusArea ? `${focusArea} · ${userEmail}` : userEmail}
             </div>
           </div>
         </div>
         <div className="mt-2">{signOutSlot}</div>
       </div>
-    </aside>
+    </GlassSidebar>
   );
 }

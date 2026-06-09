@@ -38,23 +38,23 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {open ? (
-        <div className="w-72 rounded-xl border border-slate-200 bg-white shadow-xl">
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2">
+        <div className="w-72 rounded-xl border border-white/10 bg-glass-bg/95 shadow-glass backdrop-blur-glass text-white">
+          <div className="flex items-center justify-between border-b border-white/5 px-4 py-2.5">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
                 Demo: switch role
               </div>
-              <div className="text-[10px] text-slate-400">Dev mode only</div>
+              <div className="text-[10px] text-slate-500 font-mono">Dev mode only</div>
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="text-slate-400 hover:text-slate-700"
+              className="text-slate-400 hover:text-white text-lg font-bold transition-colors"
               aria-label="Close"
             >
               ×
             </button>
           </div>
-          <ul className="p-2">
+          <ul className="p-2 space-y-0.5">
             {ROLES.map((r) => {
               const active = r.email === currentEmail;
               return (
@@ -62,34 +62,35 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
                   <button
                     disabled={pending || active}
                     onClick={() => switchTo(r.email)}
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm ${
-                      active ? "bg-slate-100 text-slate-500" : "hover:bg-slate-50"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-all ${
+                      active ? "bg-white/10 text-white font-semibold cursor-default" : "text-slate-300 hover:bg-white/5 hover:text-white"
                     }`}
                   >
-                    <span className={`h-2 w-2 rounded-full ${r.color}`} />
-                    <span className="flex-1">
-                      <div className="font-medium">{r.label}</div>
-                      <div className="text-xs text-slate-500">{r.email}</div>
+                    <span className={`h-2 w-2 rounded-full shrink-0 ${r.color}`} />
+                    <span className="flex-1 min-w-0">
+                      <div className="font-semibold truncate">{r.label}</div>
+                      <div className="text-xs text-slate-400 truncate">{r.email}</div>
                     </span>
-                    {active && <span className="text-[10px] uppercase text-slate-400">current</span>}
+                    {active && <span className="text-[9px] font-bold uppercase text-accent border border-accent/20 bg-accent/10 px-1.5 py-0.5 rounded">active</span>}
                   </button>
                 </li>
               );
             })}
           </ul>
           {error && (
-            <div className="border-t border-slate-100 px-4 py-2 text-xs text-rose-600">{error}</div>
+            <div className="border-t border-white/5 px-4 py-2 text-xs text-rose-400 font-semibold">{error}</div>
           )}
-          <div className="border-t border-slate-100 px-4 py-2 text-[10px] text-slate-400">
-            Password for all demo users: <code>demo</code>
+          <div className="border-t border-white/5 px-4 py-2 text-[10px] text-slate-500 leading-normal">
+            Password for all demo users: <code className="bg-white/5 px-1 py-0.5 rounded">demo</code>
           </div>
         </div>
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="rounded-full bg-slate-900 px-4 py-2 text-xs font-medium text-white shadow-lg hover:bg-slate-700"
+          className="rounded-full bg-slate-900 border border-white/10 px-4 py-2.5 text-xs font-bold text-white shadow-lg transition-all hover:bg-slate-800 active:scale-95 flex items-center gap-1.5"
         >
-          🔄 Switch role (demo)
+          <span>🔄</span>
+          <span>Switch role (demo)</span>
         </button>
       )}
     </div>

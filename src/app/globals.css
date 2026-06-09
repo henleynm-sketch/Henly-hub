@@ -3,39 +3,175 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+  
+  --bg-canvas: #0A0A0B;
+  --accent: #5C7CFA;
+  --accent-hover: #4C6EF5;
+  --accent-focus: rgba(92, 124, 250, 0.4);
+  
+  /* Glass Surfaces (frosted charcoal) */
+  --glass-bg: rgba(20, 20, 25, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.12);
+  --glass-blur: 16px;
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  
+  /* Core Panels */
+  --sidebar-bg: rgba(15, 15, 18, 0.75);
+  --topbar-bg: rgba(10, 10, 11, 0.65);
+  
+  /* Typography */
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  
+  /* Status Colors */
+  --color-destructive: #FA5252;
+  --color-destructive-hover: #F03E3E;
+  --color-success: #12B886;
+  --color-warning: #FAB005;
+  --color-info: #228BE6;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  /* Motion defaults */
+  --transition-speed-fast: 150ms;
+  --transition-speed-normal: 250ms;
+  --transition-speed-slow: 350ms;
+  --transition-timing: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reduced motion overrides */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-speed-fast: 0ms;
+    --transition-speed-normal: 0ms;
+    --transition-speed-slow: 0ms;
+  }
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  @apply antialiased;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  min-height: 100vh;
 }
 
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Redefine card component utility with glassmorphism */
 .card {
-  @apply rounded-xl bg-white shadow-card border border-slate-200/70;
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 12px;
+  transition: border-color var(--transition-speed-fast) var(--transition-timing), 
+              background-color var(--transition-speed-fast) var(--transition-timing),
+              box-shadow var(--transition-speed-fast) var(--transition-timing),
+              transform var(--transition-speed-fast) var(--transition-timing);
 }
 
+.card:hover {
+  border-color: var(--glass-border-hover);
+  background-color: rgba(25, 25, 32, 0.7);
+}
+
+/* Redefine buttons to fit design language */
 .btn {
-  @apply inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 active:scale-95 disabled:pointer-events-none disabled:opacity-50;
+  border-radius: var(--radius-md);
 }
-.btn-primary { @apply btn bg-brand-600 text-white hover:bg-brand-700; }
-.btn-secondary { @apply btn bg-white border border-slate-200 text-slate-700 hover:bg-slate-50; }
-.btn-ghost { @apply btn text-slate-600 hover:bg-slate-100; }
 
+.btn-primary {
+  background-color: var(--accent);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(92, 124, 250, 0.3);
+}
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  box-shadow: 0 6px 20px rgba(92, 124, 250, 0.45);
+}
+
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+}
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+}
+.btn-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+}
+
+.btn-destructive {
+  background-color: rgba(250, 82, 82, 0.15);
+  border: 1px solid rgba(250, 82, 82, 0.25);
+  color: #FF8787;
+}
+.btn-destructive:hover {
+  background-color: rgba(250, 82, 82, 0.25);
+  border-color: rgba(250, 82, 82, 0.4);
+  color: #FFFFFF;
+}
+
+/* Redefine inputs to utilize transparency and active glowing effects */
 .input {
-  @apply w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm
-         placeholder:text-slate-400
-         focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500;
+  @apply w-full rounded-lg bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 transition-all duration-200;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+}
+.input:focus {
+  outline: none;
+  border-color: rgba(92, 124, 250, 0.8);
+  box-shadow: 0 0 0 2px rgba(92, 124, 250, 0.4);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.label { @apply text-xs font-medium uppercase tracking-wide text-slate-500; }
+/* Label styling */
+.label {
+  @apply text-xs font-semibold uppercase tracking-wider text-slate-400;
+}
 
+/* Glass-style badges */
 .badge {
-  @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border backdrop-blur-md;
 }
-.badge-slate { @apply badge bg-slate-100 text-slate-700; }
-.badge-blue  { @apply badge bg-blue-100 text-blue-700; }
-.badge-green { @apply badge bg-emerald-100 text-emerald-700; }
-.badge-amber { @apply badge bg-amber-100 text-amber-800; }
-.badge-red   { @apply badge bg-rose-100 text-rose-700; }
-.badge-violet{ @apply badge bg-violet-100 text-violet-700; }
+.badge-slate { @apply badge bg-white/5 text-slate-300 border-white/10; }
+.badge-blue  { @apply badge bg-blue-500/10 text-blue-300 border-blue-500/20; }
+.badge-green { @apply badge bg-emerald-500/10 text-emerald-300 border-emerald-500/20; }
+.badge-amber { @apply badge bg-amber-500/10 text-amber-300 border-amber-500/20; }
+.badge-red   { @apply badge bg-rose-500/10 text-rose-300 border-rose-500/20; }
+.badge-violet{ @apply badge bg-violet-500/10 text-violet-300 border-violet-500/20; }

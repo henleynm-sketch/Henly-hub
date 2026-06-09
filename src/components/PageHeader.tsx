@@ -1,3 +1,5 @@
+import { GlassCard } from "@/components/ui/GlassCard";
+
 export default function PageHeader({
   title,
   subtitle,
@@ -8,10 +10,10 @@ export default function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 bg-white px-6 py-5">
+    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/5 bg-transparent px-6 py-5">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        <h1 className="text-xl font-bold tracking-tight text-white">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-slate-400">{subtitle}</p>}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
     </div>
@@ -30,15 +32,16 @@ export function StatCard({
   tone?: "default" | "good" | "warn";
 }) {
   const tones = {
-    default: "text-slate-900",
-    good: "text-emerald-700",
-    warn: "text-amber-700",
+    default: "text-white",
+    good: "text-emerald-450",
+    warn: "text-amber-450",
   };
+  
   return (
-    <div className="card p-5">
-      <div className="label">{label}</div>
-      <div className={`mt-1 text-2xl font-semibold ${tones[tone]}`}>{value}</div>
-      {hint && <div className="mt-1 text-xs text-slate-500">{hint}</div>}
-    </div>
+    <GlassCard className="p-5" hoverable={true}>
+      <div className="label text-slate-400">{label}</div>
+      <div className={`mt-1 text-2xl font-bold ${tones[tone]}`}>{value}</div>
+      {hint && <div className="mt-1 text-xs text-slate-550">{hint}</div>}
+    </GlassCard>
   );
 }

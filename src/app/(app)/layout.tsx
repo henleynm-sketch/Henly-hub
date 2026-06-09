@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import SignOutButton from "@/components/SignOutButton";
 import DemoRoleSwitcher from "@/components/DemoRoleSwitcher";
 import { ROLE_LABELS, type Role } from "@/lib/roles";
+import { GlassTopbar } from "@/components/ui/GlassTopbar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -12,7 +13,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const role = session.user.role as Role;
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-canvas text-white">
       <Sidebar
         role={role}
         userName={session.user.name ?? "User"}
@@ -21,14 +22,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         signOutSlot={<SignOutButton />}
       />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between border-b border-slate-200 bg-white px-6">
-          <div className="text-sm text-slate-500">
-            <span className="font-medium text-slate-700">{ROLE_LABELS[role]}</span>
-            {session.user.focusArea && <span className="ml-2">· {session.user.focusArea}</span>}
+        <GlassTopbar>
+          <div className="text-sm text-slate-400">
+            <span className="font-semibold text-white">{ROLE_LABELS[role]}</span>
+            {session.user.focusArea && <span className="ml-2 border-l border-white/10 pl-2">· {session.user.focusArea}</span>}
           </div>
-          <div className="text-xs text-slate-500">Henley Hub · v0.1</div>
-        </header>
-        <main className="flex-1 overflow-y-auto bg-slate-50">{children}</main>
+          <div className="text-xs text-slate-500 font-mono">Henley Hub · v0.1</div>
+        </GlassTopbar>
+        <main className="flex-1 overflow-y-auto bg-canvas/40">{children}</main>
       </div>
       {process.env.NODE_ENV !== "production" && (
         <DemoRoleSwitcher currentEmail={session.user.email} />
