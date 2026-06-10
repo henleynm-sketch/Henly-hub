@@ -119,7 +119,7 @@ export default async function ProjectDetail({
   const isAssigned = project.assignments.some((a) => a.userId === userId);
   const isClient = role === "CLIENT" && session.user.clientId === project.clientId;
   if (!canViewAllProjects(role) && !isAssigned && !isClient) {
-    return <div className="p-8 text-sm text-slate-500">You don't have access to this project.</div>;
+    return <div className="p-8 hh-secondary">You don't have access to this project.</div>;
   }
 
   const showFinancials = canSeeFinancials(role);
@@ -212,24 +212,24 @@ export default async function ProjectDetail({
 
       {(project.currentPhase || project.nextStep) && (
         <div className="px-6 pt-6">
-          <div className="glass-card border-l-4 border-l-accent p-6">
+          <div className="hh-panel border-l-4 border-l-accent p-6">
             <div className="grid gap-4 md:grid-cols-3">
               {project.currentPhase && (
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Current phase</div>
-                  <div className="mt-1.5 text-sm font-semibold text-ink">{project.currentPhase}</div>
+                  <div className="hh-label">Current phase</div>
+                  <div className="mt-1.5 hh-primary">{project.currentPhase}</div>
                 </div>
               )}
               {project.team && (
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">With</div>
-                  <div className="mt-1.5 text-sm text-ink-soft">{project.team}</div>
+                  <div className="hh-label">With</div>
+                  <div className="mt-1.5 hh-secondary">{project.team}</div>
                 </div>
               )}
               {project.nextStep && (
                 <div className="md:col-span-1">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Next step</div>
-                  <div className="mt-1.5 text-sm text-ink-soft">{project.nextStep}</div>
+                  <div className="hh-label">Next step</div>
+                  <div className="mt-1.5 hh-secondary">{project.nextStep}</div>
                 </div>
               )}
             </div>
@@ -280,20 +280,20 @@ export default async function ProjectDetail({
         {activeTab === "overview" ? (
           <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <section className="glass-card p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-glass-border pb-3">
-              <h2 className="text-sm font-semibold text-ink">Milestones</h2>
-              <span className="text-xs text-ink-muted font-medium">
+          <section className="hh-panel p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-3">
+              <h2 className="hh-label">Milestones</h2>
+              <span className="hh-secondary">
                 {project.milestones.filter((m) => m.status === "DONE").length} / {project.milestones.length} done
               </span>
             </div>
             <ul className="space-y-2">
               {project.milestones.map((m) => (
-                <li key={m.id} className="flex items-center justify-between gap-3 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
+                <li key={m.id} className="hh-row justify-between">
                   <div>
-                    <div className="text-sm font-semibold text-ink">{m.title}</div>
+                    <div className="hh-primary">{m.title}</div>
                     {m.dueDate && (
-                      <div className="text-xs text-ink-muted mt-0.5">Due {formatDate(m.dueDate)}</div>
+                      <div className="hh-secondary mt-0.5">Due {formatDate(m.dueDate)}</div>
                     )}
                   </div>
                   {role === "CLIENT" || role === "SUB" ? (
@@ -314,17 +314,17 @@ export default async function ProjectDetail({
               ))}
             </ul>
           </section>
-          <section className="glass-card p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-glass-border pb-3">
-              <h2 className="text-sm font-semibold text-ink">Daily logs</h2>
-              <span className="text-xs text-ink-muted font-medium">{project.dailyLogs.length} recent</span>
+          <section className="hh-panel p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-3">
+              <h2 className="hh-label">Daily logs</h2>
+              <span className="hh-secondary">{project.dailyLogs.length} recent</span>
             </div>
             {(role === "CEO" || role === "OFFICE" || role === "FIELD") && (
               <DailyLogForm addLogAction={addLog} />
             )}
             <ul className="space-y-2">
               {project.dailyLogs.length === 0 && (
-                <li className="py-2 text-sm text-ink-soft">No logs yet.</li>
+                <li className="py-2 hh-secondary">No logs yet.</li>
               )}
               {project.dailyLogs.map((l) => {
                 if (role === "CLIENT" && !l.clientVisible) return null;
@@ -339,12 +339,12 @@ export default async function ProjectDetail({
                 }
 
                 return (
-                  <li key={l.id} className="flex flex-col gap-1 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
-                    <div className="flex items-center justify-between text-xs text-ink-muted">
-                      <span>{l.author.name} · {formatRelative(l.date)}</span>
-                      {l.clientVisible && <span className="badge-green">visible to client</span>}
+                  <li key={l.id} className="hh-row flex-col !items-start !gap-1">
+                    <div className="flex items-center justify-between w-full">
+                      <span className="hh-secondary">{l.author.name} · {formatRelative(l.date)}</span>
+                      {l.clientVisible && <span className="hh-badge hh-badge--success">visible to client</span>}
                     </div>
-                    <div className="mt-1 text-sm text-ink-soft">{l.notes}</div>
+                    <div className="mt-1 hh-secondary">{l.notes}</div>
                     
                     {photoUrls.length > 0 && (
                       <div className="mt-2.5 flex flex-wrap gap-2">
@@ -367,7 +367,7 @@ export default async function ProjectDetail({
                       </div>
                     )}
 
-                    <div className="mt-2 text-xs text-ink-muted space-x-3">
+                    <div className="mt-2 hh-caption space-x-3">
                       {l.weather && <span>☀ {l.weather}</span>}
                       {l.crewOnSite && <span>👷 {l.crewOnSite}</span>}
                       {l.hoursWorked != null && <span>⏱ {l.hoursWorked}h</span>}
@@ -379,10 +379,10 @@ export default async function ProjectDetail({
           </section>
 
           {showFinancials && (
-            <section className="glass-card overflow-hidden flex flex-col">
+            <section className="hh-panel overflow-hidden flex flex-col">
               <div className="flex items-center justify-between border-b border-glass-border px-6 py-4">
-                <h2 className="text-sm font-semibold text-ink">Budget vs actual</h2>
-                <div className="text-xs text-ink-soft">
+                <h2 className="hh-label">Budget vs actual</h2>
+                <div className="hh-caption">
                   Contract {formatMoney(project.contractCents)} ·
                   <span className={overUnder > 0 ? "text-status-error font-semibold" : "text-status-success font-semibold"}>
                     {" "}{overUnder > 0 ? "Over" : "Under"} by {formatMoney(Math.abs(overUnder))}
@@ -391,24 +391,24 @@ export default async function ProjectDetail({
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
-                  <thead className="bg-row-bg border-b border-glass-border text-xs uppercase tracking-wider text-ink-muted">
+                  <thead className="border-b border-glass-border">
                     <tr>
-                      <th className="px-5 py-3.5 text-left font-medium">Category</th>
-                      <th className="px-5 py-3.5 text-left font-medium">Description</th>
-                      <th className="px-5 py-3.5 text-right font-medium">Estimate</th>
-                      <th className="px-5 py-3.5 text-right font-medium">Actual</th>
-                      <th className="px-5 py-3.5 text-right font-medium">Δ</th>
+                      <th className="hh-label px-5 py-3.5 text-left">Category</th>
+                      <th className="hh-label px-5 py-3.5 text-left">Description</th>
+                      <th className="hh-label px-5 py-3.5 text-right">Estimate</th>
+                      <th className="hh-label px-5 py-3.5 text-right">Actual</th>
+                      <th className="hh-label px-5 py-3.5 text-right">Δ</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-glass-border">
                     {project.budgetItems.map((b) => {
                       const d = b.actualCents - b.estimateCents;
                       return (
-                        <tr key={b.id} className="hover:bg-row-hover transition-colors">
-                          <td className="px-5 py-3.5 text-ink font-medium">{b.category}</td>
-                          <td className="px-5 py-3.5 text-ink-soft">{b.description}</td>
-                          <td className="px-5 py-3.5 text-right text-ink-soft">{formatMoney(b.estimateCents)}</td>
-                          <td className="px-5 py-3.5 text-right text-ink-soft">{formatMoney(b.actualCents)}</td>
+                        <tr key={b.id} className="hh-row--flat">
+                          <td className="px-5 py-3.5 hh-primary">{b.category}</td>
+                          <td className="px-5 py-3.5 hh-secondary">{b.description}</td>
+                          <td className="px-5 py-3.5 text-right hh-secondary">{formatMoney(b.estimateCents)}</td>
+                          <td className="px-5 py-3.5 text-right hh-secondary">{formatMoney(b.actualCents)}</td>
                           <td className={`px-5 py-3.5 text-right font-semibold ${d > 0 ? "text-status-error" : d < 0 ? "text-status-success" : "text-ink-muted"}`}>
                             {d === 0 ? "—" : `${d > 0 ? "+" : ""}${formatMoney(d)}`}
                           </td>
@@ -416,11 +416,11 @@ export default async function ProjectDetail({
                       );
                     })}
                   </tbody>
-                  <tfoot className="bg-row-bg text-sm border-t border-glass-border">
+                  <tfoot className="text-sm border-t border-glass-border">
                     <tr>
-                      <td className="px-5 py-3.5 font-semibold text-ink" colSpan={2}>Total</td>
-                      <td className="px-5 py-3.5 text-right font-semibold text-ink">{formatMoney(totalEstCents)}</td>
-                      <td className="px-5 py-3.5 text-right font-semibold text-ink">{formatMoney(totalActCents)}</td>
+                      <td className="px-5 py-3.5 hh-primary" colSpan={2}>Total</td>
+                      <td className="px-5 py-3.5 text-right hh-primary">{formatMoney(totalEstCents)}</td>
+                      <td className="px-5 py-3.5 text-right hh-primary">{formatMoney(totalActCents)}</td>
                       <td className={`px-5 py-3.5 text-right font-bold ${overUnder > 0 ? "text-status-error" : "text-status-success"}`}>
                         {overUnder === 0 ? "—" : `${overUnder > 0 ? "+" : ""}${formatMoney(overUnder)}`}
                       </td>
@@ -433,9 +433,9 @@ export default async function ProjectDetail({
         </div>
 
         <div className="space-y-6">
-          <section className="glass-card p-6 flex flex-col gap-4">
-            <div className="border-b border-glass-border pb-1">
-              <h2 className="text-sm font-semibold text-ink">Project</h2>
+          <section className="hh-panel p-6 flex flex-col gap-4">
+            <div className="pb-1">
+              <h2 className="hh-label">Project</h2>
             </div>
             <dl className="space-y-3.5 text-sm">
               <Field k="Status" v={project.status.replace("_", " ").toLowerCase()} />
@@ -450,31 +450,31 @@ export default async function ProjectDetail({
             </dl>
           </section>
 
-          <section className="glass-card p-6 flex flex-col gap-4">
-            <div className="border-b border-glass-border pb-1">
-              <h2 className="text-sm font-semibold text-ink">Team</h2>
+          <section className="hh-panel p-6 flex flex-col gap-4">
+            <div className="pb-1">
+              <h2 className="hh-label">Team</h2>
             </div>
             <ul className="space-y-3 text-sm">
               {project.assignments.map((a) => (
                 <li key={a.id} className="flex justify-between">
-                  <span className="text-ink font-semibold">{a.user.name}</span>
-                  <span className="text-xs text-ink-muted">{a.role}</span>
+                  <span className="hh-primary">{a.user.name}</span>
+                  <span className="hh-secondary">{a.role}</span>
                 </li>
               ))}
             </ul>
           </section>
 
           {project.selections.length > 0 && (
-            <section className="glass-card p-6 flex flex-col gap-4">
-              <div className="border-b border-glass-border pb-1">
-                <h2 className="text-sm font-semibold text-ink">Selections</h2>
+            <section className="hh-panel p-6 flex flex-col gap-4">
+              <div className="pb-1">
+                <h2 className="hh-label">Selections</h2>
               </div>
               <ul className="space-y-3 text-sm">
                 {project.selections.map((s) => (
                   <li key={s.id} className="flex justify-between gap-2">
                     <div>
-                      <div className="text-ink font-semibold">{s.category}</div>
-                      <div className="text-xs text-ink-muted mt-0.5">{s.option}</div>
+                      <div className="hh-primary">{s.category}</div>
+                      <div className="hh-secondary mt-0.5">{s.option}</div>
                     </div>
                     <span className={selBadge(s.status)}>{s.status.toLowerCase()}</span>
                   </li>
@@ -505,19 +505,19 @@ export default async function ProjectDetail({
 function Field({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex justify-between gap-3">
-      <dt className="text-ink-muted font-medium">{k}</dt>
-      <dd className="text-right text-ink font-semibold">{v}</dd>
+      <dt className="hh-secondary">{k}</dt>
+      <dd className="text-right hh-primary">{v}</dd>
     </div>
   );
 }
 function msBadge(s: string) {
-  if (s === "DONE") return "badge-green";
-  if (s === "IN_PROGRESS") return "badge-blue";
-  if (s === "BLOCKED") return "badge-red";
-  return "badge-slate";
+  if (s === "DONE") return "hh-badge hh-badge--success";
+  if (s === "IN_PROGRESS") return "hh-badge";
+  if (s === "BLOCKED") return "hh-badge hh-badge--danger";
+  return "hh-badge";
 }
 function selBadge(s: string) {
-  if (s === "APPROVED") return "badge-green";
-  if (s === "REJECTED") return "badge-red";
-  return "badge-amber";
+  if (s === "APPROVED") return "hh-badge hh-badge--success";
+  if (s === "REJECTED") return "hh-badge hh-badge--danger";
+  return "hh-badge hh-badge--warning";
 }

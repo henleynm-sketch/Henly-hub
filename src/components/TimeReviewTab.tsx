@@ -70,42 +70,42 @@ export default function TimeReviewTab({ projectId, entries }: TimeReviewTabProps
 
       {/* Metrics Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card p-5 bg-white shadow-sm flex items-center justify-between border-l-4 border-l-slate-400">
+        <div className="hh-panel p-5 flex items-center justify-between border-l-4 border-l-slate-400">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Hours</span>
-            <span className="text-2xl font-bold text-slate-900 mt-1 block font-mono">{totalHours.toFixed(2)}h</span>
+            <span className="hh-label block">Total Hours</span>
+            <span className="text-2xl font-bold text-ink mt-1 block font-mono">{totalHours.toFixed(2)}h</span>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-slate-50 grid place-items-center text-slate-500">
+          <div className="h-10 w-10 rounded-lg grid place-items-center text-slate-500">
             <Clock size={20} />
           </div>
         </div>
 
-        <div className="card p-5 bg-white shadow-sm flex items-center justify-between border-l-4 border-l-emerald-500">
+        <div className="hh-panel p-5 flex items-center justify-between border-l-4 border-l-emerald-500">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Approved Hours</span>
-            <span className="text-2xl font-bold text-slate-900 mt-1 block font-mono text-emerald-700">{approvedHours.toFixed(2)}h</span>
+            <span className="hh-label block">Approved Hours</span>
+            <span className="text-2xl font-bold mt-1 block font-mono text-emerald-700">{approvedHours.toFixed(2)}h</span>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-emerald-50 grid place-items-center text-emerald-600">
+          <div className="h-10 w-10 rounded-lg grid place-items-center text-emerald-600">
             <CheckCircle size={20} />
           </div>
         </div>
 
-        <div className="card p-5 bg-white shadow-sm flex items-center justify-between border-l-4 border-l-amber-500">
+        <div className="hh-panel p-5 flex items-center justify-between border-l-4 border-l-amber-500">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Pending Approval</span>
-            <span className="text-2xl font-bold text-slate-900 mt-1 block font-mono text-amber-700">{pendingHours.toFixed(2)}h</span>
+            <span className="hh-label block">Pending Approval</span>
+            <span className="text-2xl font-bold mt-1 block font-mono text-amber-700">{pendingHours.toFixed(2)}h</span>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-amber-50 grid place-items-center text-amber-600">
+          <div className="h-10 w-10 rounded-lg grid place-items-center text-amber-600">
             <Calendar size={20} />
           </div>
         </div>
 
-        <div className="card p-5 bg-white shadow-sm flex items-center justify-between border-l-4 border-l-blue-500">
+        <div className="hh-panel p-5 flex items-center justify-between border-l-4 border-l-blue-500">
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Active On Site</span>
-            <span className="text-2xl font-bold text-slate-900 mt-1 block font-mono text-blue-700">{activeCount} crew</span>
+            <span className="hh-label block">Active On Site</span>
+            <span className="text-2xl font-bold mt-1 block font-mono text-blue-700">{activeCount} crew</span>
           </div>
-          <div className="h-10 w-10 rounded-lg bg-blue-50 grid place-items-center text-blue-600">
+          <div className="h-10 w-10 rounded-lg grid place-items-center text-blue-600">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
@@ -115,61 +115,61 @@ export default function TimeReviewTab({ projectId, entries }: TimeReviewTabProps
       </div>
 
       {/* Main Review Table */}
-      <section className="card">
-        <div className="border-b border-slate-100 px-5 py-4">
-          <h3 className="text-sm font-semibold text-slate-900">Time Entries Tracker</h3>
+      <section className="hh-panel">
+        <div className="border-b border-glass-border px-5 py-4">
+          <h3 className="hh-label">Time Entries Tracker</h3>
         </div>
 
         {entries.length === 0 ? (
-          <div className="p-8 text-center text-sm text-slate-500">No time entries recorded for this project.</div>
+          <div className="p-8 text-center hh-secondary">No time entries recorded for this project.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full text-sm divide-y divide-slate-100">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <table className="min-w-full text-sm divide-y divide-glass-border">
+              <thead className="border-b border-glass-border">
                 <tr>
-                  <th className="px-5 py-3 text-left font-medium">Employee</th>
-                  <th className="px-5 py-3 text-left font-medium">Date</th>
-                  <th className="px-5 py-3 text-left font-medium">Cost Code</th>
-                  <th className="px-5 py-3 text-right font-medium">Clock In / Out</th>
-                  <th className="px-5 py-3 text-right font-medium">Hours</th>
-                  <th className="px-5 py-3 text-center font-medium">Status & Sync</th>
-                  <th className="px-5 py-3 text-right font-medium">Actions</th>
+                  <th className="hh-label px-5 py-3 text-left">Employee</th>
+                  <th className="hh-label px-5 py-3 text-left">Date</th>
+                  <th className="hh-label px-5 py-3 text-left">Cost Code</th>
+                  <th className="hh-label px-5 py-3 text-right">Clock In / Out</th>
+                  <th className="hh-label px-5 py-3 text-right">Hours</th>
+                  <th className="hh-label px-5 py-3 text-center">Status & Sync</th>
+                  <th className="hh-label px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
+              <tbody className="divide-y divide-glass-border">
                 {entries.map((entry) => (
-                  <tr key={entry.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={entry.id} className="hh-row--flat">
                     <td className="px-5 py-3">
-                      <div className="font-semibold text-slate-900">{entry.user.name}</div>
-                      <div className="text-xs text-slate-400">{entry.user.email}</div>
+                      <div className="hh-primary">{entry.user.name}</div>
+                      <div className="hh-secondary">{entry.user.email}</div>
                     </td>
-                    <td className="px-5 py-3 text-slate-700 font-medium">{formatDate(entry.clockIn)}</td>
-                    <td className="px-5 py-3 text-slate-600 font-mono text-xs">{entry.costCode}</td>
-                    <td className="px-5 py-3 text-right text-slate-600">
+                    <td className="px-5 py-3 hh-secondary">{formatDate(entry.clockIn)}</td>
+                    <td className="px-5 py-3"><span className="hh-chip">{entry.costCode}</span></td>
+                    <td className="px-5 py-3 text-right hh-secondary">
                       <div>{formatTime(entry.clockIn)}</div>
-                      <div className="text-xs text-slate-400">{entry.clockOut ? `to ${formatTime(entry.clockOut)}` : "Active now"}</div>
+                      <div className="hh-caption">{entry.clockOut ? `to ${formatTime(entry.clockOut)}` : "Active now"}</div>
                     </td>
-                    <td className="px-5 py-3 text-right font-mono font-medium text-slate-900">
+                    <td className="px-5 py-3 text-right font-mono hh-primary">
                       {entry.hours !== null ? `${entry.hours.toFixed(2)}h` : "Active"}
                     </td>
                     <td className="px-5 py-3 text-center">
                       {entry.approved ? (
                         <div className="flex flex-col items-center gap-1">
-                          <span className="badge-green text-xs font-semibold py-0.5 px-2 inline-flex items-center gap-1">
+                          <span className="hh-badge hh-badge--success !ml-0 inline-flex items-center gap-1">
                             <Check size={12} /> Approved
                           </span>
                           {entry.qbReady && (
-                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                            <span className="hh-label">
                               Ready for QB Sync
                             </span>
                           )}
                         </div>
                       ) : entry.clockOut ? (
-                        <span className="badge-amber text-xs font-semibold py-0.5 px-2">
+                        <span className="hh-badge hh-badge--warning">
                           Pending Approval
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 badge-blue text-xs font-semibold py-0.5 px-2">
+                        <span className="hh-badge inline-flex items-center gap-1">
                           <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500 animate-ping" />
                           Active
                         </span>

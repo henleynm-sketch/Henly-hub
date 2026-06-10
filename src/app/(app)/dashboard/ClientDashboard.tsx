@@ -26,7 +26,7 @@ export default function ClientDashboard({
     return (
       <>
         <PageHeader title={`Welcome, ${userName.split(" ")[0]}`} />
-        <div className="p-6 text-sm text-ink-soft">
+        <div className="p-6 hh-secondary">
           We haven't set up your project yet. Your Henley project manager will reach out shortly.
         </div>
       </>
@@ -45,37 +45,40 @@ export default function ClientDashboard({
       />
       <div className="space-y-6 p-6">
         {/* Progress Card */}
-        <div className="glass-card p-6">
+        <div className="hh-panel p-6">
           <div className="flex items-end justify-between">
             <div>
-              <div className="label text-ink-muted">Progress</div>
+              <div className="hh-label">Progress</div>
               <div className="text-2xl font-bold text-ink mt-0.5">{pct}%</div>
-              <div className="text-xs text-ink-soft mt-0.5">
+              <div className="hh-caption mt-0.5">
                 {done} of {total} milestones complete
               </div>
             </div>
-            <div className="text-right text-xs text-ink-soft">
-              <div className="label text-ink-muted">Target completion</div>
-              <div className="text-sm font-semibold text-ink mt-0.5">{formatDate(project.targetEnd)}</div>
+            <div className="text-right">
+              <div className="hh-label">Target completion</div>
+              <div className="hh-primary mt-0.5">{formatDate(project.targetEnd)}</div>
             </div>
           </div>
           <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-row-bg">
-            <div className="h-full bg-accent shadow-[0_0_8px_rgba(92,124,250,0.5)] rounded-full transition-all duration-500 ease-glass" style={{ width: `${pct}%` }} />
+            <div
+              className="h-full bg-accent rounded-full transition-all duration-500 ease-glass"
+              style={{ width: `${pct}%`, boxShadow: "0 0 8px rgba(92,124,250,0.5)" }}
+            />
           </div>
         </div>
 
         {/* Milestones Card */}
-        <section className="glass-card p-6 flex flex-col gap-4">
-          <div className="border-b border-glass-border pb-3">
-            <h2 className="text-sm font-semibold text-ink">Milestones</h2>
+        <section className="hh-panel p-6 flex flex-col gap-4">
+          <div className="pb-3">
+            <h2 className="hh-label">Milestones</h2>
           </div>
           <ul className="space-y-2">
             {project.milestones.map((m) => (
-              <li key={m.id} className="flex items-center justify-between rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
+              <li key={m.id} className="hh-row justify-between">
                 <div>
-                  <div className="text-sm font-semibold text-ink">{m.title}</div>
+                  <div className="hh-primary">{m.title}</div>
                   {m.dueDate && (
-                    <div className="text-xs text-ink-muted mt-0.5">Due {formatDate(m.dueDate)}</div>
+                    <div className="hh-secondary mt-0.5">Due {formatDate(m.dueDate)}</div>
                   )}
                 </div>
                 <span className={milestoneBadge(m.status)}>{milestoneLabel(m.status)}</span>
@@ -85,13 +88,13 @@ export default function ClientDashboard({
         </section>
 
         {/* Recent Updates Card */}
-        <section className="glass-card p-6 flex flex-col gap-4">
-          <div className="border-b border-glass-border pb-3">
-            <h2 className="text-sm font-semibold text-ink">Recent updates from the team</h2>
+        <section className="hh-panel p-6 flex flex-col gap-4">
+          <div className="pb-3">
+            <h2 className="hh-label">Recent updates from the team</h2>
           </div>
           <ul className="space-y-2">
             {project.dailyLogs.length === 0 && (
-              <li className="py-2 text-sm text-ink-soft">No updates yet.</li>
+              <li className="py-2 hh-secondary">No updates yet.</li>
             )}
             {project.dailyLogs.map((l) => {
               let photoUrls: string[] = [];
@@ -103,11 +106,11 @@ export default function ClientDashboard({
                 }
               }
               return (
-                <li key={l.id} className="flex flex-col gap-1 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
-                  <div className="text-xs text-ink-muted font-medium">
+                <li key={l.id} className="hh-row flex-col !items-start !gap-1">
+                  <div className="hh-secondary">
                     {l.author.name} · {formatRelative(l.date)}
                   </div>
-                  <div className="mt-2 text-sm text-ink-soft leading-relaxed">{l.notes}</div>
+                  <div className="mt-2 hh-secondary">{l.notes}</div>
                   {photoUrls.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {photoUrls.map((url, idx) => (
@@ -139,10 +142,10 @@ export default function ClientDashboard({
 }
 
 function milestoneBadge(s: string) {
-  if (s === "DONE") return "badge-green";
-  if (s === "IN_PROGRESS") return "badge-blue";
-  if (s === "BLOCKED") return "badge-red";
-  return "badge-slate";
+  if (s === "DONE") return "hh-badge hh-badge--success";
+  if (s === "IN_PROGRESS") return "hh-badge";
+  if (s === "BLOCKED") return "hh-badge hh-badge--danger";
+  return "hh-badge";
 }
 function milestoneLabel(s: string) {
   return s.replace("_", " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());

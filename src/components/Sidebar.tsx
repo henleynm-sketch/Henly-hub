@@ -86,7 +86,10 @@ export default function Sidebar({
     <GlassSidebar>
       {/* Brand logo header */}
       <div className="flex h-14 items-center gap-2.5 border-b border-glass-border px-4">
-        <div className="grid h-7 w-7 place-items-center rounded-md bg-accent text-white shadow-[0_2px_8px_rgba(92,124,250,0.3)]">
+        <div
+          className="grid h-7 w-7 place-items-center rounded-md bg-accent text-white"
+          style={{ boxShadow: "0 2px 8px rgba(92,124,250,0.3)" }}
+        >
           <span className="text-xs font-extrabold tracking-tight">H</span>
         </div>
         <div>
@@ -107,7 +110,7 @@ export default function Sidebar({
                   className={cn(
                     "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-200 border transform active:scale-98",
                     active
-                      ? "bg-accent/10 border-accent/20 text-accent font-semibold shadow-[0_2px_10px_rgba(92,124,250,0.08)]"
+                      ? "bg-accent/10 border-accent/20 text-accent font-semibold"
                       : "text-ink-soft border-transparent hover:bg-row-hover hover:text-ink"
                   )}
                 >
@@ -136,13 +139,13 @@ export default function Sidebar({
                   className={cn(
                     "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-200 border transform active:scale-98",
                     pathname.startsWith("/integrations/quickbooks")
-                      ? "bg-accent/10 border-accent/20 text-accent font-semibold shadow-[0_2px_10px_rgba(92,124,250,0.08)]"
+                      ? "bg-accent/10 border-accent/20 text-accent font-semibold"
                       : "text-ink-soft border-transparent hover:bg-row-hover hover:text-ink"
                   )}
                 >
                   <HardHat size={16} className={pathname.startsWith("/integrations/quickbooks") ? "text-accent animate-pulse" : "text-ink-soft"} />
                   QuickBooks
-                  <span className="ml-auto badge-amber text-[9px] px-1.5 py-0">setup</span>
+                  <span className="hh-badge hh-badge--warning">setup</span>
                 </Link>
               </li>
             </ul>
@@ -153,7 +156,10 @@ export default function Sidebar({
       {/* User profile section at bottom */}
       <div className="border-t border-glass-border p-3">
         <div className="flex items-center gap-3 rounded-lg bg-glass-bg border border-glass-border p-2 shadow-sm">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-accent text-xs font-bold text-white shadow-[0_2px_6px_rgba(92,124,250,0.25)] shrink-0">
+          <div
+            className="grid h-8 w-8 place-items-center rounded-full bg-accent text-xs font-bold text-white shrink-0"
+            style={{ boxShadow: "0 2px 6px rgba(92,124,250,0.25)" }}
+          >
             {userName
               .split(" ")
               .map((p) => p[0])

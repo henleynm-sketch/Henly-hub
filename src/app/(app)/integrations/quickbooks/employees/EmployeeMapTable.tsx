@@ -70,15 +70,15 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
   const getRoleBadgeClass = (role: string) => {
     switch (role.toUpperCase()) {
       case "CEO":
-        return "badge-violet";
+        return "hh-badge";
       case "OFFICE":
-        return "badge-blue";
+        return "hh-badge";
       case "FIELD":
-        return "badge-amber";
+        return "hh-badge hh-badge--warning";
       case "SUB":
-        return "badge-slate";
+        return "hh-badge";
       default:
-        return "badge-slate";
+        return "hh-badge";
     }
   };
 
@@ -146,25 +146,25 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
       </div>
 
       {/* Main Table Card */}
-      <div className="glass-card overflow-hidden">
+      <div className="hh-panel overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-row-bg text-xs uppercase tracking-wider text-ink-muted border-b border-glass-border">
+            <thead className="border-b border-glass-border">
               <tr>
-                <th className="px-6 py-4 text-left font-medium">User Profile</th>
-                <th className="px-6 py-4 text-left font-medium">Role</th>
-                <th className="px-6 py-4 text-left font-medium">QuickBooks Employee Mapping</th>
-                <th className="px-6 py-4 text-left font-medium">Sync Status</th>
+                <th className="hh-label px-6 py-4 text-left">User Profile</th>
+                <th className="hh-label px-6 py-4 text-left">Role</th>
+                <th className="hh-label px-6 py-4 text-left">QuickBooks Employee Mapping</th>
+                <th className="hh-label px-6 py-4 text-left">Sync Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-glass-border">
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-ink-soft">
+                  <td colSpan={4} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <HelpCircle className="h-8 w-8 text-ink-muted" />
-                      <p className="font-medium">No users match your criteria.</p>
-                      <p className="text-xs text-ink-muted">Try adjusting your search query or filter type.</p>
+                      <p className="hh-primary">No users match your criteria.</p>
+                      <p className="hh-secondary">Try adjusting your search query or filter type.</p>
                     </div>
                   </td>
                 </tr>
@@ -175,7 +175,7 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
                   const isMapped = !!mappedId;
 
                   return (
-                    <tr key={user.id} className="hover:bg-row-hover transition-colors">
+                    <tr key={user.id} className="hh-row--flat">
                       {/* Profile Column */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -183,8 +183,8 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
                             {getInitials(user.name)}
                           </div>
                           <div>
-                            <p className="font-semibold text-ink leading-tight">{user.name || "Unnamed User"}</p>
-                            <p className="text-xs text-ink-soft leading-normal mt-0.5">{user.email}</p>
+                            <p className="hh-primary leading-tight">{user.name || "Unnamed User"}</p>
+                            <p className="hh-secondary mt-0.5">{user.email}</p>
                           </div>
                         </div>
                       </td>
@@ -229,7 +229,7 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           {state === "saving" && (
-                            <span className="text-xs text-ink-muted flex items-center gap-1.5">
+                            <span className="hh-caption flex items-center gap-1.5">
                               <Loader2 className="h-3.5 w-3.5 animate-spin text-accent" />
                               Saving...
                             </span>
@@ -251,11 +251,11 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
                           )}
                           {state === "idle" && (
                             isMapped ? (
-                              <span className="badge-green text-[10px] uppercase font-bold tracking-wider py-0.5 px-2">
+                              <span className="hh-badge hh-badge--success !ml-0">
                                 Mapped
                               </span>
                             ) : (
-                              <span className="badge-amber text-[10px] uppercase font-bold tracking-wider py-0.5 px-2">
+                              <span className="hh-badge hh-badge--warning !ml-0">
                                 Unmapped
                               </span>
                             )

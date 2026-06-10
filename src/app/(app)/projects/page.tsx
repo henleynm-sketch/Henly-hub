@@ -42,36 +42,37 @@ export default async function ProjectsPage() {
       />
       <div className="grid gap-6 p-6 md:grid-cols-2 xl:grid-cols-3">
         {projects.length === 0 && (
-          <div className="glass-card p-6 text-sm text-ink-soft">No projects to show.</div>
+          <div className="hh-panel p-6 hh-secondary">No projects to show.</div>
         )}
         {projects.map((p) => (
-          <Link key={p.id} href={`/projects/${p.id}`} className="glass-card p-6">
+          <Link key={p.id} href={`/projects/${p.id}`} className="hh-panel p-6">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="truncate text-sm font-semibold text-ink">{p.name}</div>
+                <div className="hh-primary truncate">{p.name}</div>
                 {p.projectType && (
-                  <div className="mt-0.5 text-xs text-ink-soft">{p.projectType}</div>
+                  <div className="mt-0.5 hh-secondary">{p.projectType}</div>
                 )}
               </div>
               <span className={statusBadge(p.status)}>{p.status.replace("_", " ").toLowerCase()}</span>
             </div>
-            <div className="mt-2 text-xs text-ink-soft">{p.client.name}{p.city ? ` · ${p.city}` : ""}</div>
+            <div className="mt-2 hh-secondary">{p.client.name}{p.city ? ` · ${p.city}` : ""}</div>
             {p.currentPhase && (
-              <div className="mt-3 rounded-[10px] bg-row-bg border border-glass-border px-3 py-2 text-xs text-ink-soft">
-                <span className="font-semibold text-ink">Phase:</span> {p.currentPhase}
+              <div className="mt-3 hh-row hh-secondary">
+                <span className="hh-primary">Phase:</span> {p.currentPhase}
               </div>
             )}
             {p.team && (
-              <div className="mt-2 text-xs text-ink-soft"><span className="font-semibold text-ink">With:</span> {p.team}</div>
+              <div className="mt-2 hh-secondary"><span className="hh-primary">With:</span> {p.team}</div>
             )}
-            <div className="mt-4 grid grid-cols-3 gap-2 text-xs text-ink-soft border-t border-glass-border pt-3">
+            <hr className="hh-divider" />
+            <div className="grid grid-cols-3 gap-2">
               {p.contractCents > 0 ? (
-                <div><span className="label block text-[10px] text-ink-muted mb-0.5">Contract</span><span className="text-ink font-semibold">{formatMoney(p.contractCents)}</span></div>
+                <div><span className="hh-label block mb-0.5">Contract</span><span className="hh-primary">{formatMoney(p.contractCents)}</span></div>
               ) : (
-                <div><span className="label block text-[10px] text-ink-muted mb-0.5">Milestones</span><span className="text-ink font-semibold">{p._count.milestones}</span></div>
+                <div><span className="hh-label block mb-0.5">Milestones</span><span className="hh-primary">{p._count.milestones}</span></div>
               )}
-              <div><span className="label block text-[10px] text-ink-muted mb-0.5">Target</span><span className="text-ink font-semibold">{formatDate(p.targetEnd)}</span></div>
-              <div><span className="label block text-[10px] text-ink-muted mb-0.5">Logs</span><span className="text-ink font-semibold">{p._count.dailyLogs}</span></div>
+              <div><span className="hh-label block mb-0.5">Target</span><span className="hh-primary">{formatDate(p.targetEnd)}</span></div>
+              <div><span className="hh-label block mb-0.5">Logs</span><span className="hh-primary">{p._count.dailyLogs}</span></div>
             </div>
           </Link>
         ))}
@@ -81,10 +82,10 @@ export default async function ProjectsPage() {
 }
 
 function statusBadge(s: string) {
-  if (s === "IN_PROGRESS" || s === "FINISHING") return "badge-green";
-  if (s === "PERMITTING" || s === "DESIGN") return "badge-blue";
-  if (s === "PLANNING") return "badge-violet";
-  if (s === "ON_HOLD") return "badge-amber";
-  if (s === "WARRANTY" || s === "CLOSING") return "badge-amber";
-  return "badge-slate";
+  if (s === "IN_PROGRESS" || s === "FINISHING") return "hh-badge hh-badge--success";
+  if (s === "PERMITTING" || s === "DESIGN") return "hh-badge";
+  if (s === "PLANNING") return "hh-badge";
+  if (s === "ON_HOLD") return "hh-badge hh-badge--warning";
+  if (s === "WARRANTY" || s === "CLOSING") return "hh-badge hh-badge--warning";
+  return "hh-badge";
 }

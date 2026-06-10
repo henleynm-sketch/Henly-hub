@@ -10,7 +10,7 @@ export default async function FinancialsPage() {
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
   if (!canSeeFinancials(session.user.role as Role)) {
-    return <div className="p-8 text-sm text-slate-500">Financials require office or owner role.</div>;
+    return <div className="p-8 hh-secondary">Financials require office or owner role.</div>;
   }
 
   const projects = await prisma.project.findMany({
@@ -46,15 +46,15 @@ export default async function FinancialsPage() {
           />
         </div>
 
-        <section className="glass-card overflow-x-auto">
+        <section className="hh-panel overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-row-bg border-b border-glass-border text-xs uppercase tracking-wider text-ink-muted">
+            <thead className="border-b border-glass-border">
               <tr>
-                <th className="px-5 py-3.5 text-left font-medium">Project</th>
-                <th className="px-5 py-3.5 text-right font-medium">Contract</th>
-                <th className="px-5 py-3.5 text-right font-medium">Est.</th>
-                <th className="px-5 py-3.5 text-right font-medium">Actual</th>
-                <th className="px-5 py-3.5 text-right font-medium">Margin</th>
+                <th className="hh-label px-5 py-3.5 text-left">Project</th>
+                <th className="hh-label px-5 py-3.5 text-right">Contract</th>
+                <th className="hh-label px-5 py-3.5 text-right">Est.</th>
+                <th className="hh-label px-5 py-3.5 text-right">Actual</th>
+                <th className="hh-label px-5 py-3.5 text-right">Margin</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-glass-border">
@@ -63,14 +63,14 @@ export default async function FinancialsPage() {
                 const act = p.budgetItems.reduce((a, b) => a + b.actualCents, 0);
                 const margin = p.contractCents - act;
                 return (
-                  <tr key={p.id} className="hover:bg-row-hover transition-colors">
+                  <tr key={p.id} className="hh-row--flat">
                     <td className="px-5 py-3">
-                      <div className="font-semibold text-ink">{p.name}</div>
-                      <div className="text-xs text-ink-muted mt-0.5">{p.client.name}</div>
+                      <div className="hh-primary">{p.name}</div>
+                      <div className="hh-secondary mt-0.5">{p.client.name}</div>
                     </td>
-                    <td className="px-5 py-3 text-right text-ink-soft font-semibold">{formatMoney(p.contractCents)}</td>
-                    <td className="px-5 py-3 text-right text-ink-soft">{formatMoney(est)}</td>
-                    <td className="px-5 py-3 text-right text-ink-soft">{formatMoney(act)}</td>
+                    <td className="px-5 py-3 text-right hh-primary">{formatMoney(p.contractCents)}</td>
+                    <td className="px-5 py-3 text-right hh-secondary">{formatMoney(est)}</td>
+                    <td className="px-5 py-3 text-right hh-secondary">{formatMoney(act)}</td>
                     <td className={`px-5 py-3 text-right font-bold ${margin < 0 ? "text-status-error" : "text-status-success"}`}>
                       {formatMoney(margin)}
                     </td>

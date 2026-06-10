@@ -7,12 +7,12 @@ import type { Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
 import { Send, MessageSquare } from "lucide-react";
 
-const CHANNELS: { value: string; label: string; color: string }[] = [
-  { value: "ALL", label: "All channels", color: "#a29ef8" },
-  { value: "EMAIL", label: "Email", color: "#0a84ff" },
-  { value: "SMS", label: "SMS", color: "#30d158" },
-  { value: "IN_APP", label: "Hub message", color: "#5e5ce6" },
-  { value: "CALL_NOTE", label: "Call notes", color: "#ff9f0a" },
+const CHANNELS: { value: string; label: string; dot: string }[] = [
+  { value: "ALL", label: "All channels", dot: "hh-dot--purple" },
+  { value: "EMAIL", label: "Email", dot: "hh-dot--blue" },
+  { value: "SMS", label: "SMS", dot: "hh-dot--green" },
+  { value: "IN_APP", label: "Hub message", dot: "hh-dot--purple" },
+  { value: "CALL_NOTE", label: "Call notes", dot: "hh-dot--orange" },
 ];
 
 export default async function InboxPage({
@@ -91,15 +91,15 @@ export default async function InboxPage({
   const getChannelTagClass = (channel: string) => {
     switch (channel.toUpperCase()) {
       case "IN_APP":
-        return "badge-violet";
+        return "hh-badge";
       case "SMS":
-        return "badge-green";
+        return "hh-badge hh-badge--success";
       case "EMAIL":
-        return "badge-blue";
+        return "hh-badge";
       case "CALL_NOTE":
-        return "badge-amber";
+        return "hh-badge hh-badge--warning";
       default:
-        return "badge-slate";
+        return "hh-badge";
     }
   };
 
@@ -126,7 +126,7 @@ export default async function InboxPage({
 
       <div className="mx-auto max-w-7xl p-6">
         <div
-          className="glass-card grid grid-cols-12 overflow-hidden border border-glass-border"
+          className="hh-panel !p-0 grid grid-cols-12 overflow-hidden"
         >
           {/* Thread List Column */}
           <aside className="col-span-12 md:col-span-5 lg:col-span-4 border-r border-glass-border flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] overflow-hidden">
@@ -144,7 +144,7 @@ export default async function InboxPage({
                         : "bg-row-bg text-ink-soft border-glass-border hover:bg-row-hover hover:text-ink"
                     }`}
                   >
-                    <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
+                    <span className={`hh-dot ${c.dot}`} />
                     {c.label}
                   </a>
                 );
@@ -154,11 +154,11 @@ export default async function InboxPage({
             {/* Threads List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {threads.length === 0 && (
-                <div className="p-6 text-center text-sm text-ink-soft">
+                <div className="p-6 text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <MessageSquare className="h-8 w-8 text-ink-muted" />
-                    <p className="font-semibold text-ink">No threads found</p>
-                    <p className="text-xs text-ink-muted">There are no messages matching this channel filter.</p>
+                    <p className="hh-primary">No threads found</p>
+                    <p className="hh-secondary">There are no messages matching this channel filter.</p>
                   </div>
                 </div>
               )}
@@ -168,8 +168,8 @@ export default async function InboxPage({
                   <a
                     key={t.id}
                     href={`/inbox?threadId=${t.id}${sp.channel ? `&channel=${sp.channel}` : ""}`}
-                    className={`block rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors relative ${
-                      active ? "bg-row-active font-semibold" : ""
+                    className={`hh-row hh-row--flat flex-col !items-stretch !gap-0 relative ${
+                      active ? "hh-row--active" : ""
                     }`}
                   >
                     {/* Active Left Hairline Indicator */}
@@ -177,26 +177,26 @@ export default async function InboxPage({
                       <span className="absolute left-0 top-2.5 bottom-2.5 w-[3px] bg-accent rounded-r-md" />
                     )}
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-xs font-semibold text-ink">
+                      <span className="hh-primary truncate">
                         {t.client?.name ?? "Internal Info"}
                       </span>
-                      <span className="text-[10px] text-ink-muted shrink-0 font-medium">{formatRelative(t.lastAt)}</span>
+                      <span className="hh-caption shrink-0">{formatRelative(t.lastAt)}</span>
                     </div>
-                    <div className="truncate text-sm font-semibold text-ink mt-1">{t.subject}</div>
+                    <div className="hh-primary truncate mt-1">{t.subject}</div>
                     {t.messages[0] && (
-                      <div className="truncate text-xs text-ink-soft mt-0.5 font-normal leading-normal">{t.messages[0].body}</div>
+                      <div className="hh-secondary truncate mt-0.5">{t.messages[0].body}</div>
                     )}
                     <div className="mt-2.5 flex items-center gap-2 flex-wrap">
-                      <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${getChannelTagClass(t.channel)}`}>
+                      <span className={`!ml-0 ${getChannelTagClass(t.channel)}`}>
                         {t.channel.replace("_", " ")}
                       </span>
                       {t.project && (
-                        <span className="text-[10px] text-ink-muted truncate max-w-[120px]">
+                        <span className="hh-caption truncate max-w-[120px]">
                           · {t.project.name}
                         </span>
                       )}
                       {t.unread > 0 && (
-                        <span className="ml-auto badge-blue text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full shrink-0">
+                        <span className="hh-badge shrink-0">
                           {t.unread} new
                         </span>
                       )}
@@ -210,10 +210,10 @@ export default async function InboxPage({
           {/* Conversation Pane Column */}
           <section className="col-span-12 md:col-span-7 lg:col-span-8 flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] overflow-hidden bg-row-bg">
             {!activeThread ? (
-              <div className="flex flex-1 flex-col items-center justify-center text-ink-soft gap-2">
+              <div className="flex flex-1 flex-col items-center justify-center gap-2">
                 <MessageSquare className="h-10 w-10 text-ink-muted animate-pulse" />
-                <p className="font-semibold text-ink">Select a thread</p>
-                <p className="text-xs text-ink-muted">Choose a conversation from the sidebar to start reading.</p>
+                <p className="hh-primary">Select a thread</p>
+                <p className="hh-secondary">Choose a conversation from the sidebar to start reading.</p>
               </div>
             ) : (
               <>
@@ -223,13 +223,13 @@ export default async function InboxPage({
                     {getInitials(activeThread.client?.name ?? "I")}
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-ink leading-tight">{activeThread.subject}</h2>
-                    <div className="text-xs text-ink-soft mt-0.5 font-medium leading-normal">
+                    <h2 className="hh-primary leading-tight">{activeThread.subject}</h2>
+                    <div className="hh-secondary mt-0.5">
                       {activeThread.client?.name ?? "Internal Info"}
                       {activeThread.project && ` · ${activeThread.project.name}`}
                     </div>
                   </div>
-                  <span className="ml-auto text-[10px] font-bold tracking-wider uppercase bg-row-bg text-ink-soft px-2.5 py-1 rounded border border-glass-border shrink-0">
+                  <span className="hh-badge shrink-0">
                     {getChannelBadge(activeThread.channel)}
                   </span>
                 </div>
@@ -237,7 +237,7 @@ export default async function InboxPage({
                 {/* Messages Stream */}
                 <div id="messages-area" className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
                   <div className="text-center my-2 shrink-0">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-ink-soft/45 px-2.5 py-1 bg-row-bg rounded-md border border-glass-border">
+                    <span className="hh-chip uppercase tracking-wider">
                       {activeThread.channel.replace("_", " ")} Thread
                     </span>
                   </div>
@@ -250,7 +250,7 @@ export default async function InboxPage({
                         className={`flex flex-col max-w-[75%] ${isSent ? "ml-auto items-end" : "mr-auto items-start"}`}
                       >
                         {/* Message Sender & Time */}
-                        <div className="mb-1 text-[10px] text-ink-muted uppercase tracking-wider font-semibold px-1 flex items-center gap-1.5">
+                        <div className="mb-1 hh-caption uppercase tracking-wider px-1 flex items-center gap-1.5">
                           <span>
                             {isSent ? `${m.author?.name ?? "Henley"} via ${m.channel.replace("_", " ")}` : `${m.fromName} via ${m.channel.replace("_", " ")}`}
                           </span>
@@ -291,7 +291,7 @@ export default async function InboxPage({
                       <Send className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <div className="text-[10px] text-ink-muted text-center mt-2.5 font-medium">
+                  <div className="hh-caption text-center mt-2.5">
                     Replies go out on the same channel as the thread. Email/SMS gateways are stubbed.
                   </div>
                 </form>

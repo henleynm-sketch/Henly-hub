@@ -698,4 +698,144 @@ html:not(.light) .border-slate-100,
   color: var(--error-text) !important;
 }
 
+/* ============================================================
+   HENLEY HUB — DESIGN SYSTEM (role-switcher standard)
+   ============================================================ */
 
+:root, .dark, html.dark, [data-theme="dark"] {
+  --hh-canvas:        #0A0A0B;
+  --hh-panel:         #1C1C1E;
+  --hh-row:           #26262A;
+  --hh-row-hover:     #2E2E33;
+  --hh-text:          #FFFFFF;
+  --hh-text-2:        #A0A4AC;
+  --hh-text-3:        #7C8088;
+  --hh-border:        rgba(255,255,255,0.10);
+  --hh-divider:       rgba(255,255,255,0.08);
+  --hh-accent:        #5C7CFA;
+  --hh-dot-red:       #FF5C5C;
+  --hh-dot-blue:      #4C8DFF;
+  --hh-dot-green:     #34C759;
+  --hh-dot-orange:    #FF9F0A;
+  --hh-dot-purple:    #BF5AF2;
+  --hh-chip-bg:       rgba(255,255,255,0.08);
+  --hh-chip-text:     #C7CBD1;
+  --hh-shadow:        0 16px 48px rgba(0,0,0,0.50);
+}
+
+.light, html.light, [data-theme="light"] {
+  --hh-canvas:        #F5F0E8;
+  --hh-panel:         #FFFFFF;
+  --hh-row:           #F7F4EE;
+  --hh-row-hover:     #EFEAE0;
+  --hh-text:          #141417;
+  --hh-text-2:        #5A616B;
+  --hh-text-3:        #8A8F98;
+  --hh-border:        rgba(0,0,0,0.10);
+  --hh-divider:       rgba(0,0,0,0.08);
+  --hh-accent:        #E8621A;
+  --hh-dot-red:       #E5484D;
+  --hh-dot-blue:      #3B82F6;
+  --hh-dot-green:     #2DA44E;
+  --hh-dot-orange:    #E8621A;
+  --hh-dot-purple:    #9333EA;
+  --hh-chip-bg:       rgba(0,0,0,0.06);
+  --hh-chip-text:     #3A3F47;
+  --hh-shadow:        0 12px 36px rgba(20,20,23,0.14);
+}
+
+.hh-panel {
+  background: var(--hh-panel);
+  border: 1px solid var(--hh-border);
+  border-radius: 20px;
+  box-shadow: var(--hh-shadow);
+  padding: 20px;
+}
+
+.hh-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hh-text-3);
+}
+
+.hh-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--hh-row);
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: background 140ms cubic-bezier(.2,.8,.2,1), transform 140ms cubic-bezier(.2,.8,.2,1);
+  cursor: pointer;
+}
+.hh-row:hover { background: var(--hh-row-hover); transform: translateY(-1px); }
+.hh-row + .hh-row { margin-top: 8px; }
+.hh-row--flat { background: transparent; }
+.hh-row--flat:hover, .hh-row--active { background: var(--hh-row); }
+
+.hh-primary {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--hh-text);
+  line-height: 1.3;
+}
+.hh-secondary {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--hh-text-2);
+  line-height: 1.4;
+}
+
+.hh-dot { width: 10px; height: 10px; border-radius: 9999px; flex-shrink: 0; }
+.hh-dot--red    { background: var(--hh-dot-red); }
+.hh-dot--blue   { background: var(--hh-dot-blue); }
+.hh-dot--green  { background: var(--hh-dot-green); }
+.hh-dot--orange { background: var(--hh-dot-orange); }
+.hh-dot--purple { background: var(--hh-dot-purple); }
+
+.hh-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hh-accent);
+  border: 1px solid var(--hh-accent);
+  background: transparent;
+  border-radius: 9999px;
+  padding: 3px 10px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.hh-badge--success { color: var(--hh-dot-green);  border-color: var(--hh-dot-green); }
+.hh-badge--warning { color: var(--hh-dot-orange); border-color: var(--hh-dot-orange); }
+.hh-badge--danger  { color: var(--hh-dot-red);    border-color: var(--hh-dot-red); }
+
+.hh-divider { border: 0; border-top: 1px solid var(--hh-divider); margin: 14px 0 12px; }
+.hh-caption { font-size: 12px; color: var(--hh-text-3); }
+.hh-chip {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--hh-chip-text);
+  background: var(--hh-chip-bg);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.hh-close {
+  margin-left: auto;
+  color: var(--hh-text-3);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+.hh-close:hover { background: var(--hh-row); color: var(--hh-text); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-row, .hh-row:hover { transform: none; }
+}

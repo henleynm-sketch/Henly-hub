@@ -27,22 +27,23 @@ export default function SubDashboard({
       />
       <div className="grid gap-6 p-6 md:grid-cols-2">
         {projects.length === 0 && (
-          <div className="glass-card p-6 text-sm text-ink-soft">No scopes assigned yet.</div>
+          <div className="hh-panel p-6 hh-secondary">No scopes assigned yet.</div>
         )}
         {projects.map((p) => (
-          <Link key={p.id} href={`/projects/${p.id}`} className="glass-card p-6 group">
+          <Link key={p.id} href={`/projects/${p.id}`} className="hh-panel p-6 group">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold text-ink group-hover:text-accent transition-colors">{p.name}</div>
-              <span className="badge-violet">Subcontract</span>
+              <div className="hh-primary">{p.name}</div>
+              <span className="hh-badge">Subcontract</span>
             </div>
-            <div className="mt-1 text-xs text-ink-soft">{p.address ?? "—"}</div>
-            
-            <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-ink-soft border-t border-glass-border pt-3">
-              <div><span className="label block text-[10px] text-ink-muted">Start Date</span><span className="text-ink font-medium">{formatDate(p.startDate)}</span></div>
-              <div><span className="label block text-[10px] text-ink-muted">Target End</span><span className="text-ink font-medium">{formatDate(p.targetEnd)}</span></div>
+            <div className="mt-1 hh-secondary">{p.address ?? "—"}</div>
+
+            <hr className="hh-divider" />
+            <div className="grid grid-cols-2 gap-3">
+              <div><span className="hh-label block">Start Date</span><span className="hh-primary">{formatDate(p.startDate)}</span></div>
+              <div><span className="hh-label block">Target End</span><span className="hh-primary">{formatDate(p.targetEnd)}</span></div>
             </div>
-            
-            <div className="mt-4 text-xs text-ink-soft leading-relaxed italic bg-row-bg border border-glass-border rounded-[10px] p-3">
+
+            <div className="mt-4 hh-row hh-caption italic">
               Subs see only their assigned scope, schedule, and documents.
             </div>
           </Link>

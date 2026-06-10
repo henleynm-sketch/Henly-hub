@@ -31,33 +31,34 @@ export default function FieldDashboard({
       />
       <div className="grid gap-6 p-6 md:grid-cols-2">
         {projects.length === 0 && (
-          <div className="glass-card p-6 text-sm text-ink-soft">You have no projects assigned yet.</div>
+          <div className="hh-panel p-6 hh-secondary">You have no projects assigned yet.</div>
         )}
         {projects.map((p) => {
           const next = p.milestones.find((m) => m.status !== "DONE");
           return (
-            <Link key={p.id} href={`/projects/${p.id}`} className="glass-card p-6 group">
+            <Link key={p.id} href={`/projects/${p.id}`} className="hh-panel p-6 group">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-ink group-hover:text-accent transition-colors">{p.name}</div>
+                <div className="hh-primary">{p.name}</div>
                 <span className={statusBadge(p.status)}>{statusLabel(p.status)}</span>
               </div>
-              <div className="mt-1.5 text-xs text-ink-soft">
+              <div className="mt-1.5 hh-secondary">
                 {p.client.name} · {p.address ?? "—"}
               </div>
-              
-              <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-ink-soft border-t border-glass-border pt-3">
-                <div><span className="label block text-[10px] text-ink-muted">Start Date</span><span className="text-ink font-medium">{formatDate(p.startDate)}</span></div>
-                <div><span className="label block text-[10px] text-ink-muted">Target End</span><span className="text-ink font-medium">{formatDate(p.targetEnd)}</span></div>
+
+              <hr className="hh-divider" />
+              <div className="grid grid-cols-2 gap-3">
+                <div><span className="hh-label block">Start Date</span><span className="hh-primary">{formatDate(p.startDate)}</span></div>
+                <div><span className="hh-label block">Target End</span><span className="hh-primary">{formatDate(p.targetEnd)}</span></div>
               </div>
 
               {next && (
-                <div className="mt-4 rounded-[10px] bg-row-bg border border-glass-border px-4 py-3">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">
+                <div className="mt-4 hh-row flex-col !items-start !gap-0">
+                  <div className="hh-label">
                     Next milestone
                   </div>
-                  <div className="text-sm font-semibold text-ink mt-0.5">{next.title}</div>
+                  <div className="hh-primary mt-0.5">{next.title}</div>
                   {next.dueDate && (
-                    <div className="text-xs text-ink-soft mt-0.5">Due {formatDate(next.dueDate)}</div>
+                    <div className="hh-secondary mt-0.5">Due {formatDate(next.dueDate)}</div>
                   )}
                 </div>
               )}
@@ -75,11 +76,11 @@ export default function FieldDashboard({
 }
 
 function statusBadge(s: string) {
-  if (s === "IN_PROGRESS") return "badge-green";
-  if (s === "PLANNING") return "badge-blue";
-  if (s === "ON_HOLD") return "badge-amber";
-  if (s === "COMPLETE") return "badge-slate";
-  return "badge-slate";
+  if (s === "IN_PROGRESS") return "hh-badge hh-badge--success";
+  if (s === "PLANNING") return "hh-badge";
+  if (s === "ON_HOLD") return "hh-badge hh-badge--warning";
+  if (s === "COMPLETE") return "hh-badge";
+  return "hh-badge";
 }
 function statusLabel(s: string) {
   return s.replace("_", " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());

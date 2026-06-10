@@ -63,40 +63,40 @@ export default function OfficeDashboard({
         {/* Dashboard Grid */}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Inbox Activity */}
-          <section className="glass-card lg:col-span-2 p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-glass-border pb-3">
-              <h2 className="text-sm font-semibold text-ink">Recent inbox activity</h2>
+          <section className="hh-panel lg:col-span-2 p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-3">
+              <h2 className="hh-label">Recent inbox activity</h2>
               <Link href="/inbox" className="text-xs text-accent hover:text-accent-hover hover:underline transition-colors font-medium">Open inbox</Link>
             </div>
             <ul className="space-y-2">
-              {threads.length === 0 && <li className="py-2 text-sm text-ink-soft">Nothing yet.</li>}
+              {threads.length === 0 && <li className="py-2 hh-secondary">Nothing yet.</li>}
               {threads.map((t) => (
-                <li key={t.id} className="flex items-start gap-3 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover hover:text-ink transition-colors">
+                <li key={t.id} className="hh-row !items-start">
                   <ChannelDot channel={t.channel} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="truncate text-sm font-semibold text-ink">{t.client?.name ?? "Unknown"}</span>
-                      <span className="text-xs text-ink-muted font-medium">· {t.channel.toLowerCase()}</span>
-                      {t.unread > 0 && <span className="badge-blue ml-1.5">{t.unread} new</span>}
+                      <span className="hh-primary truncate">{t.client?.name ?? "Unknown"}</span>
+                      <span className="hh-secondary">· {t.channel.toLowerCase()}</span>
+                      {t.unread > 0 && <span className="hh-badge !ml-1.5">{t.unread} new</span>}
                     </div>
-                    <div className="truncate text-sm text-ink mt-0.5 font-semibold">{t.subject}</div>
+                    <div className="hh-primary truncate mt-0.5">{t.subject}</div>
                     {t.messages[0] && (
-                      <div className="mt-1 truncate text-xs text-ink-soft leading-relaxed">{t.messages[0].body}</div>
+                      <div className="mt-1 truncate hh-secondary">{t.messages[0].body}</div>
                     )}
                   </div>
-                  <div className="text-xs text-ink-muted font-medium whitespace-nowrap">{formatRelative(t.lastAt)}</div>
+                  <div className="hh-secondary whitespace-nowrap">{formatRelative(t.lastAt)}</div>
                 </li>
               ))}
             </ul>
           </section>
 
           {/* Daily Logs */}
-          <section className="glass-card p-6 flex flex-col gap-4">
-            <div className="border-b border-glass-border pb-3">
-              <h2 className="text-sm font-semibold text-ink">Latest daily logs</h2>
+          <section className="hh-panel p-6 flex flex-col gap-4">
+            <div className="pb-3">
+              <h2 className="hh-label">Latest daily logs</h2>
             </div>
             <ul className="space-y-2">
-              {recentLogs.length === 0 && <li className="py-2 text-sm text-ink-soft">No logs yet.</li>}
+              {recentLogs.length === 0 && <li className="py-2 hh-secondary">No logs yet.</li>}
               {recentLogs.map((l) => {
                 let photoUrls: string[] = [];
                 if (l.photos) {
@@ -107,12 +107,12 @@ export default function OfficeDashboard({
                   }
                 }
                 return (
-                  <li key={l.id} className="flex flex-col gap-1 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
-                    <div className="text-sm font-semibold text-ink">{l.project.name}</div>
-                    <div className="text-xs text-ink-muted font-medium mt-0.5">
+                  <li key={l.id} className="hh-row flex-col !items-start !gap-1">
+                    <div className="hh-primary">{l.project.name}</div>
+                    <div className="hh-secondary mt-0.5">
                       {l.author.name} · {formatRelative(l.date)}
                     </div>
-                    <div className="mt-2 line-clamp-2 text-sm text-ink-soft leading-relaxed">{l.notes}</div>
+                    <div className="mt-2 line-clamp-2 hh-secondary">{l.notes}</div>
                     {photoUrls.length > 0 && (
                       <div className="mt-3 flex gap-1.5">
                         {photoUrls.slice(0, 5).map((url, idx) => (
@@ -142,10 +142,10 @@ export default function OfficeDashboard({
 
 function ChannelDot({ channel }: { channel: string }) {
   const tone = {
-    EMAIL: "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]",
-    SMS: "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]",
-    IN_APP: "bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]",
-    CALL_NOTE: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]",
+    EMAIL: "hh-dot--blue",
+    SMS: "hh-dot--green",
+    IN_APP: "hh-dot--purple",
+    CALL_NOTE: "hh-dot--orange",
   }[channel] ?? "bg-slate-400";
-  return <span className={`mt-1.5 h-2.5 w-2.5 rounded-full shrink-0 ${tone}`} />;
+  return <span className={`hh-dot mt-1.5 ${tone}`} />;
 }

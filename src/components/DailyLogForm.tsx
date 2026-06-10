@@ -98,7 +98,7 @@ export default function DailyLogForm({ addLogAction }: DailyLogFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 border-b border-slate-100 px-5 py-4">
+    <form onSubmit={handleSubmit} className="space-y-4 border-b border-glass-border px-5 py-4">
       {error && (
         <div className="rounded-md bg-rose-50 p-2.5 text-xs text-rose-700 font-medium">
           {error}
@@ -163,18 +163,18 @@ export default function DailyLogForm({ addLogAction }: DailyLogFormProps) {
         </div>
       )}
 
-      <div className="flex items-center justify-between border-t border-slate-50 pt-3">
+      <div className="flex items-center justify-between border-t border-glass-border pt-3">
         <div className="flex items-center gap-3">
           {/* File Input trigger */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 active:bg-slate-100 disabled:opacity-50"
+            className="btn btn-secondary flex items-center gap-1.5 px-2.5 py-1.5 text-xs"
             disabled={isPending || files.length >= 5}
           >
-            <Camera size={14} className="text-slate-500" />
+            <Camera size={14} />
             <span>Add Photos</span>
-            {files.length > 0 && <span className="text-slate-400">({files.length}/5)</span>}
+            {files.length > 0 && <span className="hh-caption">({files.length}/5)</span>}
           </button>
           <input
             type="file"
@@ -186,7 +186,7 @@ export default function DailyLogForm({ addLogAction }: DailyLogFormProps) {
             name="photos"
           />
 
-          <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+          <label className="flex items-center gap-2 hh-secondary cursor-pointer select-none">
             <input
               type="checkbox"
               name="clientVisible"

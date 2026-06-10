@@ -39,9 +39,9 @@ export default async function SignInPage({
           <span className="text-xl font-bold tracking-tight text-ink">Henley Hub</span>
         </Link>
 
-        <div className="glass-card p-6">
+        <div className="hh-panel p-6">
           <h1 className="text-xl font-bold text-ink">Sign in</h1>
-          <p className="mt-1 text-sm text-ink-soft">Enter your hub credentials.</p>
+          <p className="mt-1 hh-secondary">Enter your hub credentials.</p>
 
           {sp.error && (
             <div className="mt-4 rounded-[10px] border border-rose-500/20 bg-rose-500/5 px-3 py-2.5 text-sm text-status-error font-medium shadow-sm">
@@ -72,13 +72,13 @@ export default async function SignInPage({
           </form>
         </div>
 
-        <div className="glass-card mt-6 p-6">
-          <div className="section-label mb-3">Demo logins (password: demo)</div>
+        <div className="hh-panel mt-6 p-6">
+          <div className="hh-label mb-3">Demo logins (password: demo)</div>
           <ul className="grid gap-2">
             {demoLogins.map((d) => (
-              <li key={d.email} className="list-row-item justify-between py-2 px-3 text-xs md:text-sm">
-                <span className="font-mono text-ink-soft font-medium">{d.email}</span>
-                <span className="text-ink-muted text-xs font-semibold uppercase tracking-wider">{d.role}</span>
+              <li key={d.email} className="hh-row justify-between">
+                <span className="hh-secondary font-mono">{d.email}</span>
+                <span className="hh-label">{d.role}</span>
               </li>
             ))}
           </ul>

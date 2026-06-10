@@ -72,38 +72,39 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Status & Action Card */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="glass-card p-6">
-              <h2 className="text-base font-semibold text-ink">Connection Status</h2>
-              
+            <div className="hh-panel p-6">
+              <h2 className="hh-label">Connection Status</h2>
+
               {token ? (
                 // Connected State
                 <div className="mt-4">
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="badge-green">
+                    <span className="hh-badge hh-badge--success !ml-0 inline-flex items-center">
                       <ShieldCheck className="mr-1 h-3.5 w-3.5" />
                       Connected
                     </span>
-                    <span className="text-sm text-ink-soft">
-                      Realm ID: <code className="bg-chip-bg text-chip-text px-1.5 py-0.5 rounded font-mono border border-glass-border">{token.realmId}</code>
+                    <span className="hh-secondary">
+                      Realm ID: <code className="hh-chip">{token.realmId}</code>
                     </span>
                   </div>
- 
-                  <div className="mt-6 border-t border-glass-border pt-5">
-                    <h3 className="text-sm font-semibold text-ink">Connection Details</h3>
-                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-ink-soft">
-                      <div className="rounded-[10px] bg-row-bg p-3.5 border border-glass-border">
-                        <span className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">Authorization Scope</span>
-                        <span className="font-semibold text-ink">Accounting (Read/Write)</span>
+
+                  <div className="mt-6">
+                    <hr className="hh-divider" />
+                    <h3 className="hh-label">Connection Details</h3>
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="hh-row flex-col !items-start !gap-0">
+                        <span className="hh-label block mb-1">Authorization Scope</span>
+                        <span className="hh-primary">Accounting (Read/Write)</span>
                       </div>
-                      <div className="rounded-[10px] bg-row-bg p-3.5 border border-glass-border">
-                        <span className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">Token Expires At</span>
-                        <span className="font-semibold text-ink">
+                      <div className="hh-row flex-col !items-start !gap-0">
+                        <span className="hh-label block mb-1">Token Expires At</span>
+                        <span className="hh-primary">
                           {new Date(token.expiresAt).toLocaleTimeString()} on {new Date(token.expiresAt).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
                   </div>
- 
+
                   <div className="mt-6 flex flex-wrap items-center gap-3">
                     <a
                       href="/integrations/quickbooks/employees"
@@ -120,8 +121,8 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                         Disconnect QuickBooks
                       </button>
                     </form>
-                    <span className="text-xs text-ink-muted flex items-center gap-1">
-                      <RefreshCw className="h-3 w-3 animate-spin text-ink-muted" />
+                    <span className="hh-caption flex items-center gap-1">
+                      <RefreshCw className="h-3 w-3 animate-spin" />
                       Auto-refresh active
                     </span>
                   </div>
@@ -130,13 +131,13 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                 // Disconnected State
                 <div className="mt-4">
                   <div className="flex items-center gap-2">
-                    <span className="badge-amber">Not connected</span>
-                    <span className="text-sm text-ink-soft">No company linked</span>
+                    <span className="hh-badge hh-badge--warning !ml-0">Not connected</span>
+                    <span className="hh-secondary">No company linked</span>
                   </div>
-                  <p className="mt-4 text-sm text-ink-soft leading-relaxed">
+                  <p className="mt-4 hh-secondary">
                     Link your QuickBooks Online Sandbox or Production company to Henley Hub. Once authorized, Henley Hub can automatically sync estimates, contracts, invoices, and expenses.
                   </p>
-                  
+
                   <div className="mt-6">
                     <a
                       href="/api/auth/quickbooks"
@@ -146,50 +147,50 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                       Connect QuickBooks (OAuth)
                     </a>
                   </div>
-                  
-                  <p className="mt-3 text-xs text-ink-muted leading-normal">
-                    This will redirect you securely to QuickBooks for authentication. 
-                    Ensure <code>QB_CLIENT_ID</code>, <code>QB_CLIENT_SECRET</code>, and <code>QB_REDIRECT_URI</code> are correctly configured.
+
+                  <p className="mt-3 hh-caption leading-normal">
+                    This will redirect you securely to QuickBooks for authentication.
+                    Ensure <code className="hh-chip">QB_CLIENT_ID</code>, <code className="hh-chip">QB_CLIENT_SECRET</code>, and <code className="hh-chip">QB_REDIRECT_URI</code> are correctly configured.
                   </p>
                 </div>
               )}
             </div>
  
             {/* Sync Features Grid */}
-            <div className="glass-card p-6">
-              <h2 className="text-base font-semibold text-ink">Synchronized Workflows</h2>
-              <p className="mt-1 text-sm text-ink-soft">How Henley Hub integrates with your books.</p>
-              
+            <div className="hh-panel p-6">
+              <h2 className="hh-label">Synchronized Workflows</h2>
+              <p className="mt-1 hh-secondary">How Henley Hub integrates with your books.</p>
+
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <div className="flex gap-3 rounded-[10px] border border-glass-border bg-row-bg p-4">
+                <div className="hh-row !items-start">
                   <Database className="h-5 w-5 text-accent shrink-0" />
                   <div>
-                    <h3 className="text-sm font-semibold text-ink">Customer Mapping</h3>
-                    <p className="mt-1 text-xs text-ink-soft leading-normal">Clients created in CRM link to QuickBooks Customer records automatically using `qbCustomerId`.</p>
+                    <h3 className="hh-primary">Customer Mapping</h3>
+                    <p className="mt-1 hh-secondary">Clients created in CRM link to QuickBooks Customer records automatically using `qbCustomerId`.</p>
                   </div>
                 </div>
- 
-                <div className="flex gap-3 rounded-[10px] border border-glass-border bg-row-bg p-4">
+
+                <div className="hh-row !items-start">
                   <FileSpreadsheet className="h-5 w-5 text-accent shrink-0" />
                   <div>
-                    <h3 className="text-sm font-semibold text-ink">Invoices & Estimates</h3>
-                    <p className="mt-1 text-xs text-ink-soft leading-normal">Convert accepted estimates to QuickBooks Estimates or Invoices, syncing payment terms and line items.</p>
+                    <h3 className="hh-primary">Invoices & Estimates</h3>
+                    <p className="mt-1 hh-secondary">Convert accepted estimates to QuickBooks Estimates or Invoices, syncing payment terms and line items.</p>
                   </div>
                 </div>
- 
-                <div className="flex gap-3 rounded-[10px] border border-glass-border bg-row-bg p-4">
+
+                <div className="hh-row !items-start">
                   <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
                   <div>
-                    <h3 className="text-sm font-semibold text-ink">Payment Synchronization</h3>
-                    <p className="mt-1 text-xs text-ink-soft leading-normal">Mark project milestones paid in real-time when payments are registered in QuickBooks.</p>
+                    <h3 className="hh-primary">Payment Synchronization</h3>
+                    <p className="mt-1 hh-secondary">Mark project milestones paid in real-time when payments are registered in QuickBooks.</p>
                   </div>
                 </div>
- 
-                <div className="flex gap-3 rounded-[10px] border border-glass-border bg-row-bg p-4">
+
+                <div className="hh-row !items-start">
                   <AlertCircle className="h-5 w-5 text-accent shrink-0" />
                   <div>
-                    <h3 className="text-sm font-semibold text-ink">Cost & Budget Tracking</h3>
-                    <p className="mt-1 text-xs text-ink-soft leading-normal">Pull actual costs and vendor bills from QuickBooks directly into the project financial tracker.</p>
+                    <h3 className="hh-primary">Cost & Budget Tracking</h3>
+                    <p className="mt-1 hh-secondary">Pull actual costs and vendor bills from QuickBooks directly into the project financial tracker.</p>
                   </div>
                 </div>
               </div>
@@ -197,28 +198,28 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
           </div>
  
           {/* Sync Overview Guide */}
-          <div className="glass-card p-6 h-fit">
-            <h2 className="text-base font-semibold text-ink">How the sync works</h2>
-            <ol className="mt-4 relative border-l border-glass-border pl-4 space-y-6 text-sm text-ink-soft">
+          <div className="hh-panel p-6 h-fit">
+            <h2 className="hh-label">How the sync works</h2>
+            <ol className="mt-4 relative border-l border-glass-border pl-4 space-y-6">
               <li className="relative">
                 <span className="absolute -left-[22px] top-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-glass-border ring-4 ring-canvas" />
-                <h4 className="font-semibold text-ink">1. Client Proposal Acceptance</h4>
-                <p className="mt-1 text-xs text-ink-soft">Estimate accepted by customer → automatically creates a contract record in Henley Hub.</p>
+                <h4 className="hh-primary">1. Client Proposal Acceptance</h4>
+                <p className="mt-1 hh-secondary">Estimate accepted by customer → automatically creates a contract record in Henley Hub.</p>
               </li>
               <li className="relative">
                 <span className="absolute -left-[22px] top-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-glass-border ring-4 ring-canvas" />
-                <h4 className="font-semibold text-ink">2. QuickBooks Sync Triggered</h4>
-                <p className="mt-1 text-xs text-ink-soft">Hub pushes estimate details directly to QuickBooks Online and maps to client's `qbCustomerId`.</p>
+                <h4 className="hh-primary">2. QuickBooks Sync Triggered</h4>
+                <p className="mt-1 hh-secondary">Hub pushes estimate details directly to QuickBooks Online and maps to client's `qbCustomerId`.</p>
               </li>
               <li className="relative">
                 <span className="absolute -left-[22px] top-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-glass-border ring-4 ring-canvas" />
-                <h4 className="font-semibold text-ink">3. Webhook Updates Status</h4>
-                <p className="mt-1 text-xs text-ink-soft">When client pays the invoice in QuickBooks, a webhook notifies Hub to mark the milestone paid.</p>
+                <h4 className="hh-primary">3. Webhook Updates Status</h4>
+                <p className="mt-1 hh-secondary">When client pays the invoice in QuickBooks, a webhook notifies Hub to mark the milestone paid.</p>
               </li>
               <li className="relative">
                 <span className="absolute -left-[22px] top-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-glass-border ring-4 ring-canvas" />
-                <h4 className="font-semibold text-ink">4. Expenses Pulled Down</h4>
-                <p className="mt-1 text-xs text-ink-soft">Vendor bills and actual costs sync from QB as `BudgetItem.actualCents` for real-time profitability tracking.</p>
+                <h4 className="hh-primary">4. Expenses Pulled Down</h4>
+                <p className="mt-1 hh-secondary">Vendor bills and actual costs sync from QB as `BudgetItem.actualCents` for real-time profitability tracking.</p>
               </li>
             </ol>
           </div>

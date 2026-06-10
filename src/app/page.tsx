@@ -71,7 +71,10 @@ export default function Home() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-white shadow-[0_2px_8px_rgba(92,124,250,0.3)]">
+            <div
+              className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-white"
+              style={{ boxShadow: "0 2px 8px rgba(92,124,250,0.3)" }}
+            >
               <Construction className="h-4 w-4" />
             </div>
             <div>
@@ -143,8 +146,8 @@ export default function Home() {
                 key={f.title}
                 className="flex"
               >
-                <div 
-                  className="card p-6 border border-glass-border bg-glass-bg hover:border-accent/40 hover:bg-glass-bg/90 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(92,124,250,0.1)] dark:hover:shadow-[0_12px_32px_rgba(92,124,250,0.25)] group transition-all duration-300 w-full flex flex-col"
+                <div
+                  className="hh-panel p-6 hover:scale-[1.03] hover:-translate-y-1 group transition-all duration-300 w-full flex flex-col"
                 >
                   <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/5 border border-glass-border text-accent group-hover:bg-accent/10 group-hover:border-accent/25 transition-colors">
                     <Icon className="h-5 w-5" />
@@ -160,9 +163,9 @@ export default function Home() {
 
       {/* Premium Footer */}
       <footer className="border-t border-glass-border bg-glass-sidebar/65 backdrop-blur-md py-8">
-        <div className="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
+        <div className="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4 hh-caption font-medium">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-400">Henley Hub</span>
+            <span className="font-semibold">Henley Hub</span>
             <span>·</span>
             <span>Internal operating system</span>
           </div>

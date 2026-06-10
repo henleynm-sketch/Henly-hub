@@ -4,11 +4,11 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 const ROLES = [
-  { email: "kyle@henleyhub.com", label: "CEO / Owner", color: "bg-rose-500" },
-  { email: "morgan@henleyhub.com", label: "Office / PM", color: "bg-blue-500" },
-  { email: "jess@henleyhub.com", label: "Field — Lead", color: "bg-emerald-500" },
-  { email: "tile-pro@subs.com", label: "Sub — Tile", color: "bg-amber-500" },
-  { email: "rachel.t@example.com", label: "Client — Tomlinson", color: "bg-violet-500" },
+  { email: "kyle@henleyhub.com", label: "CEO / Owner", color: "hh-dot--red" },
+  { email: "morgan@henleyhub.com", label: "Office / PM", color: "hh-dot--blue" },
+  { email: "jess@henleyhub.com", label: "Field — Lead", color: "hh-dot--green" },
+  { email: "tile-pro@subs.com", label: "Sub — Tile", color: "hh-dot--orange" },
+  { email: "rachel.t@example.com", label: "Client — Tomlinson", color: "hh-dot--purple" },
 ];
 
 export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: string | null }) {
@@ -38,17 +38,17 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {open ? (
-        <div className="w-72 p-5 rounded-[24px] border border-glass-border bg-glass-bg/95 shadow-glass backdrop-blur-glass text-ink flex flex-col gap-4">
+        <div className="hh-panel w-72 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+              <div className="hh-label">
                 Demo: switch role
               </div>
-              <div className="text-[10px] text-ink-soft font-mono">Dev mode only</div>
+              <div className="hh-caption font-mono">Dev mode only</div>
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="text-ink-soft hover:text-ink text-lg font-bold transition-colors"
+              className="hh-close"
               aria-label="Close"
             >
               ×
@@ -62,18 +62,16 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
                   <button
                     disabled={pending || active}
                     onClick={() => switchTo(r.email)}
-                    className={`flex w-full items-center gap-3 rounded-[10px] px-4 py-3 text-left text-sm transition-all ${
-                      active 
-                        ? "bg-row-active text-ink font-semibold cursor-default" 
-                        : "text-ink-soft hover:bg-row-hover hover:text-ink"
+                    className={`hh-row w-full text-left ${
+                      active ? "hh-row--active cursor-default" : "hh-row--flat"
                     }`}
                   >
-                    <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${r.color}`} />
+                    <span className={`hh-dot ${r.color}`} />
                     <span className="flex-1 min-w-0">
-                      <div className="font-semibold truncate text-ink">{r.label}</div>
-                      <div className="text-xs text-ink-soft truncate">{r.email}</div>
+                      <div className="hh-primary truncate">{r.label}</div>
+                      <div className="hh-secondary truncate">{r.email}</div>
                     </span>
-                    {active && <span className="text-[9px] font-bold uppercase text-accent border border-accent/20 bg-accent/10 px-1.5 py-0.5 rounded-full shrink-0">active</span>}
+                    {active && <span className="hh-badge">active</span>}
                   </button>
                 </li>
               );
@@ -82,9 +80,12 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
           {error && (
             <div className="border-t border-glass-border pt-2 text-xs text-rose-400 font-semibold">{error}</div>
           )}
-          <div className="border-t border-glass-border pt-3 text-[10px] text-ink-soft leading-normal flex items-center justify-between">
-            <span>Password for all demo users:</span>
-            <code className="bg-chip-bg text-chip-text px-1.5 py-0.5 rounded font-mono">demo</code>
+          <div>
+            <hr className="hh-divider" />
+            <div className="hh-caption leading-normal flex items-center justify-between">
+              <span>Password for all demo users:</span>
+              <code className="hh-chip">demo</code>
+            </div>
           </div>
         </div>
       ) : (

@@ -22,7 +22,7 @@ export default async function ClientsPage({
   if (!session?.user) redirect("/sign-in");
   const role = session.user.role as Role;
   if (!canViewAllProjects(role) && role !== "FIELD") {
-    return <div className="p-8 text-sm text-slate-500">CRM is only visible to office staff.</div>;
+    return <div className="p-8 hh-secondary">CRM is only visible to office staff.</div>;
   }
   const sp = await searchParams;
   const q = (sp.q ?? "").trim();
@@ -93,7 +93,7 @@ export default async function ClientsPage({
         actions={<Link href="/clients/new" className="btn-primary">+ New lead</Link>}
       />
       <div className="space-y-6 p-6">
-        <section className="card p-6 flex flex-col gap-4">
+        <section className="hh-panel p-6 flex flex-col gap-4">
           <form action="/clients" method="get" className="flex flex-wrap items-center gap-2">
             <input
               type="search"
@@ -135,7 +135,7 @@ export default async function ClientsPage({
 
           {sources.length > 1 && (
             <div className="flex flex-wrap items-center gap-1.5 border-t border-glass-border pt-3">
-              <span className="text-xs uppercase tracking-wide text-ink-soft mr-1">Source:</span>
+              <span className="hh-label mr-1">Source:</span>
               <Link
                 href={buildHref({ source: undefined, page: "1" })}
                 className={`badge ${!source ? "border-accent bg-accent/10 text-accent font-semibold" : "bg-row-bg border border-glass-border text-ink-soft hover:bg-row-hover hover:text-ink"}`}
@@ -159,46 +159,46 @@ export default async function ClientsPage({
           )}
         </section>
 
-        <section className="glass-card overflow-x-auto">
+        <section className="hh-panel overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-row-bg border-b border-glass-border text-xs uppercase tracking-wider text-ink-muted">
+            <thead className="border-b border-glass-border">
               <tr>
-                <th className="px-5 py-3.5 text-left font-medium">Client</th>
-                <th className="px-5 py-3.5 text-left font-medium">Stage</th>
-                <th className="px-5 py-3.5 text-left font-medium">Source</th>
-                <th className="px-5 py-3.5 text-left font-medium">Projects</th>
-                <th className="px-5 py-3.5 text-left font-medium">Threads</th>
-                <th className="px-5 py-3.5 text-left font-medium">Updated</th>
+                <th className="hh-label px-5 py-3.5 text-left">Client</th>
+                <th className="hh-label px-5 py-3.5 text-left">Stage</th>
+                <th className="hh-label px-5 py-3.5 text-left">Source</th>
+                <th className="hh-label px-5 py-3.5 text-left">Projects</th>
+                <th className="hh-label px-5 py-3.5 text-left">Threads</th>
+                <th className="hh-label px-5 py-3.5 text-left">Updated</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-glass-border">
               {clients.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-5 py-8 text-center text-sm text-ink-soft">
+                  <td colSpan={6} className="px-5 py-8 text-center hh-secondary">
                     No clients match those filters.
                   </td>
                 </tr>
               )}
               {clients.map((c) => (
-                <tr key={c.id} className="hover:bg-row-hover transition-colors">
+                <tr key={c.id} className="hh-row--flat">
                   <td className="px-5 py-3">
-                    <Link href={`/clients/${c.id}`} className="font-medium text-ink hover:text-accent">
+                    <Link href={`/clients/${c.id}`} className="hh-primary">
                       {c.name}
                     </Link>
-                    <div className="text-xs text-ink-soft">{c.primaryEmail ?? c.primaryPhone ?? "—"}</div>
+                    <div className="hh-secondary">{c.primaryEmail ?? c.primaryPhone ?? "—"}</div>
                   </td>
                   <td className="px-5 py-3"><span className={stageBadge(c.stage)}>{stageLabel(c.stage)}</span></td>
-                  <td className="px-5 py-3 text-ink-soft">{c.source ?? "—"}</td>
-                  <td className="px-5 py-3 text-ink-soft">{c._count.projects}</td>
-                  <td className="px-5 py-3 text-ink-soft">{c._count.threads}</td>
-                  <td className="px-5 py-3 text-ink-soft">{formatRelative(c.updatedAt)}</td>
+                  <td className="px-5 py-3 hh-secondary">{c.source ?? "—"}</td>
+                  <td className="px-5 py-3 hh-secondary">{c._count.projects}</td>
+                  <td className="px-5 py-3 hh-secondary">{c._count.threads}</td>
+                  <td className="px-5 py-3 hh-secondary">{formatRelative(c.updatedAt)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-glass-border px-5 py-3 text-sm">
-              <span className="text-ink-soft">
+              <span className="hh-caption">
                 Page {page} of {totalPages} · showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} of {totalCount.toLocaleString()}
               </span>
               <div className="flex gap-2">
@@ -214,33 +214,33 @@ export default async function ClientsPage({
         </section>
 
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-ink">
-            Pipeline {hasFilters && <span className="text-xs font-normal text-ink-soft">(reflects current filters)</span>}
+          <h2 className="mb-3 hh-label">
+            Pipeline {hasFilters && <span className="hh-caption normal-case tracking-normal">(reflects current filters)</span>}
           </h2>
           <div className="overflow-x-auto pb-2">
             <div className="flex gap-3 min-w-max">
               {byStage.map((col) => (
-                <div key={col.stage} className="w-56 flex-shrink-0 rounded-[16px] bg-row-bg border border-glass-border p-4 flex flex-col gap-3">
+                <div key={col.stage} className="hh-panel w-56 flex-shrink-0 p-4 flex flex-col gap-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+                    <span className="hh-label">
                       {stageLabel(col.stage)}
                     </span>
-                    <span className="text-xs text-ink-muted font-medium">{col.items.length}</span>
+                    <span className="hh-secondary">{col.items.length}</span>
                   </div>
                   <ul className="space-y-2">
                     {col.items.slice(0, 8).map((c) => (
                       <li key={c.id}>
                         <Link
                           href={`/clients/${c.id}`}
-                          className="block p-4 glass-card rounded-[12px]"
+                          className="hh-row flex-col !items-start !gap-0"
                         >
-                          <div className="text-sm font-semibold text-ink">{c.name}</div>
-                          <div className="text-xs text-ink-soft mt-1">{c.city ?? c.source ?? ""}</div>
+                          <div className="hh-primary">{c.name}</div>
+                          <div className="hh-secondary mt-1">{c.city ?? c.source ?? ""}</div>
                         </Link>
                       </li>
                     ))}
                     {col.items.length > 8 && (
-                      <li className="text-xs text-ink-muted px-1">+ {col.items.length - 8} more</li>
+                      <li className="hh-caption px-1">+ {col.items.length - 8} more</li>
                     )}
                   </ul>
                 </div>
@@ -271,13 +271,13 @@ function stageLabel(s: string): string {
 }
 
 function stageBadge(s: string) {
-  if (s === "LEAD") return "badge-slate";
-  if (s === "ONSITE_CONSULT") return "badge-blue";
-  if (s === "DESIGN_PROPOSAL" || s === "PROPOSAL_SENT") return "badge-violet";
-  if (s === "SOLD" || s === "ACTIVE") return "badge-green";
-  if (s === "ON_HOLD") return "badge-amber";
-  if (s === "WARRANTY") return "badge-amber";
-  if (s === "PAST") return "badge-slate";
-  if (s === "DEAD" || s === "LOST") return "badge-red";
-  return "badge-slate";
+  if (s === "LEAD") return "hh-badge";
+  if (s === "ONSITE_CONSULT") return "hh-badge";
+  if (s === "DESIGN_PROPOSAL" || s === "PROPOSAL_SENT") return "hh-badge";
+  if (s === "SOLD" || s === "ACTIVE") return "hh-badge hh-badge--success";
+  if (s === "ON_HOLD") return "hh-badge hh-badge--warning";
+  if (s === "WARRANTY") return "hh-badge hh-badge--warning";
+  if (s === "PAST") return "hh-badge";
+  if (s === "DEAD" || s === "LOST") return "hh-badge hh-badge--danger";
+  return "hh-badge";
 }
