@@ -11,6 +11,7 @@ export default auth((req) => {
   const isPublic =
     nextUrl.pathname === "/" ||
     nextUrl.pathname.startsWith("/api/auth") ||
+    nextUrl.pathname.startsWith("/api/external") ||
     nextUrl.pathname.startsWith("/_next") ||
     nextUrl.pathname.startsWith("/favicon");
 
