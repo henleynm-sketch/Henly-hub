@@ -124,12 +124,12 @@ export default async function InboxPage({
         subtitle="Email, SMS, in-app messages, and call notes — one thread per client."
       />
 
-      <div className="mx-auto max-w-7xl p-6">
+      <div className="p-6">
         <div
           className="hh-panel !p-0 grid grid-cols-12 overflow-hidden"
         >
           {/* Thread List Column */}
-          <aside className="col-span-12 md:col-span-5 lg:col-span-4 border-r border-glass-border flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] overflow-hidden">
+          <aside className="col-span-12 md:col-span-5 lg:col-span-4 border-r border-glass-border flex flex-col h-[calc(100vh-13rem)] md:h-[calc(100vh-11rem)] overflow-hidden">
             {/* Channel Filters */}
             <div className="flex flex-wrap gap-1.5 border-b border-glass-border p-3.5 bg-row-bg shrink-0">
               {CHANNELS.map((c) => {
@@ -208,7 +208,7 @@ export default async function InboxPage({
           </aside>
 
           {/* Conversation Pane Column */}
-          <section className="col-span-12 md:col-span-7 lg:col-span-8 flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] overflow-hidden bg-row-bg">
+          <section className="col-span-12 md:col-span-7 lg:col-span-8 flex flex-col h-[calc(100vh-13rem)] md:h-[calc(100vh-11rem)] overflow-hidden bg-row-bg">
             {!activeThread ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-2">
                 <MessageSquare className="h-10 w-10 text-ink-muted animate-pulse" />
