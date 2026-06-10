@@ -2,7 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
+import { canSeeFinancials } from "@/lib/roles";
+import type { Role } from "@/lib/roles";
 import { formatMoney, formatDate } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
 
 export default async function EstimateDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -12,6 +16,18 @@ export default async function EstimateDetail({ params }: { params: Promise<{ id:
   });
   if (!e) notFound();
 
+  async function setStatus(formData: FormData) {
+    "use server";
+    const me = await auth();
+    if (!me?.user || !canSeeFinancials(me.user.role as Role)) return;
+    const status = String(formData.get("status") || "");
+    if (!["DRAFT", "SENT", "ACCEPTED", "DECLINED"].includes(status)) return;
+    await prisma.estimate.update({ where: { id }, data: { status } });
+    revalidatePath(`/estimates/${id}`);
+    revalidatePath("/estimates");
+    revalidatePath("/contracts");
+  }
+
   return (
     <>
       <PageHeader
@@ -20,7 +36,24 @@ export default async function EstimateDetail({ params }: { params: Promise<{ id:
         actions={
           <>
             <Link href={`/clients/${e.clientId}`} className="btn-secondary">View client</Link>
-            <button className="btn-secondary" disabled>Send (stub)</button>
+            {e.status === "DRAFT" && (
+              <form action={setStatus}>
+                <input type="hidden" name="status" value="SENT" />
+                <button className="btn-secondary" type="submit">Mark sent</button>
+              </form>
+            )}
+            {e.status === "SENT" && (
+              <>
+                <form action={setStatus}>
+                  <input type="hidden" name="status" value="DECLINED" />
+                  <button className="btn-secondary" type="submit">Mark declined</button>
+                </form>
+                <form action={setStatus}>
+                  <input type="hidden" name="status" value="ACCEPTED" />
+                  <button className="btn-secondary" type="submit">Mark accepted</button>
+                </form>
+              </>
+            )}
             {e.status === "ACCEPTED" ? (
               <Link href="/contracts" className="btn-primary">Convert to contract</Link>
             ) : (
