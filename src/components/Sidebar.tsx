@@ -91,7 +91,7 @@ export default function Sidebar({
         </div>
         <div>
           <div className="text-sm font-bold tracking-tight text-ink leading-none">Henley Hub</div>
-          <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Contracting</div>
+          <div className="text-[9px] font-bold text-ink-muted uppercase tracking-widest mt-0.5">Contracting</div>
         </div>
       </div>
 
@@ -108,7 +108,7 @@ export default function Sidebar({
                     "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-200 border transform active:scale-98",
                     active
                       ? "bg-accent/10 border-accent/20 text-accent font-semibold shadow-[0_2px_10px_rgba(92,124,250,0.08)]"
-                      : "text-ink-soft border-transparent hover:bg-black/5 dark:hover:bg-white/5 hover:text-ink"
+                      : "text-ink-soft border-transparent hover:bg-row-hover hover:text-ink"
                   )}
                 >
                   <Icon size={16} className={active ? "text-accent animate-pulse" : "text-ink-soft"} />
@@ -126,7 +126,7 @@ export default function Sidebar({
 
         {(role === "CEO" || role === "OFFICE") && (
           <div className="mt-6">
-            <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-ink-muted">
               Integrations
             </div>
             <ul className="mt-2 space-y-1">
@@ -137,7 +137,7 @@ export default function Sidebar({
                     "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-200 border transform active:scale-98",
                     pathname.startsWith("/integrations/quickbooks")
                       ? "bg-accent/10 border-accent/20 text-accent font-semibold shadow-[0_2px_10px_rgba(92,124,250,0.08)]"
-                      : "text-ink-soft border-transparent hover:bg-black/5 dark:hover:bg-white/5 hover:text-ink"
+                      : "text-ink-soft border-transparent hover:bg-row-hover hover:text-ink"
                   )}
                 >
                   <HardHat size={16} className={pathname.startsWith("/integrations/quickbooks") ? "text-accent animate-pulse" : "text-ink-soft"} />

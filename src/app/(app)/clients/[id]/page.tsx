@@ -32,92 +32,94 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         }
       />
       <div className="grid gap-6 p-6 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <section className="card">
-            <div className="border-b border-slate-100 px-5 py-4">
-              <h2 className="text-sm font-semibold">Projects</h2>
+        <div className="space-y-6 lg:col-span-2">
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="border-b border-glass-border pb-3">
+              <h2 className="text-sm font-semibold text-ink">Projects</h2>
             </div>
-            <ul className="divide-y divide-slate-100">
+            <ul className="space-y-2">
               {client.projects.length === 0 && (
-                <li className="px-5 py-4 text-sm text-slate-500">No projects yet.</li>
+                <li className="py-2 text-sm text-ink-soft">No projects yet.</li>
               )}
               {client.projects.map((p) => (
-                <li key={p.id} className="flex items-center justify-between px-5 py-3">
+                <li key={p.id} className="flex items-center justify-between rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
                   <div>
-                    <Link href={`/projects/${p.id}`} className="text-sm font-medium hover:text-brand-700">
+                    <Link href={`/projects/${p.id}`} className="text-sm font-semibold text-ink hover:text-accent transition-colors">
                       {p.name}
                     </Link>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-ink-muted mt-0.5">
                       {p.address ?? "—"} · Target {formatDate(p.targetEnd)}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm">{formatMoney(p.contractCents)}</div>
-                    <div className="text-xs text-slate-500">{p.status.replace("_", " ").toLowerCase()}</div>
+                    <div className="text-sm font-semibold text-ink">{formatMoney(p.contractCents)}</div>
+                    <div className="text-xs text-ink-muted capitalize mt-0.5">{p.status.replace("_", " ").toLowerCase()}</div>
                   </div>
                 </li>
               ))}
             </ul>
           </section>
 
-          <section className="card">
-            <div className="border-b border-slate-100 px-5 py-4">
-              <h2 className="text-sm font-semibold">Estimates & contracts</h2>
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="border-b border-glass-border pb-3">
+              <h2 className="text-sm font-semibold text-ink">Estimates & contracts</h2>
             </div>
-            <ul className="divide-y divide-slate-100">
+            <ul className="space-y-2">
               {client.estimates.length === 0 && (
-                <li className="px-5 py-4 text-sm text-slate-500">No estimates yet.</li>
+                <li className="py-2 text-sm text-ink-soft">No estimates yet.</li>
               )}
               {client.estimates.map((e) => (
-                <li key={e.id} className="flex items-center justify-between px-5 py-3">
+                <li key={e.id} className="flex items-center justify-between rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
                   <div>
-                    <Link href={`/estimates/${e.id}`} className="text-sm font-medium hover:text-brand-700">
+                    <Link href={`/estimates/${e.id}`} className="text-sm font-semibold text-ink hover:text-accent transition-colors">
                       {e.number} · {e.title}
                     </Link>
-                    <div className="text-xs text-slate-500">{formatRelative(e.createdAt)}</div>
+                    <div className="text-xs text-ink-muted mt-0.5">{formatRelative(e.createdAt)}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm">{formatMoney(e.totalCents)}</div>
-                    <div className="text-xs text-slate-500">{e.status}</div>
+                    <div className="text-sm font-semibold text-ink">{formatMoney(e.totalCents)}</div>
+                    <div className="text-xs text-ink-muted mt-0.5">{e.status}</div>
                   </div>
                 </li>
               ))}
             </ul>
           </section>
 
-          <section className="card">
-            <div className="border-b border-slate-100 px-5 py-4">
-              <h2 className="text-sm font-semibold">Conversations</h2>
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="border-b border-glass-border pb-3">
+              <h2 className="text-sm font-semibold text-ink">Conversations</h2>
             </div>
-            <ul className="divide-y divide-slate-100">
+            <ul className="space-y-2">
               {client.threads.length === 0 && (
-                <li className="px-5 py-4 text-sm text-slate-500">No threads yet.</li>
+                <li className="py-2 text-sm text-ink-soft">No threads yet.</li>
               )}
               {client.threads.map((t) => (
-                <li key={t.id} className="flex items-center gap-3 px-5 py-3">
-                  <span className={`mt-1 h-2 w-2 rounded-full ${channelDot(t.channel)}`} />
+                <li key={t.id} className="flex items-center gap-3 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
+                  <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${channelDot(t.channel)}`} />
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/inbox?threadId=${t.id}`}
-                      className="block text-sm font-medium hover:text-brand-700"
+                      className="block text-sm font-semibold text-ink hover:text-accent transition-colors"
                     >
                       {t.subject}
                     </Link>
                     {t.messages[0] && (
-                      <div className="truncate text-xs text-slate-500">{t.messages[0].body}</div>
+                      <div className="truncate text-xs text-ink-soft mt-0.5">{t.messages[0].body}</div>
                     )}
                   </div>
-                  <div className="text-xs text-slate-400">{formatRelative(t.lastAt)}</div>
+                  <div className="text-xs text-ink-muted whitespace-nowrap">{formatRelative(t.lastAt)}</div>
                 </li>
               ))}
             </ul>
           </section>
         </div>
 
-        <div className="space-y-4">
-          <section className="card p-5">
-            <h2 className="text-sm font-semibold">Contact</h2>
-            <dl className="mt-3 space-y-2 text-sm">
+        <div className="space-y-6">
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="border-b border-glass-border pb-1">
+              <h2 className="text-sm font-semibold text-ink">Contact</h2>
+            </div>
+            <dl className="space-y-3.5 text-sm">
               <Field k="Email" v={client.primaryEmail ?? "—"} />
               <Field k="Phone" v={client.primaryPhone ?? "—"} />
               <Field k="Address" v={client.address ?? "—"} />
@@ -125,9 +127,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               <Field k="QB Customer" v={client.qbCustomerId ?? "Not synced"} />
             </dl>
           </section>
-          <section className="card p-5">
-            <h2 className="text-sm font-semibold">Notes</h2>
-            <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="border-b border-glass-border pb-1">
+              <h2 className="text-sm font-semibold text-ink">Notes</h2>
+            </div>
+            <p className="whitespace-pre-wrap text-sm text-ink-soft leading-relaxed">
               {client.notes ?? "No notes yet."}
             </p>
           </section>
@@ -140,17 +144,17 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 function Field({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex justify-between gap-3">
-      <dt className="text-slate-500">{k}</dt>
-      <dd className="text-right text-slate-800">{v}</dd>
+      <dt className="text-ink-muted font-medium">{k}</dt>
+      <dd className="text-right text-ink font-semibold">{v}</dd>
     </div>
   );
 }
 
 function channelDot(c: string) {
   return {
-    EMAIL: "bg-blue-500",
-    SMS: "bg-emerald-500",
-    IN_APP: "bg-violet-500",
-    CALL_NOTE: "bg-amber-500",
+    EMAIL: "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]",
+    SMS: "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]",
+    IN_APP: "bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]",
+    CALL_NOTE: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]",
   }[c] ?? "bg-slate-400";
 }

@@ -26,7 +26,7 @@ export default function ClientDashboard({
     return (
       <>
         <PageHeader title={`Welcome, ${userName.split(" ")[0]}`} />
-        <div className="p-6 text-sm text-slate-400">
+        <div className="p-6 text-sm text-ink-soft">
           We haven't set up your project yet. Your Henley project manager will reach out shortly.
         </div>
       </>
@@ -45,37 +45,37 @@ export default function ClientDashboard({
       />
       <div className="space-y-6 p-6">
         {/* Progress Card */}
-        <div className="glass-card p-5">
+        <div className="glass-card p-6">
           <div className="flex items-end justify-between">
             <div>
-              <div className="label text-slate-400">Progress</div>
-              <div className="text-2xl font-bold text-white mt-0.5">{pct}%</div>
-              <div className="text-xs text-slate-450 mt-0.5">
+              <div className="label text-ink-muted">Progress</div>
+              <div className="text-2xl font-bold text-ink mt-0.5">{pct}%</div>
+              <div className="text-xs text-ink-soft mt-0.5">
                 {done} of {total} milestones complete
               </div>
             </div>
-            <div className="text-right text-xs text-slate-450">
-              <div className="label text-slate-450">Target completion</div>
-              <div className="text-sm font-semibold text-white mt-0.5">{formatDate(project.targetEnd)}</div>
+            <div className="text-right text-xs text-ink-soft">
+              <div className="label text-ink-muted">Target completion</div>
+              <div className="text-sm font-semibold text-ink mt-0.5">{formatDate(project.targetEnd)}</div>
             </div>
           </div>
-          <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-white/10">
+          <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-row-bg">
             <div className="h-full bg-accent shadow-[0_0_8px_rgba(92,124,250,0.5)] rounded-full transition-all duration-500 ease-glass" style={{ width: `${pct}%` }} />
           </div>
         </div>
 
         {/* Milestones Card */}
-        <section className="glass-card">
-          <div className="border-b border-white/5 px-5 py-4">
-            <h2 className="text-sm font-semibold text-white">Milestones</h2>
+        <section className="glass-card p-6 flex flex-col gap-4">
+          <div className="border-b border-glass-border pb-3">
+            <h2 className="text-sm font-semibold text-ink">Milestones</h2>
           </div>
-          <ul className="divide-y divide-white/5">
+          <ul className="space-y-2">
             {project.milestones.map((m) => (
-              <li key={m.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.02] transition-colors">
+              <li key={m.id} className="flex items-center justify-between rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
                 <div>
-                  <div className="text-sm font-semibold text-white">{m.title}</div>
+                  <div className="text-sm font-semibold text-ink">{m.title}</div>
                   {m.dueDate && (
-                    <div className="text-xs text-slate-450 mt-0.5">Due {formatDate(m.dueDate)}</div>
+                    <div className="text-xs text-ink-muted mt-0.5">Due {formatDate(m.dueDate)}</div>
                   )}
                 </div>
                 <span className={milestoneBadge(m.status)}>{milestoneLabel(m.status)}</span>
@@ -85,13 +85,13 @@ export default function ClientDashboard({
         </section>
 
         {/* Recent Updates Card */}
-        <section className="glass-card">
-          <div className="border-b border-white/5 px-5 py-4">
-            <h2 className="text-sm font-semibold text-white">Recent updates from the team</h2>
+        <section className="glass-card p-6 flex flex-col gap-4">
+          <div className="border-b border-glass-border pb-3">
+            <h2 className="text-sm font-semibold text-ink">Recent updates from the team</h2>
           </div>
-          <ul className="divide-y divide-white/5">
+          <ul className="space-y-2">
             {project.dailyLogs.length === 0 && (
-              <li className="px-5 py-5 text-sm text-slate-550">No updates yet.</li>
+              <li className="py-2 text-sm text-ink-soft">No updates yet.</li>
             )}
             {project.dailyLogs.map((l) => {
               let photoUrls: string[] = [];
@@ -103,11 +103,11 @@ export default function ClientDashboard({
                 }
               }
               return (
-                <li key={l.id} className="px-5 py-4 hover:bg-white/[0.02] transition-colors">
-                  <div className="text-xs text-slate-500 font-medium">
+                <li key={l.id} className="flex flex-col gap-1 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
+                  <div className="text-xs text-ink-muted font-medium">
                     {l.author.name} · {formatRelative(l.date)}
                   </div>
-                  <div className="mt-2 text-sm text-slate-300 leading-relaxed">{l.notes}</div>
+                  <div className="mt-2 text-sm text-ink-soft leading-relaxed">{l.notes}</div>
                   {photoUrls.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {photoUrls.map((url, idx) => (
@@ -116,7 +116,7 @@ export default function ClientDashboard({
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="group relative block aspect-square w-16 h-16 md:w-20 md:h-20 overflow-hidden rounded-lg border border-white/10 bg-white/5 shadow-sm"
+                          className="group relative block aspect-square w-16 h-16 md:w-20 md:h-20 overflow-hidden rounded-lg border border-glass-border bg-row-bg shadow-sm"
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img

@@ -91,15 +91,15 @@ export default async function InboxPage({
   const getChannelTagClass = (channel: string) => {
     switch (channel.toUpperCase()) {
       case "IN_APP":
-        return "bg-[#5e5ce6]/15 text-[#a29ef8]";
+        return "badge-violet";
       case "SMS":
-        return "bg-[#30d158]/15 text-[#30d158]";
+        return "badge-green";
       case "EMAIL":
-        return "bg-[#0a84ff]/15 text-[#0a84ff]";
+        return "badge-blue";
       case "CALL_NOTE":
-        return "bg-[#ff9f0a]/15 text-[#ff9f0a]";
+        return "badge-amber";
       default:
-        return "bg-black/5 dark:bg-white/5 text-ink-soft";
+        return "badge-slate";
     }
   };
 
@@ -126,23 +126,22 @@ export default async function InboxPage({
 
       <div className="mx-auto max-w-7xl p-6">
         <div
-          style={{ backgroundColor: "var(--color-surface, rgba(30, 31, 35, 0.45))" }}
           className="glass-card grid grid-cols-12 overflow-hidden border border-glass-border"
         >
           {/* Thread List Column */}
           <aside className="col-span-12 md:col-span-5 lg:col-span-4 border-r border-glass-border flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] overflow-hidden">
             {/* Channel Filters */}
-            <div className="flex flex-wrap gap-1.5 border-b border-glass-border p-3.5 bg-black/5 dark:bg-white/5 shrink-0">
+            <div className="flex flex-wrap gap-1.5 border-b border-glass-border p-3.5 bg-row-bg shrink-0">
               {CHANNELS.map((c) => {
                 const active = (sp.channel ?? "ALL") === c.value;
                 return (
                   <a
                     key={c.value}
                     href={`/inbox?channel=${c.value}${activeId ? `&threadId=${activeId}` : ""}`}
-                    className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider transition-all border border-transparent ${
+                    className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider transition-all border ${
                       active
-                        ? "bg-[#0a84ff]/15 border-[#0a84ff]/30 text-[#0a84ff]"
-                        : "bg-black/5 dark:bg-white/5 text-ink-soft border-glass-border hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "bg-row-bg text-ink-soft border-glass-border hover:bg-row-hover hover:text-ink"
                     }`}
                   >
                     <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
@@ -153,7 +152,7 @@ export default async function InboxPage({
             </div>
 
             {/* Threads List */}
-            <div className="flex-1 overflow-y-auto divide-y divide-glass-border">
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {threads.length === 0 && (
                 <div className="p-6 text-center text-sm text-ink-soft">
                   <div className="flex flex-col items-center justify-center gap-2">
@@ -169,19 +168,19 @@ export default async function InboxPage({
                   <a
                     key={t.id}
                     href={`/inbox?threadId=${t.id}${sp.channel ? `&channel=${sp.channel}` : ""}`}
-                    className={`block px-4 py-3.5 border-b border-glass-border transition-colors relative ${
-                      active ? "bg-[#0a84ff]/12" : "hover:bg-black/5 dark:hover:bg-white/5"
+                    className={`block rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors relative ${
+                      active ? "bg-row-active font-semibold" : ""
                     }`}
                   >
                     {/* Active Left Hairline Indicator */}
                     {active && (
-                      <span className="absolute left-0 top-2 bottom-2 w-[3px] bg-[#0a84ff] rounded-r-md" />
+                      <span className="absolute left-0 top-2.5 bottom-2.5 w-[3px] bg-accent rounded-r-md" />
                     )}
                     <div className="flex items-center justify-between gap-2">
                       <span className="truncate text-xs font-semibold text-ink">
                         {t.client?.name ?? "Internal Info"}
                       </span>
-                      <span className="text-[10px] text-ink-soft/60 shrink-0 font-medium">{formatRelative(t.lastAt)}</span>
+                      <span className="text-[10px] text-ink-muted shrink-0 font-medium">{formatRelative(t.lastAt)}</span>
                     </div>
                     <div className="truncate text-sm font-semibold text-ink mt-1">{t.subject}</div>
                     {t.messages[0] && (
@@ -192,12 +191,12 @@ export default async function InboxPage({
                         {t.channel.replace("_", " ")}
                       </span>
                       {t.project && (
-                        <span className="text-[10px] text-ink-soft/50 truncate max-w-[120px]">
+                        <span className="text-[10px] text-ink-muted truncate max-w-[120px]">
                           · {t.project.name}
                         </span>
                       )}
                       {t.unread > 0 && (
-                        <span className="ml-auto bg-[#0a84ff] text-white text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full shrink-0">
+                        <span className="ml-auto badge-blue text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full shrink-0">
                           {t.unread} new
                         </span>
                       )}
@@ -209,7 +208,7 @@ export default async function InboxPage({
           </aside>
 
           {/* Conversation Pane Column */}
-          <section className="col-span-12 md:col-span-7 lg:col-span-8 flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] overflow-hidden bg-black/10 dark:bg-white/5">
+          <section className="col-span-12 md:col-span-7 lg:col-span-8 flex flex-col h-[calc(100vh-16rem)] md:h-[calc(100vh-14rem)] overflow-hidden bg-row-bg">
             {!activeThread ? (
               <div className="flex flex-1 flex-col items-center justify-center text-ink-soft gap-2">
                 <MessageSquare className="h-10 w-10 text-ink-muted animate-pulse" />
@@ -219,7 +218,7 @@ export default async function InboxPage({
             ) : (
               <>
                 {/* Convo Header */}
-                <div className="border-b border-glass-border bg-black/5 dark:bg-white/5 px-6 py-4 flex items-center gap-3 shrink-0">
+                <div className="border-b border-glass-border bg-row-bg px-6 py-4 flex items-center gap-3 shrink-0">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent font-semibold text-sm">
                     {getInitials(activeThread.client?.name ?? "I")}
                   </div>
@@ -230,7 +229,7 @@ export default async function InboxPage({
                       {activeThread.project && ` · ${activeThread.project.name}`}
                     </div>
                   </div>
-                  <span className="ml-auto text-[10px] font-bold tracking-wider uppercase bg-black/10 dark:bg-white/10 text-ink-soft px-2.5 py-1 rounded border border-glass-border shrink-0">
+                  <span className="ml-auto text-[10px] font-bold tracking-wider uppercase bg-row-bg text-ink-soft px-2.5 py-1 rounded border border-glass-border shrink-0">
                     {getChannelBadge(activeThread.channel)}
                   </span>
                 </div>
@@ -238,7 +237,7 @@ export default async function InboxPage({
                 {/* Messages Stream */}
                 <div id="messages-area" className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col">
                   <div className="text-center my-2 shrink-0">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-ink-soft/40 px-2 py-1 bg-black/5 dark:bg-white/5 rounded-md border border-glass-border/40">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-ink-soft/45 px-2.5 py-1 bg-row-bg rounded-md border border-glass-border">
                       {activeThread.channel.replace("_", " ")} Thread
                     </span>
                   </div>
@@ -251,7 +250,7 @@ export default async function InboxPage({
                         className={`flex flex-col max-w-[75%] ${isSent ? "ml-auto items-end" : "mr-auto items-start"}`}
                       >
                         {/* Message Sender & Time */}
-                        <div className="mb-1 text-[10px] text-ink-soft/50 uppercase tracking-wider font-semibold px-1 flex items-center gap-1.5">
+                        <div className="mb-1 text-[10px] text-ink-muted uppercase tracking-wider font-semibold px-1 flex items-center gap-1.5">
                           <span>
                             {isSent ? `${m.author?.name ?? "Henley"} via ${m.channel.replace("_", " ")}` : `${m.fromName} via ${m.channel.replace("_", " ")}`}
                           </span>
@@ -263,8 +262,8 @@ export default async function InboxPage({
                         <div
                           className={`px-4 py-2.5 text-[13.5px] leading-relaxed shadow-sm transition-transform ${
                             isSent
-                              ? "bg-[#2c6cf6] text-white rounded-2xl rounded-br-sm"
-                              : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink rounded-2xl rounded-bl-sm"
+                              ? "bg-accent text-white rounded-2xl rounded-br-sm animate-pulse-once"
+                              : "bg-row-bg border border-glass-border text-ink rounded-2xl rounded-bl-sm"
                           }`}
                         >
                           <div className="whitespace-pre-wrap">{m.body}</div>
@@ -275,24 +274,24 @@ export default async function InboxPage({
                 </div>
 
                 {/* Reply Bar */}
-                <form action={send} className="border-t border-glass-border bg-black/5 dark:bg-white/5 p-4 shrink-0">
+                <form action={send} className="border-t border-glass-border bg-row-bg p-4 shrink-0">
                   <input type="hidden" name="threadId" value={activeThread.id} />
-                  <div className="flex items-center gap-3 bg-black/10 dark:bg-white/5 border border-glass-border focus-within:border-[rgba(10,132,255,0.4)] rounded-xl p-2 transition">
+                  <div className="flex items-center gap-3 bg-row-bg border border-glass-border focus-within:border-accent/40 rounded-xl p-2 transition">
                     <textarea
                       name="body"
                       rows={1}
-                      className="flex-1 bg-transparent border-none outline-none text-[13.5px] text-ink placeholder:text-ink-soft/50 resize-none py-1.5 px-1 font-normal leading-normal"
+                      className="flex-1 bg-transparent border-none outline-none text-[13.5px] text-ink placeholder:text-ink-muted resize-none py-1.5 px-1 font-normal leading-normal"
                       placeholder={`Reply via ${activeThread.channel.replace("_", " ").toLowerCase()}...`}
                     />
                     <button
                       type="submit"
-                      className="w-8 h-8 rounded-full bg-[#0a84ff] hover:bg-[#0070e3] transition flex items-center justify-center text-white shrink-0 shadow-sm"
+                      className="w-8 h-8 rounded-full bg-accent hover:bg-accent/90 transition flex items-center justify-center text-white shrink-0 shadow-sm"
                       title="Send Message"
                     >
                       <Send className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <div className="text-[10px] text-ink-soft/40 text-center mt-2.5 font-medium">
+                  <div className="text-[10px] text-ink-muted text-center mt-2.5 font-medium">
                     Replies go out on the same channel as the thread. Email/SMS gateways are stubbed.
                   </div>
                 </form>

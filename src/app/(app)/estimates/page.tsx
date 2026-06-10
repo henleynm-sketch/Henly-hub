@@ -28,32 +28,32 @@ export default async function EstimatesPage() {
         actions={<Link href="/estimates/new" className="btn-primary">+ New estimate</Link>}
       />
       <div className="p-6">
-        <section className="card overflow-x-auto">
+        <section className="glass-card overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-row-bg border-b border-glass-border text-xs uppercase tracking-wider text-ink-muted">
               <tr>
-                <th className="px-5 py-3 text-left font-medium">Number</th>
-                <th className="px-5 py-3 text-left font-medium">Client</th>
-                <th className="px-5 py-3 text-left font-medium">Title</th>
-                <th className="px-5 py-3 text-left font-medium">Status</th>
-                <th className="px-5 py-3 text-right font-medium">Total</th>
-                <th className="px-5 py-3 text-left font-medium">Created</th>
+                <th className="px-5 py-3.5 text-left font-medium">Number</th>
+                <th className="px-5 py-3.5 text-left font-medium">Client</th>
+                <th className="px-5 py-3.5 text-left font-medium">Title</th>
+                <th className="px-5 py-3.5 text-left font-medium">Status</th>
+                <th className="px-5 py-3.5 text-right font-medium">Total</th>
+                <th className="px-5 py-3.5 text-left font-medium">Created</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-glass-border">
               {estimates.length === 0 && (
-                <tr><td colSpan={6} className="px-5 py-6 text-center text-slate-500">No estimates yet.</td></tr>
+                <tr><td colSpan={6} className="px-5 py-6 text-center text-ink-soft">No estimates yet.</td></tr>
               )}
               {estimates.map((e) => (
-                <tr key={e.id} className="hover:bg-slate-50">
-                  <td className="px-5 py-3 font-mono text-xs text-slate-700">
-                    <Link href={`/estimates/${e.id}`} className="hover:text-brand-700">{e.number}</Link>
+                <tr key={e.id} className="hover:bg-row-hover transition-colors">
+                  <td className="px-5 py-3 font-mono text-xs text-ink-soft">
+                    <Link href={`/estimates/${e.id}`} className="hover:text-accent font-semibold transition-colors">{e.number}</Link>
                   </td>
-                  <td className="px-5 py-3">{e.client.name}</td>
-                  <td className="px-5 py-3 text-slate-700">{e.title}</td>
+                  <td className="px-5 py-3 text-ink font-medium">{e.client.name}</td>
+                  <td className="px-5 py-3 text-ink-soft">{e.title}</td>
                   <td className="px-5 py-3"><span className={statusBadge(e.status)}>{e.status}</span></td>
-                  <td className="px-5 py-3 text-right">{formatMoney(e.totalCents)}</td>
-                  <td className="px-5 py-3 text-slate-500">{formatRelative(e.createdAt)}</td>
+                  <td className="px-5 py-3 text-right text-ink font-semibold">{formatMoney(e.totalCents)}</td>
+                  <td className="px-5 py-3 text-ink-muted">{formatRelative(e.createdAt)}</td>
                 </tr>
               ))}
             </tbody>

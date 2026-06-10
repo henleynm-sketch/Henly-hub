@@ -93,7 +93,7 @@ export default async function ClientsPage({
         actions={<Link href="/clients/new" className="btn-primary">+ New lead</Link>}
       />
       <div className="space-y-6 p-6">
-        <section className="card p-4">
+        <section className="card p-6 flex flex-col gap-4">
           <form action="/clients" method="get" className="flex flex-wrap items-center gap-2">
             <input
               type="search"
@@ -110,10 +110,10 @@ export default async function ClientsPage({
             )}
           </form>
 
-          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
             <Link
               href={buildHref({ stage: undefined, page: "1" })}
-              className={`badge ${!stage ? "bg-accent text-white" : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink-soft hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"}`}
+              className={`badge ${!stage ? "border-accent bg-accent/10 text-accent font-semibold" : "bg-row-bg border border-glass-border text-ink-soft hover:bg-row-hover hover:text-ink"}`}
             >
               All <span className="ml-1 opacity-70">{totalCount.toLocaleString()}</span>
             </Link>
@@ -125,7 +125,7 @@ export default async function ClientsPage({
                 <Link
                   key={s}
                   href={buildHref({ stage: active ? undefined : s, page: "1" })}
-                  className={`badge ${active ? "bg-accent text-white" : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink-soft hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"}`}
+                  className={`badge ${active ? "border-accent bg-accent/10 text-accent font-semibold" : "bg-row-bg border border-glass-border text-ink-soft hover:bg-row-hover hover:text-ink"}`}
                 >
                   {stageLabel(s)} <span className="ml-1 opacity-70">{count}</span>
                 </Link>
@@ -134,11 +134,11 @@ export default async function ClientsPage({
           </div>
 
           {sources.length > 1 && (
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5 border-t border-glass-border pt-3">
               <span className="text-xs uppercase tracking-wide text-ink-soft mr-1">Source:</span>
               <Link
                 href={buildHref({ source: undefined, page: "1" })}
-                className={`badge ${!source ? "bg-accent text-white" : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink-soft hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"}`}
+                className={`badge ${!source ? "border-accent bg-accent/10 text-accent font-semibold" : "bg-row-bg border border-glass-border text-ink-soft hover:bg-row-hover hover:text-ink"}`}
               >
                 All
               </Link>
@@ -149,7 +149,7 @@ export default async function ClientsPage({
                   <Link
                     key={sourceLabel}
                     href={buildHref({ source: active ? undefined : sourceLabel, page: "1" })}
-                    className={`badge ${active ? "bg-accent text-white" : "bg-black/5 dark:bg-white/5 border border-glass-border text-ink-soft hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"}`}
+                    className={`badge ${active ? "border-accent bg-accent/10 text-accent font-semibold" : "bg-row-bg border border-glass-border text-ink-soft hover:bg-row-hover hover:text-ink"}`}
                   >
                     {sourceLabel} <span className="ml-1 opacity-70">{s._count}</span>
                   </Link>
@@ -161,14 +161,14 @@ export default async function ClientsPage({
 
         <section className="glass-card overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-black/5 dark:bg-white/5 text-xs uppercase tracking-wide text-ink-soft">
+            <thead className="bg-row-bg border-b border-glass-border text-xs uppercase tracking-wider text-ink-muted">
               <tr>
-                <th className="px-5 py-3 text-left font-medium">Client</th>
-                <th className="px-5 py-3 text-left font-medium">Stage</th>
-                <th className="px-5 py-3 text-left font-medium">Source</th>
-                <th className="px-5 py-3 text-left font-medium">Projects</th>
-                <th className="px-5 py-3 text-left font-medium">Threads</th>
-                <th className="px-5 py-3 text-left font-medium">Updated</th>
+                <th className="px-5 py-3.5 text-left font-medium">Client</th>
+                <th className="px-5 py-3.5 text-left font-medium">Stage</th>
+                <th className="px-5 py-3.5 text-left font-medium">Source</th>
+                <th className="px-5 py-3.5 text-left font-medium">Projects</th>
+                <th className="px-5 py-3.5 text-left font-medium">Threads</th>
+                <th className="px-5 py-3.5 text-left font-medium">Updated</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-glass-border">
@@ -180,7 +180,7 @@ export default async function ClientsPage({
                 </tr>
               )}
               {clients.map((c) => (
-                <tr key={c.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                <tr key={c.id} className="hover:bg-row-hover transition-colors">
                   <td className="px-5 py-3">
                     <Link href={`/clients/${c.id}`} className="font-medium text-ink hover:text-accent">
                       {c.name}
@@ -220,22 +220,22 @@ export default async function ClientsPage({
           <div className="overflow-x-auto pb-2">
             <div className="flex gap-3 min-w-max">
               {byStage.map((col) => (
-                <div key={col.stage} className="w-56 flex-shrink-0 rounded-xl bg-black/5 dark:bg-white/5 border border-glass-border p-3">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                <div key={col.stage} className="w-56 flex-shrink-0 rounded-[16px] bg-row-bg border border-glass-border p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
                       {stageLabel(col.stage)}
                     </span>
-                    <span className="text-xs text-ink-muted">{col.items.length}</span>
+                    <span className="text-xs text-ink-muted font-medium">{col.items.length}</span>
                   </div>
                   <ul className="space-y-2">
                     {col.items.slice(0, 8).map((c) => (
                       <li key={c.id}>
                         <Link
                           href={`/clients/${c.id}`}
-                          className="block p-3 glass-card hover:ring-1 hover:ring-accent/30"
+                          className="block p-4 glass-card rounded-[12px]"
                         >
-                          <div className="text-sm font-medium text-ink">{c.name}</div>
-                          <div className="text-xs text-ink-soft">{c.city ?? c.source ?? ""}</div>
+                          <div className="text-sm font-semibold text-ink">{c.name}</div>
+                          <div className="text-xs text-ink-soft mt-1">{c.city ?? c.source ?? ""}</div>
                         </Link>
                       </li>
                     ))}

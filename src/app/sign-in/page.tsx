@@ -30,35 +30,35 @@ export default async function SignInPage({
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-slate-50 px-6">
+    <main className="grid min-h-screen place-items-center bg-canvas px-6 py-12">
       <div className="w-full max-w-md">
-        <Link href="/" className="mb-6 flex items-center gap-2 justify-center">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-brand-600 text-white">
-            <span className="text-sm font-bold">H</span>
+        <Link href="/" className="mb-8 flex items-center gap-2.5 justify-center">
+          <div className="grid h-10 w-10 place-items-center rounded-[10px] bg-accent text-white shadow-lg">
+            <span className="text-base font-bold tracking-tight">H</span>
           </div>
-          <span className="text-lg font-semibold">Henley Hub</span>
+          <span className="text-xl font-bold tracking-tight text-ink">Henley Hub</span>
         </Link>
 
-        <div className="card p-6">
-          <h1 className="text-xl font-semibold">Sign in</h1>
-          <p className="mt-1 text-sm text-slate-500">Enter your hub credentials.</p>
+        <div className="glass-card p-6">
+          <h1 className="text-xl font-bold text-ink">Sign in</h1>
+          <p className="mt-1 text-sm text-ink-soft">Enter your hub credentials.</p>
 
           {sp.error && (
-            <div className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+            <div className="mt-4 rounded-[10px] border border-rose-500/20 bg-rose-500/5 px-3 py-2.5 text-sm text-status-error font-medium shadow-sm">
               That email or password didn't match.
             </div>
           )}
 
-          <form action={handleSignIn} className="mt-5 space-y-3">
+          <form action={handleSignIn} className="mt-5 space-y-4">
             <input type="hidden" name="callbackUrl" value={sp.callbackUrl ?? "/dashboard"} />
             <div>
               <label className="label">Email</label>
-              <input className="input mt-1" name="email" type="email" required autoComplete="email" />
+              <input className="input mt-1.5" name="email" type="email" required autoComplete="email" />
             </div>
             <div>
               <label className="label">Password</label>
               <input
-                className="input mt-1"
+                className="input mt-1.5"
                 name="password"
                 type="password"
                 required
@@ -66,19 +66,19 @@ export default async function SignInPage({
                 defaultValue="demo"
               />
             </div>
-            <button className="btn-primary w-full justify-center" type="submit">
+            <button className="btn btn-primary w-full justify-center mt-2" type="submit">
               Sign in
             </button>
           </form>
         </div>
 
-        <div className="card mt-4 p-5">
-          <div className="label">Demo logins (password: demo)</div>
-          <ul className="mt-2 grid gap-1 text-sm">
+        <div className="glass-card mt-6 p-6">
+          <div className="section-label mb-3">Demo logins (password: demo)</div>
+          <ul className="grid gap-2">
             {demoLogins.map((d) => (
-              <li key={d.email} className="flex justify-between">
-                <span className="font-mono text-slate-700">{d.email}</span>
-                <span className="text-slate-500">{d.role}</span>
+              <li key={d.email} className="list-row-item justify-between py-2 px-3 text-xs md:text-sm">
+                <span className="font-mono text-ink-soft font-medium">{d.email}</span>
+                <span className="text-ink-muted text-xs font-semibold uppercase tracking-wider">{d.role}</span>
               </li>
             ))}
           </ul>

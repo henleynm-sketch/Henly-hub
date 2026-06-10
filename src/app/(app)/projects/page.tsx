@@ -40,38 +40,38 @@ export default async function ProjectsPage() {
           ) : undefined
         }
       />
-      <div className="grid gap-4 p-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-6 p-6 md:grid-cols-2 xl:grid-cols-3">
         {projects.length === 0 && (
-          <div className="card p-5 text-sm text-slate-500">No projects to show.</div>
+          <div className="glass-card p-6 text-sm text-ink-soft">No projects to show.</div>
         )}
         {projects.map((p) => (
-          <Link key={p.id} href={`/projects/${p.id}`} className="card p-5 hover:border-brand-500/50">
+          <Link key={p.id} href={`/projects/${p.id}`} className="glass-card p-6">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="truncate text-sm font-semibold">{p.name}</div>
+                <div className="truncate text-sm font-semibold text-ink">{p.name}</div>
                 {p.projectType && (
-                  <div className="mt-0.5 text-xs text-slate-500">{p.projectType}</div>
+                  <div className="mt-0.5 text-xs text-ink-soft">{p.projectType}</div>
                 )}
               </div>
               <span className={statusBadge(p.status)}>{p.status.replace("_", " ").toLowerCase()}</span>
             </div>
-            <div className="mt-2 text-xs text-slate-500">{p.client.name}{p.city ? ` · ${p.city}` : ""}</div>
+            <div className="mt-2 text-xs text-ink-soft">{p.client.name}{p.city ? ` · ${p.city}` : ""}</div>
             {p.currentPhase && (
-              <div className="mt-3 rounded-md bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
-                <span className="font-medium">Phase:</span> {p.currentPhase}
+              <div className="mt-3 rounded-[10px] bg-row-bg border border-glass-border px-3 py-2 text-xs text-ink-soft">
+                <span className="font-semibold text-ink">Phase:</span> {p.currentPhase}
               </div>
             )}
             {p.team && (
-              <div className="mt-1.5 text-xs text-slate-500"><span className="font-medium">With:</span> {p.team}</div>
+              <div className="mt-2 text-xs text-ink-soft"><span className="font-semibold text-ink">With:</span> {p.team}</div>
             )}
-            <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-500">
+            <div className="mt-4 grid grid-cols-3 gap-2 text-xs text-ink-soft border-t border-glass-border pt-3">
               {p.contractCents > 0 ? (
-                <div><span className="label block">Contract</span>{formatMoney(p.contractCents)}</div>
+                <div><span className="label block text-[10px] text-ink-muted mb-0.5">Contract</span><span className="text-ink font-semibold">{formatMoney(p.contractCents)}</span></div>
               ) : (
-                <div><span className="label block">Milestones</span>{p._count.milestones}</div>
+                <div><span className="label block text-[10px] text-ink-muted mb-0.5">Milestones</span><span className="text-ink font-semibold">{p._count.milestones}</span></div>
               )}
-              <div><span className="label block">Target</span>{formatDate(p.targetEnd)}</div>
-              <div><span className="label block">Logs</span>{p._count.dailyLogs}</div>
+              <div><span className="label block text-[10px] text-ink-muted mb-0.5">Target</span><span className="text-ink font-semibold">{formatDate(p.targetEnd)}</span></div>
+              <div><span className="label block text-[10px] text-ink-muted mb-0.5">Logs</span><span className="text-ink font-semibold">{p._count.dailyLogs}</span></div>
             </div>
           </Link>
         ))}

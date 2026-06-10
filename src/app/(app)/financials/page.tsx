@@ -46,32 +46,32 @@ export default async function FinancialsPage() {
           />
         </div>
 
-        <section className="card overflow-x-auto">
+        <section className="glass-card overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-row-bg border-b border-glass-border text-xs uppercase tracking-wider text-ink-muted">
               <tr>
-                <th className="px-5 py-3 text-left font-medium">Project</th>
-                <th className="px-5 py-3 text-right font-medium">Contract</th>
-                <th className="px-5 py-3 text-right font-medium">Est.</th>
-                <th className="px-5 py-3 text-right font-medium">Actual</th>
-                <th className="px-5 py-3 text-right font-medium">Margin</th>
+                <th className="px-5 py-3.5 text-left font-medium">Project</th>
+                <th className="px-5 py-3.5 text-right font-medium">Contract</th>
+                <th className="px-5 py-3.5 text-right font-medium">Est.</th>
+                <th className="px-5 py-3.5 text-right font-medium">Actual</th>
+                <th className="px-5 py-3.5 text-right font-medium">Margin</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-glass-border">
               {projects.map((p) => {
                 const est = p.budgetItems.reduce((a, b) => a + b.estimateCents, 0);
                 const act = p.budgetItems.reduce((a, b) => a + b.actualCents, 0);
                 const margin = p.contractCents - act;
                 return (
-                  <tr key={p.id}>
+                  <tr key={p.id} className="hover:bg-row-hover transition-colors">
                     <td className="px-5 py-3">
-                      <div className="font-medium">{p.name}</div>
-                      <div className="text-xs text-slate-500">{p.client.name}</div>
+                      <div className="font-semibold text-ink">{p.name}</div>
+                      <div className="text-xs text-ink-muted mt-0.5">{p.client.name}</div>
                     </td>
-                    <td className="px-5 py-3 text-right">{formatMoney(p.contractCents)}</td>
-                    <td className="px-5 py-3 text-right">{formatMoney(est)}</td>
-                    <td className="px-5 py-3 text-right">{formatMoney(act)}</td>
-                    <td className={`px-5 py-3 text-right ${margin < 0 ? "text-rose-700" : "text-emerald-700"}`}>
+                    <td className="px-5 py-3 text-right text-ink-soft font-semibold">{formatMoney(p.contractCents)}</td>
+                    <td className="px-5 py-3 text-right text-ink-soft">{formatMoney(est)}</td>
+                    <td className="px-5 py-3 text-right text-ink-soft">{formatMoney(act)}</td>
+                    <td className={`px-5 py-3 text-right font-bold ${margin < 0 ? "text-status-error" : "text-status-success"}`}>
                       {formatMoney(margin)}
                     </td>
                   </tr>

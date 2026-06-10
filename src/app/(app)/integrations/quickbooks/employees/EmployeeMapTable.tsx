@@ -104,7 +104,7 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
             placeholder="Search users by name, email, or role..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg pl-9 pr-4 py-2 text-sm bg-black/5 dark:bg-white/5 border border-glass-border text-ink placeholder:text-ink-soft/50 focus:outline-none focus:ring-2 focus:ring-accent transition"
+            className="input pl-9 pr-4 py-2"
           />
         </div>
 
@@ -112,20 +112,20 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
         <div className="flex gap-2">
           <button
             onClick={() => setFilterType("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all border ${
               filterType === "all"
-                ? "bg-accent text-white"
-                : "bg-black/5 dark:bg-white/5 text-ink-soft border border-glass-border hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"
+                ? "border-accent bg-accent/10 text-accent"
+                : "bg-row-bg text-ink-soft border-glass-border hover:bg-row-hover hover:text-ink"
             }`}
           >
             All ({users.length})
           </button>
           <button
             onClick={() => setFilterType("mapped")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${
               filterType === "mapped"
-                ? "bg-accent text-white"
-                : "bg-black/5 dark:bg-white/5 text-ink-soft border border-glass-border hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"
+                ? "border-accent bg-accent/10 text-accent"
+                : "bg-row-bg text-ink-soft border-glass-border hover:bg-row-hover hover:text-ink"
             }`}
           >
             <UserCheck className="h-3 w-3" />
@@ -133,10 +133,10 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
           </button>
           <button
             onClick={() => setFilterType("unmapped")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${
               filterType === "unmapped"
-                ? "bg-accent text-white"
-                : "bg-black/5 dark:bg-white/5 text-ink-soft border border-glass-border hover:bg-black/10 dark:hover:bg-white/10 hover:text-ink"
+                ? "border-accent bg-accent/10 text-accent"
+                : "bg-row-bg text-ink-soft border-glass-border hover:bg-row-hover hover:text-ink"
             }`}
           >
             <UserMinus className="h-3 w-3" />
@@ -149,7 +149,7 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
       <div className="glass-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-black/5 dark:bg-white/5 text-xs uppercase tracking-wide text-ink-soft border-b border-glass-border">
+            <thead className="bg-row-bg text-xs uppercase tracking-wider text-ink-muted border-b border-glass-border">
               <tr>
                 <th className="px-6 py-4 text-left font-medium">User Profile</th>
                 <th className="px-6 py-4 text-left font-medium">Role</th>
@@ -175,7 +175,7 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
                   const isMapped = !!mappedId;
 
                   return (
-                    <tr key={user.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                    <tr key={user.id} className="hover:bg-row-hover transition-colors">
                       {/* Profile Column */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -204,19 +204,19 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
                             onChange={(e) => handleMapChange(user.id, e.target.value)}
                             disabled={state === "saving"}
                             style={{
-                              backgroundColor: "var(--color-surface, rgba(30, 31, 35, 0.9))",
-                              color: "var(--text-primary, #FFFFFF)"
+                              backgroundColor: "var(--panel-bg)",
+                              color: "var(--text-primary)"
                             }}
-                            className="w-full rounded-lg px-3 py-1.5 text-sm bg-black/5 dark:bg-white/5 border border-glass-border text-ink hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent transition cursor-pointer disabled:opacity-50"
+                            className="w-full rounded-lg px-3 py-1.5 text-sm bg-row-bg border border-glass-border text-ink hover:bg-row-hover focus:outline-none focus:border-accent/45 focus:ring-2 focus:ring-accent/10 transition cursor-pointer disabled:opacity-50"
                           >
-                            <option value="" style={{ backgroundColor: "var(--color-surface, rgba(30, 31, 35, 0.9))", color: "var(--text-primary, #FFFFFF)" }}>
+                            <option value="" style={{ backgroundColor: "var(--panel-bg)", color: "var(--text-primary)" }}>
                               — Unmapped (Will block on approval) —
                             </option>
                             {employees.map((emp) => (
                               <option
                                 key={emp.id}
                                 value={emp.id}
-                                style={{ backgroundColor: "var(--color-surface, rgba(30, 31, 35, 0.9))", color: "var(--text-primary, #FFFFFF)" }}
+                                style={{ backgroundColor: "var(--panel-bg)", color: "var(--text-primary)" }}
                               >
                                 {emp.name} {!emp.active ? " (Inactive)" : ""}
                               </option>
@@ -235,17 +235,17 @@ export default function EmployeeMapTable({ users, employees }: EmployeeMapTableP
                             </span>
                           )}
                           {state === "saved" && (
-                            <span className="text-xs text-emerald-500 dark:text-emerald-400 flex items-center gap-1.5 font-medium animate-fadeIn">
-                              <CheckCircle2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
+                            <span className="text-xs text-status-success flex items-center gap-1.5 font-medium animate-fadeIn">
+                              <CheckCircle2 className="h-4 w-4 text-status-success shrink-0" />
                               Saved!
                             </span>
                           )}
                           {state === "error" && (
                             <span
-                              className="text-xs text-rose-500 dark:text-rose-400 flex items-center gap-1.5 font-medium cursor-help"
+                              className="text-xs text-status-error flex items-center gap-1.5 font-medium cursor-help"
                               title={errorMessages[user.id] || "Failed to save mapping."}
                             >
-                              <AlertCircle className="h-4 w-4 text-rose-500 dark:text-rose-400 shrink-0" />
+                              <AlertCircle className="h-4 w-4 text-status-error shrink-0" />
                               Error
                             </span>
                           )}

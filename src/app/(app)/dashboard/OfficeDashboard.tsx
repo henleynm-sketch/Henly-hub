@@ -63,20 +63,20 @@ export default function OfficeDashboard({
         {/* Dashboard Grid */}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Inbox Activity */}
-          <section className="glass-card lg:col-span-2">
-            <div className="flex items-center justify-between border-b border-glass-border px-5 py-4">
+          <section className="glass-card lg:col-span-2 p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-glass-border pb-3">
               <h2 className="text-sm font-semibold text-ink">Recent inbox activity</h2>
-              <Link href="/inbox" className="text-xs text-accent hover:text-accent-hover hover:underline transition-colors">Open inbox</Link>
+              <Link href="/inbox" className="text-xs text-accent hover:text-accent-hover hover:underline transition-colors font-medium">Open inbox</Link>
             </div>
-            <ul className="divide-y divide-glass-border">
-              {threads.length === 0 && <li className="p-5 text-sm text-ink-soft">Nothing yet.</li>}
+            <ul className="space-y-2">
+              {threads.length === 0 && <li className="py-2 text-sm text-ink-soft">Nothing yet.</li>}
               {threads.map((t) => (
-                <li key={t.id} className="flex items-start gap-3 px-5 py-3.5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                <li key={t.id} className="flex items-start gap-3 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover hover:text-ink transition-colors">
                   <ChannelDot channel={t.channel} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="truncate text-sm font-semibold text-ink">{t.client?.name ?? "Unknown"}</span>
-                      <span className="text-xs text-ink-soft/60 font-medium">· {t.channel.toLowerCase()}</span>
+                      <span className="text-xs text-ink-muted font-medium">· {t.channel.toLowerCase()}</span>
                       {t.unread > 0 && <span className="badge-blue ml-1.5">{t.unread} new</span>}
                     </div>
                     <div className="truncate text-sm text-ink mt-0.5 font-semibold">{t.subject}</div>
@@ -84,19 +84,19 @@ export default function OfficeDashboard({
                       <div className="mt-1 truncate text-xs text-ink-soft leading-relaxed">{t.messages[0].body}</div>
                     )}
                   </div>
-                  <div className="text-xs text-ink-soft/60 font-medium whitespace-nowrap">{formatRelative(t.lastAt)}</div>
+                  <div className="text-xs text-ink-muted font-medium whitespace-nowrap">{formatRelative(t.lastAt)}</div>
                 </li>
               ))}
             </ul>
           </section>
 
           {/* Daily Logs */}
-          <section className="glass-card">
-            <div className="border-b border-white/5 px-5 py-4">
-              <h2 className="text-sm font-semibold text-white">Latest daily logs</h2>
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="border-b border-glass-border pb-3">
+              <h2 className="text-sm font-semibold text-ink">Latest daily logs</h2>
             </div>
-            <ul className="divide-y divide-white/5">
-              {recentLogs.length === 0 && <li className="p-5 text-sm text-slate-550">No logs yet.</li>}
+            <ul className="space-y-2">
+              {recentLogs.length === 0 && <li className="py-2 text-sm text-ink-soft">No logs yet.</li>}
               {recentLogs.map((l) => {
                 let photoUrls: string[] = [];
                 if (l.photos) {
@@ -107,18 +107,18 @@ export default function OfficeDashboard({
                   }
                 }
                 return (
-                  <li key={l.id} className="px-5 py-4 hover:bg-white/[0.02] transition-colors">
-                    <div className="text-sm font-semibold text-white">{l.project.name}</div>
-                    <div className="text-xs text-slate-500 font-medium mt-0.5">
+                  <li key={l.id} className="flex flex-col gap-1 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
+                    <div className="text-sm font-semibold text-ink">{l.project.name}</div>
+                    <div className="text-xs text-ink-muted font-medium mt-0.5">
                       {l.author.name} · {formatRelative(l.date)}
                     </div>
-                    <div className="mt-2 line-clamp-2 text-sm text-slate-350 leading-relaxed">{l.notes}</div>
+                    <div className="mt-2 line-clamp-2 text-sm text-ink-soft leading-relaxed">{l.notes}</div>
                     {photoUrls.length > 0 && (
                       <div className="mt-3 flex gap-1.5">
                         {photoUrls.slice(0, 5).map((url, idx) => (
                           <div
                             key={idx}
-                            className="aspect-square w-8 h-8 overflow-hidden rounded border border-white/10 bg-white/5"
+                            className="aspect-square w-8 h-8 overflow-hidden rounded border border-glass-border bg-row-bg"
                           >
                             <img
                               src={url}
@@ -147,5 +147,5 @@ function ChannelDot({ channel }: { channel: string }) {
     IN_APP: "bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]",
     CALL_NOTE: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]",
   }[channel] ?? "bg-slate-400";
-  return <span className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${tone}`} />;
+  return <span className={`mt-1.5 h-2.5 w-2.5 rounded-full shrink-0 ${tone}`} />;
 }

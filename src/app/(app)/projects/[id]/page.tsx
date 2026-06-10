@@ -212,24 +212,24 @@ export default async function ProjectDetail({
 
       {(project.currentPhase || project.nextStep) && (
         <div className="px-6 pt-6">
-          <div className="card border-l-4 border-l-brand-500 p-5">
+          <div className="glass-card border-l-4 border-l-accent p-6">
             <div className="grid gap-4 md:grid-cols-3">
               {project.currentPhase && (
                 <div>
-                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Current phase</div>
-                  <div className="mt-1 text-sm font-medium text-slate-900">{project.currentPhase}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Current phase</div>
+                  <div className="mt-1.5 text-sm font-semibold text-ink">{project.currentPhase}</div>
                 </div>
               )}
               {project.team && (
                 <div>
-                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500">With</div>
-                  <div className="mt-1 text-sm text-slate-700">{project.team}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">With</div>
+                  <div className="mt-1.5 text-sm text-ink-soft">{project.team}</div>
                 </div>
               )}
               {project.nextStep && (
                 <div className="md:col-span-1">
-                  <div className="text-xs font-medium uppercase tracking-wide text-slate-500">Next step</div>
-                  <div className="mt-1 text-sm text-slate-700">{project.nextStep}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Next step</div>
+                  <div className="mt-1.5 text-sm text-ink-soft">{project.nextStep}</div>
                 </div>
               )}
             </div>
@@ -238,14 +238,14 @@ export default async function ProjectDetail({
       )}
 
       {isInternal(role) && (
-        <div className="border-b border-slate-200 bg-white px-6">
+        <div className="border-b border-glass-border px-6">
           <div className="-mb-px flex gap-6">
             <Link
               href={`/projects/${project.id}?tab=overview`}
               className={`border-b-2 py-3 text-sm font-medium transition-colors ${
                 activeTab === "overview"
-                  ? "border-brand-600 text-brand-600 font-semibold"
-                  : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                  ? "border-accent text-accent font-semibold"
+                  : "border-transparent text-ink-muted hover:border-glass-border hover:text-ink"
               }`}
             >
               Overview
@@ -254,8 +254,8 @@ export default async function ProjectDetail({
               href={`/projects/${project.id}?tab=time-clock`}
               className={`border-b-2 py-3 text-sm font-medium transition-colors ${
                 activeTab === "time-clock"
-                  ? "border-brand-600 text-brand-600 font-semibold"
-                  : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                  ? "border-accent text-accent font-semibold"
+                  : "border-transparent text-ink-muted hover:border-glass-border hover:text-ink"
               }`}
             >
               Time Clock
@@ -265,8 +265,8 @@ export default async function ProjectDetail({
                 href={`/projects/${project.id}?tab=time-review`}
                 className={`border-b-2 py-3 text-sm font-medium transition-colors ${
                   activeTab === "time-review"
-                    ? "border-brand-600 text-brand-600 font-semibold"
-                    : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                    ? "border-accent text-accent font-semibold"
+                    : "border-transparent text-ink-muted hover:border-glass-border hover:text-ink"
                 }`}
               >
                 Time Review
@@ -280,20 +280,20 @@ export default async function ProjectDetail({
         {activeTab === "overview" ? (
           <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <section className="card">
-            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-              <h2 className="text-sm font-semibold">Milestones</h2>
-              <span className="text-xs text-slate-500">
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-glass-border pb-3">
+              <h2 className="text-sm font-semibold text-ink">Milestones</h2>
+              <span className="text-xs text-ink-muted font-medium">
                 {project.milestones.filter((m) => m.status === "DONE").length} / {project.milestones.length} done
               </span>
             </div>
-            <ul className="divide-y divide-slate-100">
+            <ul className="space-y-2">
               {project.milestones.map((m) => (
-                <li key={m.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                <li key={m.id} className="flex items-center justify-between gap-3 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
                   <div>
-                    <div className="text-sm font-medium">{m.title}</div>
+                    <div className="text-sm font-semibold text-ink">{m.title}</div>
                     {m.dueDate && (
-                      <div className="text-xs text-slate-500">Due {formatDate(m.dueDate)}</div>
+                      <div className="text-xs text-ink-muted mt-0.5">Due {formatDate(m.dueDate)}</div>
                     )}
                   </div>
                   {role === "CLIENT" || role === "SUB" ? (
@@ -307,25 +307,24 @@ export default async function ProjectDetail({
                         <option value="DONE">Done</option>
                         <option value="BLOCKED">Blocked</option>
                       </select>
-                      <button className="btn-ghost text-xs">Save</button>
+                      <button className="btn-ghost text-xs font-semibold">Save</button>
                     </form>
                   )}
                 </li>
               ))}
             </ul>
           </section>
-
-          <section className="card">
-            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-              <h2 className="text-sm font-semibold">Daily logs</h2>
-              <span className="text-xs text-slate-500">{project.dailyLogs.length} recent</span>
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-glass-border pb-3">
+              <h2 className="text-sm font-semibold text-ink">Daily logs</h2>
+              <span className="text-xs text-ink-muted font-medium">{project.dailyLogs.length} recent</span>
             </div>
             {(role === "CEO" || role === "OFFICE" || role === "FIELD") && (
               <DailyLogForm addLogAction={addLog} />
             )}
-            <ul className="divide-y divide-slate-100">
+            <ul className="space-y-2">
               {project.dailyLogs.length === 0 && (
-                <li className="px-5 py-4 text-sm text-slate-500">No logs yet.</li>
+                <li className="py-2 text-sm text-ink-soft">No logs yet.</li>
               )}
               {project.dailyLogs.map((l) => {
                 if (role === "CLIENT" && !l.clientVisible) return null;
@@ -340,12 +339,12 @@ export default async function ProjectDetail({
                 }
 
                 return (
-                  <li key={l.id} className="px-5 py-3">
-                    <div className="flex items-center justify-between text-xs text-slate-500">
+                  <li key={l.id} className="flex flex-col gap-1 rounded-[10px] px-4 py-3 bg-row-bg hover:bg-row-hover transition-colors">
+                    <div className="flex items-center justify-between text-xs text-ink-muted">
                       <span>{l.author.name} · {formatRelative(l.date)}</span>
                       {l.clientVisible && <span className="badge-green">visible to client</span>}
                     </div>
-                    <div className="mt-1 text-sm text-slate-700">{l.notes}</div>
+                    <div className="mt-1 text-sm text-ink-soft">{l.notes}</div>
                     
                     {photoUrls.length > 0 && (
                       <div className="mt-2.5 flex flex-wrap gap-2">
@@ -355,7 +354,7 @@ export default async function ProjectDetail({
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group relative block aspect-square w-20 h-20 md:w-24 md:h-24 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 shadow-sm"
+                            className="group relative block aspect-square w-20 h-20 md:w-24 md:h-24 overflow-hidden rounded-lg border border-glass-border bg-row-bg shadow-sm"
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
@@ -368,7 +367,7 @@ export default async function ProjectDetail({
                       </div>
                     )}
 
-                    <div className="mt-2 text-xs text-slate-500 space-x-3">
+                    <div className="mt-2 text-xs text-ink-muted space-x-3">
                       {l.weather && <span>☀ {l.weather}</span>}
                       {l.crewOnSite && <span>👷 {l.crewOnSite}</span>}
                       {l.hoursWorked != null && <span>⏱ {l.hoursWorked}h</span>}
@@ -380,61 +379,65 @@ export default async function ProjectDetail({
           </section>
 
           {showFinancials && (
-            <section className="card">
-              <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                <h2 className="text-sm font-semibold">Budget vs actual</h2>
-                <div className="text-xs text-slate-500">
+            <section className="glass-card overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between border-b border-glass-border px-6 py-4">
+                <h2 className="text-sm font-semibold text-ink">Budget vs actual</h2>
+                <div className="text-xs text-ink-soft">
                   Contract {formatMoney(project.contractCents)} ·
-                  <span className={overUnder > 0 ? "text-rose-700" : "text-emerald-700"}>
+                  <span className={overUnder > 0 ? "text-status-error font-semibold" : "text-status-success font-semibold"}>
                     {" "}{overUnder > 0 ? "Over" : "Under"} by {formatMoney(Math.abs(overUnder))}
                   </span>
                 </div>
               </div>
-              <table className="min-w-full text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                  <tr>
-                    <th className="px-5 py-3 text-left font-medium">Category</th>
-                    <th className="px-5 py-3 text-left font-medium">Description</th>
-                    <th className="px-5 py-3 text-right font-medium">Estimate</th>
-                    <th className="px-5 py-3 text-right font-medium">Actual</th>
-                    <th className="px-5 py-3 text-right font-medium">Δ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {project.budgetItems.map((b) => {
-                    const d = b.actualCents - b.estimateCents;
-                    return (
-                      <tr key={b.id}>
-                        <td className="px-5 py-2">{b.category}</td>
-                        <td className="px-5 py-2 text-slate-600">{b.description}</td>
-                        <td className="px-5 py-2 text-right">{formatMoney(b.estimateCents)}</td>
-                        <td className="px-5 py-2 text-right">{formatMoney(b.actualCents)}</td>
-                        <td className={`px-5 py-2 text-right ${d > 0 ? "text-rose-700" : d < 0 ? "text-emerald-700" : "text-slate-500"}`}>
-                          {d === 0 ? "—" : `${d > 0 ? "+" : ""}${formatMoney(d)}`}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-                <tfoot className="bg-slate-50 text-sm">
-                  <tr>
-                    <td className="px-5 py-2 font-medium" colSpan={2}>Total</td>
-                    <td className="px-5 py-2 text-right font-medium">{formatMoney(totalEstCents)}</td>
-                    <td className="px-5 py-2 text-right font-medium">{formatMoney(totalActCents)}</td>
-                    <td className={`px-5 py-2 text-right font-medium ${overUnder > 0 ? "text-rose-700" : "text-emerald-700"}`}>
-                      {overUnder === 0 ? "—" : `${overUnder > 0 ? "+" : ""}${formatMoney(overUnder)}`}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-row-bg border-b border-glass-border text-xs uppercase tracking-wider text-ink-muted">
+                    <tr>
+                      <th className="px-5 py-3.5 text-left font-medium">Category</th>
+                      <th className="px-5 py-3.5 text-left font-medium">Description</th>
+                      <th className="px-5 py-3.5 text-right font-medium">Estimate</th>
+                      <th className="px-5 py-3.5 text-right font-medium">Actual</th>
+                      <th className="px-5 py-3.5 text-right font-medium">Δ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-glass-border">
+                    {project.budgetItems.map((b) => {
+                      const d = b.actualCents - b.estimateCents;
+                      return (
+                        <tr key={b.id} className="hover:bg-row-hover transition-colors">
+                          <td className="px-5 py-3.5 text-ink font-medium">{b.category}</td>
+                          <td className="px-5 py-3.5 text-ink-soft">{b.description}</td>
+                          <td className="px-5 py-3.5 text-right text-ink-soft">{formatMoney(b.estimateCents)}</td>
+                          <td className="px-5 py-3.5 text-right text-ink-soft">{formatMoney(b.actualCents)}</td>
+                          <td className={`px-5 py-3.5 text-right font-semibold ${d > 0 ? "text-status-error" : d < 0 ? "text-status-success" : "text-ink-muted"}`}>
+                            {d === 0 ? "—" : `${d > 0 ? "+" : ""}${formatMoney(d)}`}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot className="bg-row-bg text-sm border-t border-glass-border">
+                    <tr>
+                      <td className="px-5 py-3.5 font-semibold text-ink" colSpan={2}>Total</td>
+                      <td className="px-5 py-3.5 text-right font-semibold text-ink">{formatMoney(totalEstCents)}</td>
+                      <td className="px-5 py-3.5 text-right font-semibold text-ink">{formatMoney(totalActCents)}</td>
+                      <td className={`px-5 py-3.5 text-right font-bold ${overUnder > 0 ? "text-status-error" : "text-status-success"}`}>
+                        {overUnder === 0 ? "—" : `${overUnder > 0 ? "+" : ""}${formatMoney(overUnder)}`}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </section>
           )}
         </div>
 
-        <div className="space-y-4">
-          <section className="card p-5">
-            <h2 className="text-sm font-semibold">Project</h2>
-            <dl className="mt-3 space-y-2 text-sm">
+        <div className="space-y-6">
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="border-b border-glass-border pb-1">
+              <h2 className="text-sm font-semibold text-ink">Project</h2>
+            </div>
+            <dl className="space-y-3.5 text-sm">
               <Field k="Status" v={project.status.replace("_", " ").toLowerCase()} />
               {project.projectType && <Field k="Type" v={project.projectType} />}
               {project.city && <Field k="City" v={project.city} />}
@@ -447,27 +450,31 @@ export default async function ProjectDetail({
             </dl>
           </section>
 
-          <section className="card p-5">
-            <h2 className="text-sm font-semibold">Team</h2>
-            <ul className="mt-2 space-y-2 text-sm">
+          <section className="glass-card p-6 flex flex-col gap-4">
+            <div className="border-b border-glass-border pb-1">
+              <h2 className="text-sm font-semibold text-ink">Team</h2>
+            </div>
+            <ul className="space-y-3 text-sm">
               {project.assignments.map((a) => (
                 <li key={a.id} className="flex justify-between">
-                  <span>{a.user.name}</span>
-                  <span className="text-xs text-slate-500">{a.role}</span>
+                  <span className="text-ink font-semibold">{a.user.name}</span>
+                  <span className="text-xs text-ink-muted">{a.role}</span>
                 </li>
               ))}
             </ul>
           </section>
 
           {project.selections.length > 0 && (
-            <section className="card p-5">
-              <h2 className="text-sm font-semibold">Selections</h2>
-              <ul className="mt-2 space-y-2 text-sm">
+            <section className="glass-card p-6 flex flex-col gap-4">
+              <div className="border-b border-glass-border pb-1">
+                <h2 className="text-sm font-semibold text-ink">Selections</h2>
+              </div>
+              <ul className="space-y-3 text-sm">
                 {project.selections.map((s) => (
                   <li key={s.id} className="flex justify-between gap-2">
                     <div>
-                      <div>{s.category}</div>
-                      <div className="text-xs text-slate-500">{s.option}</div>
+                      <div className="text-ink font-semibold">{s.category}</div>
+                      <div className="text-xs text-ink-muted mt-0.5">{s.option}</div>
                     </div>
                     <span className={selBadge(s.status)}>{s.status.toLowerCase()}</span>
                   </li>
@@ -498,8 +505,8 @@ export default async function ProjectDetail({
 function Field({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex justify-between gap-3">
-      <dt className="text-slate-500">{k}</dt>
-      <dd className="text-right text-slate-800">{v}</dd>
+      <dt className="text-ink-muted font-medium">{k}</dt>
+      <dd className="text-right text-ink font-semibold">{v}</dd>
     </div>
   );
 }

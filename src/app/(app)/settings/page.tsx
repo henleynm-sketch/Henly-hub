@@ -12,7 +12,7 @@ export default async function SettingsPage() {
     return (
       <>
         <PageHeader title="Settings" />
-        <div className="p-6 text-sm text-slate-500">Owner access only.</div>
+        <div className="p-6 text-sm text-ink-muted">Owner access only.</div>
       </>
     );
   }
@@ -27,25 +27,25 @@ export default async function SettingsPage() {
         subtitle="Everyone with a hub login. Roles drive what each person sees."
       />
       <div className="p-6">
-        <section className="card overflow-x-auto">
+        <section className="glass-card overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-row-bg border-b border-glass-border text-xs uppercase tracking-wider text-ink-muted">
               <tr>
-                <th className="px-5 py-3 text-left font-medium">Name</th>
-                <th className="px-5 py-3 text-left font-medium">Email</th>
-                <th className="px-5 py-3 text-left font-medium">Role</th>
-                <th className="px-5 py-3 text-left font-medium">Focus area</th>
-                <th className="px-5 py-3 text-left font-medium">Linked client</th>
+                <th className="px-5 py-3.5 text-left font-medium">Name</th>
+                <th className="px-5 py-3.5 text-left font-medium">Email</th>
+                <th className="px-5 py-3.5 text-left font-medium">Role</th>
+                <th className="px-5 py-3.5 text-left font-medium">Focus area</th>
+                <th className="px-5 py-3.5 text-left font-medium">Linked client</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-glass-border">
               {users.map((u) => (
-                <tr key={u.id}>
-                  <td className="px-5 py-3 font-medium">{u.name}</td>
-                  <td className="px-5 py-3 text-slate-600">{u.email}</td>
-                  <td className="px-5 py-3">{ROLE_LABELS[u.role as Role] ?? u.role}</td>
-                  <td className="px-5 py-3 text-slate-600">{u.focusArea ?? "—"}</td>
-                  <td className="px-5 py-3 text-slate-600">{u.client?.name ?? "—"}</td>
+                <tr key={u.id} className="hover:bg-row-hover transition-colors">
+                  <td className="px-5 py-3 text-ink font-semibold">{u.name}</td>
+                  <td className="px-5 py-3 text-ink-soft">{u.email}</td>
+                  <td className="px-5 py-3 text-ink">{ROLE_LABELS[u.role as Role] ?? u.role}</td>
+                  <td className="px-5 py-3 text-ink-soft">{u.focusArea ?? "—"}</td>
+                  <td className="px-5 py-3 text-ink-soft">{u.client?.name ?? "—"}</td>
                 </tr>
               ))}
             </tbody>

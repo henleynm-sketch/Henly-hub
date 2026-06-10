@@ -23,6 +23,15 @@ const config: Config = {
           soft: "var(--text-secondary)",
           muted: "var(--text-muted)",
         },
+        row: {
+          bg: "var(--row-bg)",
+          hover: "var(--row-bg-hover)",
+          active: "var(--row-bg-active)",
+        },
+        chip: {
+          bg: "var(--chip-bg)",
+          text: "var(--chip-text)",
+        },
         // Retain original configuration elements for backward-compatibility
         brand: {
           50: "#f5f7ff",

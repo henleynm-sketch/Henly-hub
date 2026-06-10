@@ -38,23 +38,23 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {open ? (
-        <div className="w-72 rounded-xl border border-white/10 bg-glass-bg/95 shadow-glass backdrop-blur-glass text-white">
-          <div className="flex items-center justify-between border-b border-white/5 px-4 py-2.5">
+        <div className="w-72 p-5 rounded-[24px] border border-glass-border bg-glass-bg/95 shadow-glass backdrop-blur-glass text-ink flex flex-col gap-4">
+          <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
                 Demo: switch role
               </div>
-              <div className="text-[10px] text-slate-500 font-mono">Dev mode only</div>
+              <div className="text-[10px] text-ink-soft font-mono">Dev mode only</div>
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="text-slate-400 hover:text-white text-lg font-bold transition-colors"
+              className="text-ink-soft hover:text-ink text-lg font-bold transition-colors"
               aria-label="Close"
             >
               ×
             </button>
           </div>
-          <ul className="p-2 space-y-0.5">
+          <ul className="space-y-1">
             {ROLES.map((r) => {
               const active = r.email === currentEmail;
               return (
@@ -62,26 +62,29 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
                   <button
                     disabled={pending || active}
                     onClick={() => switchTo(r.email)}
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-all ${
-                      active ? "bg-white/10 text-white font-semibold cursor-default" : "text-slate-300 hover:bg-white/5 hover:text-white"
+                    className={`flex w-full items-center gap-3 rounded-[10px] px-4 py-3 text-left text-sm transition-all ${
+                      active 
+                        ? "bg-row-active text-ink font-semibold cursor-default" 
+                        : "text-ink-soft hover:bg-row-hover hover:text-ink"
                     }`}
                   >
-                    <span className={`h-2 w-2 rounded-full shrink-0 ${r.color}`} />
+                    <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${r.color}`} />
                     <span className="flex-1 min-w-0">
-                      <div className="font-semibold truncate">{r.label}</div>
-                      <div className="text-xs text-slate-400 truncate">{r.email}</div>
+                      <div className="font-semibold truncate text-ink">{r.label}</div>
+                      <div className="text-xs text-ink-soft truncate">{r.email}</div>
                     </span>
-                    {active && <span className="text-[9px] font-bold uppercase text-accent border border-accent/20 bg-accent/10 px-1.5 py-0.5 rounded">active</span>}
+                    {active && <span className="text-[9px] font-bold uppercase text-accent border border-accent/20 bg-accent/10 px-1.5 py-0.5 rounded-full shrink-0">active</span>}
                   </button>
                 </li>
               );
             })}
           </ul>
           {error && (
-            <div className="border-t border-white/5 px-4 py-2 text-xs text-rose-400 font-semibold">{error}</div>
+            <div className="border-t border-glass-border pt-2 text-xs text-rose-400 font-semibold">{error}</div>
           )}
-          <div className="border-t border-white/5 px-4 py-2 text-[10px] text-slate-500 leading-normal">
-            Password for all demo users: <code className="bg-white/5 px-1 py-0.5 rounded">demo</code>
+          <div className="border-t border-glass-border pt-3 text-[10px] text-ink-soft leading-normal flex items-center justify-between">
+            <span>Password for all demo users:</span>
+            <code className="bg-chip-bg text-chip-text px-1.5 py-0.5 rounded font-mono">demo</code>
           </div>
         </div>
       ) : (

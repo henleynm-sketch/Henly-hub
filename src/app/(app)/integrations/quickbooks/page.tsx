@@ -38,21 +38,21 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
       <div className="mx-auto max-w-6xl p-6">
         {/* Status Notification Banners */}
         {success === "connected" && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-800 shadow-sm">
-            <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-status-success shadow-sm">
+            <CheckCircle2 className="h-5 w-5 text-status-success shrink-0" />
             <div>
               <p className="text-sm font-semibold">Connection Successful!</p>
-              <p className="text-xs text-emerald-700/90">Henley Hub is now authorized to sync data with QuickBooks Online.</p>
+              <p className="text-xs opacity-90">Henley Hub is now authorized to sync data with QuickBooks Online.</p>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-800 shadow-sm">
-            <XCircle className="h-5 w-5 text-rose-600 shrink-0" />
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-rose-500/20 bg-rose-500/5 p-4 text-status-error shadow-sm">
+            <XCircle className="h-5 w-5 text-status-error shrink-0" />
             <div>
               <p className="text-sm font-semibold">Connection Failed</p>
-              <p className="text-xs text-rose-700/90">
+              <p className="text-xs opacity-90">
                 {error === "state_mismatch" && "Security check failed (state mismatch). Please try again."}
                 {error === "token_exchange_failed" && "Failed to retrieve access tokens from QuickBooks. Verify credentials."}
                 {error === "missing_config" && "Missing client configurations. Please check environment variables."}
@@ -84,20 +84,20 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                       Connected
                     </span>
                     <span className="text-sm text-ink-soft">
-                      Realm ID: <code className="bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded font-mono border border-glass-border text-ink">{token.realmId}</code>
+                      Realm ID: <code className="bg-chip-bg text-chip-text px-1.5 py-0.5 rounded font-mono border border-glass-border">{token.realmId}</code>
                     </span>
                   </div>
  
                   <div className="mt-6 border-t border-glass-border pt-5">
                     <h3 className="text-sm font-semibold text-ink">Connection Details</h3>
                     <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-ink-soft">
-                      <div className="rounded-lg bg-black/5 dark:bg-white/5 p-3 border border-glass-border">
-                        <span className="block text-xs font-medium text-ink-muted uppercase">Authorization Scope</span>
-                        <span className="font-medium text-ink">Accounting (Read/Write)</span>
+                      <div className="rounded-[10px] bg-row-bg p-3.5 border border-glass-border">
+                        <span className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">Authorization Scope</span>
+                        <span className="font-semibold text-ink">Accounting (Read/Write)</span>
                       </div>
-                      <div className="rounded-lg bg-black/5 dark:bg-white/5 p-3 border border-glass-border">
-                        <span className="block text-xs font-medium text-ink-muted uppercase">Token Expires At</span>
-                        <span className="font-medium text-ink">
+                      <div className="rounded-[10px] bg-row-bg p-3.5 border border-glass-border">
+                        <span className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">Token Expires At</span>
+                        <span className="font-semibold text-ink">
                           {new Date(token.expiresAt).toLocaleTimeString()} on {new Date(token.expiresAt).toLocaleDateString()}
                         </span>
                       </div>
@@ -107,7 +107,7 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                   <div className="mt-6 flex flex-wrap items-center gap-3">
                     <a
                       href="/integrations/quickbooks/employees"
-                      className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[var(--accent-hover)]"
+                      className="btn btn-primary"
                     >
                       <Users className="h-4 w-4" />
                       Map Employees
@@ -115,7 +115,7 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                     <form action={disconnectQuickBooksAction}>
                       <button
                         type="submit"
-                        className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-rose-700"
+                        className="btn btn-destructive"
                       >
                         Disconnect QuickBooks
                       </button>
@@ -140,7 +140,7 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                   <div className="mt-6">
                     <a
                       href="/api/auth/quickbooks"
-                      className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold"
+                      className="btn btn-primary"
                     >
                       <Link2 className="h-4 w-4" />
                       Connect QuickBooks (OAuth)
@@ -161,7 +161,7 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
               <p className="mt-1 text-sm text-ink-soft">How Henley Hub integrates with your books.</p>
               
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <div className="flex gap-3 rounded-lg border border-glass-border bg-black/5 dark:bg-white/5 p-4">
+                <div className="flex gap-3 rounded-[10px] border border-glass-border bg-row-bg p-4">
                   <Database className="h-5 w-5 text-accent shrink-0" />
                   <div>
                     <h3 className="text-sm font-semibold text-ink">Customer Mapping</h3>
@@ -169,7 +169,7 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                   </div>
                 </div>
  
-                <div className="flex gap-3 rounded-lg border border-glass-border bg-black/5 dark:bg-white/5 p-4">
+                <div className="flex gap-3 rounded-[10px] border border-glass-border bg-row-bg p-4">
                   <FileSpreadsheet className="h-5 w-5 text-accent shrink-0" />
                   <div>
                     <h3 className="text-sm font-semibold text-ink">Invoices & Estimates</h3>
@@ -177,7 +177,7 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                   </div>
                 </div>
  
-                <div className="flex gap-3 rounded-lg border border-glass-border bg-black/5 dark:bg-white/5 p-4">
+                <div className="flex gap-3 rounded-[10px] border border-glass-border bg-row-bg p-4">
                   <CheckCircle2 className="h-5 w-5 text-accent shrink-0" />
                   <div>
                     <h3 className="text-sm font-semibold text-ink">Payment Synchronization</h3>
@@ -185,7 +185,7 @@ export default async function QuickBooksIntegrationPage(props: PageProps) {
                   </div>
                 </div>
  
-                <div className="flex gap-3 rounded-lg border border-glass-border bg-black/5 dark:bg-white/5 p-4">
+                <div className="flex gap-3 rounded-[10px] border border-glass-border bg-row-bg p-4">
                   <AlertCircle className="h-5 w-5 text-accent shrink-0" />
                   <div>
                     <h3 className="text-sm font-semibold text-ink">Cost & Budget Tracking</h3>

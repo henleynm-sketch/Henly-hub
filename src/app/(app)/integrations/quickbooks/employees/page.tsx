@@ -35,12 +35,12 @@ export default async function QBOEmployeeMapPage() {
       />
       <div className="mx-auto max-w-6xl p-6 space-y-6">
         {loadError ? (
-          <div className="glass-card p-5">
-            <p className="mb-1 font-medium text-[var(--white)]">
+          <div className="glass-card p-6">
+            <p className="mb-1 font-bold text-ink text-base">
               QuickBooks not reachable
             </p>
-            <p className="text-[var(--mist)]">{loadError}</p>
-            <p className="mt-2 text-sm text-[var(--fog)]">
+            <p className="text-sm text-ink-soft">{loadError}</p>
+            <p className="mt-3 text-xs text-ink-muted">
               Connect QuickBooks on the integration page, then reload.
             </p>
           </div>
