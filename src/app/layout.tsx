@@ -1,9 +1,17 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import RegisterSW from "@/components/RegisterSW";
 
 export const metadata: Metadata = {
   title: "Henley Hub",
   description: "Run your remodeling business from one connected hub.",
+  manifest: "/manifest.webmanifest",
+  icons: { apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Henley Hub" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0A0A0B",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +35,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <RegisterSW />
+      </body>
     </html>
   );
 }
