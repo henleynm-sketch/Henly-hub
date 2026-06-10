@@ -21,7 +21,13 @@ export default async function EstimateDetail({ params }: { params: Promise<{ id:
           <>
             <Link href={`/clients/${e.clientId}`} className="btn-secondary">View client</Link>
             <button className="btn-secondary" disabled>Send (stub)</button>
-            <button className="btn-primary" disabled>Convert to contract</button>
+            {e.status === "ACCEPTED" ? (
+              <Link href="/contracts" className="btn-primary">Convert to contract</Link>
+            ) : (
+              <button className="btn-primary" disabled title="Estimate must be accepted first">
+                Convert to contract
+              </button>
+            )}
           </>
         }
       />

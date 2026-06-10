@@ -28,6 +28,7 @@ model User {
   timeEntries TimeEntry[]
   approvedTimeEntries TimeEntry[] @relation("TimeEntryApprover")
   uploadedDocuments Document[] @relation("UploadedDocuments")
+  authoredContracts Contract[] @relation("ContractAuthor")
   createdAt   DateTime @default(now())
 }
 
@@ -48,6 +49,7 @@ model Client {
   projects     Project[]
   threads      Thread[]
   estimates    Estimate[]
+  contracts    Contract[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -79,6 +81,7 @@ model Project {
   selections   Selection[]
   assignments  ProjectAssignment[]
   timeEntries  TimeEntry[]
+  contracts    Contract[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -200,6 +203,7 @@ model Estimate {
   totalCents Int      @default(0)
   notes      String?
   lineItems  EstimateLine[]
+  contracts  Contract[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -213,6 +217,33 @@ model EstimateLine {
   unitCents   Int      @default(0)
   totalCents  Int      @default(0)
   category    String?
+}
+
+model Contract {
+  id            String    @id @default(cuid())
+  number        String    @unique
+  version       Int       @default(1)
+  clientId      String
+  client        Client    @relation(fields: [clientId], references: [id])
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id])
+  estimateId    String?
+  estimate      Estimate? @relation(fields: [estimateId], references: [id])
+  authorId      String
+  author        User      @relation("ContractAuthor", fields: [authorId], references: [id])
+  title         String
+  status        String    @default("DRAFT") // DRAFT | SENT | SIGNED | VOID
+  subtotalCents Int       @default(0)
+  taxCents      Int       @default(0)
+  totalCents    Int       @default(0)
+  depositCents  Int       @default(0)
+  terms         String?
+  sentAt        DateTime?
+  signedAt      DateTime?
+  signedByName  String?
+  qbInvoiceId   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model TimeEntry {
