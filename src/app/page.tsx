@@ -1,179 +1,208 @@
-import Link from "next/link";
-import { Inbox, Briefcase, FileText, Link2, ShieldCheck, CheckCircle2, Construction, ArrowRight } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
-import ScrollReveal from "@/components/ScrollReveal";
+import { auth, signIn } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
-const features = [
-  {
-    title: "Unified Communication",
-    body: "Email, SMS, and client updates aggregated in a single live stream. Say goodbye to scattered messaging threads.",
-    icon: Inbox,
-  },
-  {
-    title: "CRM & Proposal Pipeline",
-    body: "Lead files flow seamlessly into estimates, contracts, and scheduling. Coordinate every build milestone effortlessly.",
-    icon: Briefcase,
-  },
-  {
-    title: "Dedicated Client Portal",
-    body: "A secure workspace sharing daily logs, milestones, photos, and selections. Maintain transparency with your clients.",
-    icon: CheckCircle2,
-  },
-  {
-    title: "QuickBooks Online Sync",
-    body: "Push estimates, issue progress invoices, and pull payment statuses. Keep your actual budgets updated automatically.",
-    icon: Link2,
-  },
-  {
-    title: "Granular Role Portals",
-    body: "Tailored portals: crews clock hours on-site, subcontractors access files, and admins monitor org-level financials.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Field Logs & Media Library",
-    body: "Field teams document progress with logs, weather details, and image uploads. Curate client-facing logs with a single toggle.",
-    icon: FileText,
-  },
+const ROLES = [
+  { label: "CEO / Owner", email: "kyle@henleyhub.com", scope: "Everything — team, financials, all projects" },
+  { label: "Office / PM", email: "morgan@henleyhub.com", scope: "CRM, projects, estimates, contracts, financials" },
+  { label: "Field lead", email: "jess@henleyhub.com", scope: "Assigned jobs, daily logs, time clock" },
+  { label: "Subcontractor", email: "tile-pro@subs.com", scope: "Assigned scopes, plans & permits, messages" },
+  { label: "Client", email: "rachel.t@example.com", scope: "Their project, shared docs & updates only" },
 ];
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const session = await auth();
+  if (session?.user) redirect("/dashboard");
+  const sp = await searchParams;
+
+  const [activeProjects, teamMembers] = await Promise.all([
+    prisma.project.count({
+      where: { status: { in: ["IN_PROGRESS", "FINISHING", "PERMITTING", "DESIGN", "CLOSING"] } },
+    }),
+    prisma.user.count({ where: { role: { not: "CLIENT" } } }),
+  ]);
+
+  async function handleSignIn(formData: FormData) {
+    "use server";
+    const email = String(formData.get("email") || "");
+    const password = String(formData.get("password") || "");
+    try {
+      await signIn("credentials", { email, password, redirectTo: "/dashboard" });
+    } catch (err) {
+      if ((err as Error).message?.includes("NEXT_REDIRECT")) throw err;
+      redirect("/?error=invalid");
+    }
+  }
+
   return (
-    <div className="relative min-h-screen bg-canvas text-ink overflow-x-hidden transition-colors duration-300">
-      {/* Blueprint Grid Canvas */}
-      <div 
-        className="absolute inset-0 -z-20 pointer-events-none opacity-[0.25] dark:opacity-[0.35]" 
+    <main className="grid min-h-screen lg:grid-cols-2">
+      {/* Brand panel */}
+      <section
+        className="relative hidden lg:flex flex-col justify-between p-12"
         style={{
-          backgroundImage: `
-            linear-gradient(var(--glass-border) 1px, transparent 1px),
-            linear-gradient(90deg, var(--glass-border) 1px, transparent 1px)
-          `,
-          backgroundSize: "60px 60px",
+          backgroundColor: "#0A0A0B",
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
         }}
-      />
-      
-      {/* Animated Mesh Gradient Background (glowing orbs moving slowly) */}
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        {/* Orb 1: Accent Color */}
-        <div className="absolute top-[12%] left-[25%] h-[600px] w-[600px] rounded-full bg-accent/20 blur-[130px] animate-orb-1" />
-        {/* Orb 2: Deep Violet */}
-        <div className="absolute top-[38%] left-[65%] h-[650px] w-[650px] rounded-full bg-violet-500/15 blur-[120px] animate-orb-2" />
-        {/* Orb 3: Turquoise/Sky */}
-        <div className="absolute top-[68%] left-[18%] h-[550px] w-[550px] rounded-full bg-cyan-500/10 blur-[110px] animate-orb-3" />
-      </div>
-
-      {/* Sticky Glass Navbar with Real Backdrop Filter */}
-      <header 
-        style={{
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-        }}
-        className="sticky top-0 z-50 w-full border-b border-glass-border bg-glass-topbar/80 px-6 py-4 shadow-sm"
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div
-              className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-white"
-              style={{ boxShadow: "0 2px 8px rgba(92,124,250,0.3)" }}
-            >
-              <Construction className="h-4 w-4" />
-            </div>
-            <div>
-              <span className="text-base font-extrabold tracking-tight text-ink block leading-none">Henley Hub</span>
-              <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mt-0.5">Contracting</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Link 
-              href="/sign-in" 
-              className="btn-secondary text-xs px-4 py-2 font-semibold shadow-sm"
-            >
-              Sign in
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section with Scroll Reveal */}
-      <section className="relative mx-auto max-w-5xl px-6 pt-32 pb-24 text-center flex flex-col items-center">
-        <ScrollReveal className="flex flex-col items-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 border border-accent/25 px-4 py-1.5 text-xs font-bold text-accent tracking-wide uppercase shadow-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent animate-ping" />
-            Operating System for Luxury Builders
-          </span>
-          
-          <h1 className="mt-8 text-5xl sm:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-ink via-ink to-ink-soft max-w-4xl leading-[1.08]">
-            Constructing Excellence. <br />
-            Coordinating Operations.
-          </h1>
-          
-          <p className="mt-6 text-lg sm:text-xl text-ink-soft max-w-3xl leading-relaxed">
-            Henley Hub combines client communication, CRM, estimates, contracts, 
-            project tracking, and QuickBooks sync into a single premium OS, 
-            tailored for every role on the job.
-          </p>
-
-          <div className="mt-10 flex flex-wrap gap-4 justify-center">
-            <Link 
-              href="/sign-in" 
-              className="btn-primary inline-flex items-center gap-2 px-6 py-3.5 font-bold shadow-lg text-sm hover:-translate-y-0.5 transition-all"
-            >
-              Open the Hub
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <a 
-              href="#features" 
-              className="btn-secondary px-6 py-3.5 font-semibold text-sm hover:-translate-y-0.5 transition-all"
-            >
-              See what's inside
-            </a>
-          </div>
-        </ScrollReveal>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="mx-auto max-w-6xl px-6 pb-32">
-        <ScrollReveal className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight">Built for how Henley actually works</h2>
-          <p className="mt-3 text-ink-soft text-base max-w-md mx-auto leading-relaxed">No placeholders. Fully integrated workflows custom-built for high-end residential construction.</p>
-        </ScrollReveal>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((f, index) => {
-            const Icon = f.icon;
-            return (
-              <ScrollReveal 
-                key={f.title}
-                className="flex"
-              >
-                <div
-                  className="hh-panel p-6 hover:scale-[1.03] hover:-translate-y-1 group transition-all duration-300 w-full flex flex-col"
-                >
-                  <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/5 border border-glass-border text-accent group-hover:bg-accent/10 group-hover:border-accent/25 transition-colors">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="mt-4 text-base font-bold text-ink group-hover:text-accent transition-colors">{f.title}</h3>
-                  <p className="mt-2 text-sm text-ink-soft leading-relaxed flex-1">{f.body}</p>
-                </div>
-              </ScrollReveal>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Premium Footer */}
-      <footer className="border-t border-glass-border bg-glass-sidebar/65 backdrop-blur-md py-8">
-        <div className="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4 hh-caption font-medium">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold">Henley Hub</span>
-            <span>·</span>
-            <span>Internal operating system</span>
+        <div className="flex items-center gap-3">
+          <div
+            className="grid h-12 w-12 place-items-center rounded-full"
+            style={{ border: "1px solid rgba(255,255,255,0.35)", color: "#fff" }}
+          >
+            <span className="font-serif text-xl font-bold">H</span>
           </div>
           <div>
-            © {new Date().getFullYear()} Henley Contracting. All rights reserved.
+            <div className="font-serif text-2xl tracking-[0.18em] text-white">HENLEY</div>
+            <div className="text-[10px] font-semibold tracking-[0.35em]" style={{ color: "#A0A4AC" }}>
+              CONTRACTING LTD
+            </div>
           </div>
         </div>
-      </footer>
-    </div>
+
+        <div>
+          <h1 className="text-5xl xl:text-6xl font-black leading-[1.05] tracking-tight text-white">
+            Build the plan.
+            <br />
+            Then build it <span style={{ color: "#E8621A" }}>for real.</span>
+          </h1>
+          <p className="mt-6 max-w-md text-base leading-relaxed" style={{ color: "#A0A4AC" }}>
+            Henley Hub keeps every client, project, crew member and daily task in one place —
+            from first call to final walkthrough.
+          </p>
+        </div>
+
+        <div>
+          <div className="flex gap-14">
+            <div>
+              <div className="text-3xl font-bold text-white">{activeProjects}</div>
+              <div className="mt-1 text-xs" style={{ color: "#7C8088" }}>Active projects</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white">{teamMembers}</div>
+              <div className="mt-1 text-xs" style={{ color: "#7C8088" }}>Team members</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white">8 AM–5 PM</div>
+              <div className="mt-1 text-xs" style={{ color: "#7C8088" }}>Mon to Fri</div>
+            </div>
+          </div>
+          <div className="mt-10 text-xs" style={{ color: "#7C8088" }}>
+            © {new Date().getFullYear()} Henley Contracting Ltd.
+          </div>
+        </div>
+      </section>
+
+      {/* Sign-in panel */}
+      <section className="flex items-center justify-center bg-white p-8">
+        <div className="w-full max-w-sm">
+          <div className="mb-10 flex items-center gap-3 lg:hidden">
+            <div
+              className="grid h-10 w-10 place-items-center rounded-full"
+              style={{ border: "1px solid rgba(0,0,0,0.3)", color: "#141417" }}
+            >
+              <span className="font-serif text-lg font-bold">H</span>
+            </div>
+            <div>
+              <div className="font-serif text-xl tracking-[0.18em]" style={{ color: "#141417" }}>HENLEY</div>
+              <div className="text-[9px] font-semibold tracking-[0.35em]" style={{ color: "#5A616B" }}>
+                CONTRACTING LTD
+              </div>
+            </div>
+          </div>
+
+          <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "#E8621A" }}>
+            Henley Hub · Sign in
+          </div>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight" style={{ color: "#141417" }}>
+            Welcome back
+          </h2>
+          <p className="mt-2 text-sm" style={{ color: "#5A616B" }}>
+            Sign in with your work email and password to get to work.
+          </p>
+
+          {sp.error && (
+            <div
+              className="mt-5 rounded-lg px-3 py-2.5 text-sm font-medium"
+              style={{ background: "rgba(229,72,77,0.08)", border: "1px solid rgba(229,72,77,0.3)", color: "#C92A2A" }}
+            >
+              That email or password didn&apos;t match.
+            </div>
+          )}
+
+          <form action={handleSignIn} className="mt-7 space-y-4">
+            <div>
+              <label className="text-sm font-medium" style={{ color: "#141417" }}>Work email</label>
+              <input
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="you@henleycontracting.com"
+                className="mt-1.5 w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors bg-white"
+                style={{ border: "1px solid rgba(0,0,0,0.18)", color: "#141417" }}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium" style={{ color: "#141417" }}>Password</label>
+              <input
+                name="password"
+                type="password"
+                required
+                autoComplete="current-password"
+                className="mt-1.5 w-full rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors bg-white"
+                style={{ border: "1px solid rgba(0,0,0,0.18)", color: "#141417" }}
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-colors"
+              style={{ background: "#E8621A" }}
+            >
+              Sign in
+            </button>
+          </form>
+
+          <div className="mt-4 text-center">
+            <a href="mailto:henleynm@gmail.com?subject=Henley%20Hub%20password%20reset" className="text-sm" style={{ color: "#2563EB" }}>
+              Forgot password?
+            </a>
+          </div>
+
+          <div
+            className="mt-8 rounded-lg p-4 text-sm leading-relaxed"
+            style={{ background: "#F7F1E5", border: "1px solid rgba(0,0,0,0.08)", color: "#5A616B" }}
+          >
+            <span className="font-semibold" style={{ color: "#141417" }}>Henley Contracting.</span>{" "}
+            Sign in with your work email and password. New here? Ask Nick to send you an invite.
+          </div>
+
+          <details className="mt-6">
+            <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wider select-none" style={{ color: "#8A8F98" }}>
+              Role access — what each login sees
+            </summary>
+            <ul className="mt-3 space-y-2.5">
+              {ROLES.map((r) => (
+                <li key={r.email} className="text-sm">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-semibold" style={{ color: "#141417" }}>{r.label}</span>
+                    <span className="font-mono text-xs" style={{ color: "#8A8F98" }}>{r.email}</span>
+                  </div>
+                  <div className="text-xs" style={{ color: "#5A616B" }}>{r.scope}</div>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-xs" style={{ color: "#8A8F98" }}>
+              Demo password for all accounts: <code className="font-mono" style={{ color: "#3A3F47" }}>demo</code>
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
   );
 }
