@@ -27,6 +27,7 @@ model User {
   createdEstimates Estimate[] @relation("EstimateAuthor")
   timeEntries TimeEntry[]
   approvedTimeEntries TimeEntry[] @relation("TimeEntryApprover")
+  uploadedDocuments Document[] @relation("UploadedDocuments")
   createdAt   DateTime @default(now())
 }
 
@@ -146,14 +147,17 @@ model DailyLog {
 }
 
 model Document {
-  id         String   @id @default(cuid())
-  projectId  String?
-  project    Project? @relation(fields: [projectId], references: [id])
-  name       String
-  kind       String   // CONTRACT | PLAN | PERMIT | INVOICE | PHOTO | OTHER
-  url        String
-  sizeBytes  Int?
-  createdAt  DateTime @default(now())
+  id            String   @id @default(cuid())
+  projectId     String?
+  project       Project? @relation(fields: [projectId], references: [id])
+  name          String
+  kind          String   // CONTRACT | PLAN | PERMIT | INVOICE | PHOTO | OTHER
+  url           String
+  sizeBytes     Int?
+  clientVisible Boolean  @default(false)
+  uploadedById  String?
+  uploadedBy    User?    @relation("UploadedDocuments", fields: [uploadedById], references: [id])
+  createdAt     DateTime @default(now())
 }
 
 model Thread {

@@ -33,7 +33,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/estimates", label: "Estimates", icon: FileText },
     { href: "/contracts", label: "Contracts", icon: ClipboardList, badge: "soon" },
     { href: "/financials", label: "Financials", icon: DollarSign },
-    { href: "/files", label: "Files", icon: Folder, badge: "soon" },
+    { href: "/files", label: "Files", icon: Folder },
     { href: "/import", label: "Import data", icon: Upload },
     { href: "/settings", label: "Settings", icon: Settings },
   ],
@@ -44,25 +44,26 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/projects", label: "Projects", icon: Briefcase },
     { href: "/estimates", label: "Estimates", icon: FileText },
     { href: "/contracts", label: "Contracts", icon: ClipboardList, badge: "soon" },
-    { href: "/files", label: "Files", icon: Folder, badge: "soon" },
+    { href: "/files", label: "Files", icon: Folder },
     { href: "/import", label: "Import data", icon: Upload },
   ],
   FIELD: [
     { href: "/dashboard", label: "Today", icon: LayoutDashboard },
     { href: "/projects", label: "My Jobs", icon: Hammer },
     { href: "/inbox", label: "Messages", icon: Inbox },
-    { href: "/files", label: "Files", icon: Folder, badge: "soon" },
+    { href: "/files", label: "Files", icon: Folder },
   ],
   SUB: [
     { href: "/dashboard", label: "Schedule", icon: LayoutDashboard },
     { href: "/projects", label: "My Scopes", icon: Wrench },
     { href: "/inbox", label: "Messages", icon: Inbox },
+    { href: "/files", label: "Files", icon: Folder },
   ],
   CLIENT: [
     { href: "/dashboard", label: "My Project", icon: Home },
     { href: "/inbox", label: "Messages", icon: Inbox },
     { href: "/selections", label: "Selections", icon: ClipboardList, badge: "soon" },
-    { href: "/files", label: "Documents", icon: Folder, badge: "soon" },
+    { href: "/files", label: "Documents", icon: Folder },
   ],
 };
 
