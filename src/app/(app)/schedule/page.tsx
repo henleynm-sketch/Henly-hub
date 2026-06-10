@@ -5,6 +5,12 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { canViewAllProjects, isInternal } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
+import {
+  worksiteListTasks,
+  worksiteListUsers,
+  type WorksiteTask,
+  type WorksiteUser,
+} from "@/lib/worksite";
 
 function startOfWeek(d: Date) {
   const copy = new Date(d);
@@ -30,8 +36,8 @@ function sameDay(a: Date, b: Date) {
 }
 
 function priorityDot(p: string) {
-  if (p === "HIGH") return "hh-dot--red";
-  if (p === "LOW") return "hh-dot--blue";
+  if (p === "high") return "hh-dot--red";
+  if (p === "low") return "hh-dot--blue";
   return "hh-dot--orange";
 }
 
@@ -64,33 +70,32 @@ export default async function SchedulePage({
     ? {}
     : { assignments: { some: { userId } } };
 
-  const taskScope = canViewAllProjects(role)
-    ? {}
-    : {
-        OR: [
-          { assigneeId: userId },
-          { createdById: userId },
-          { project: { assignments: { some: { userId } } } },
-        ],
-      };
+  const milestones = await prisma.milestone.findMany({
+    where: {
+      dueDate: { gte: weekStart, lt: weekEnd },
+      project: projectScope,
+    },
+    orderBy: { dueDate: "asc" },
+    include: { project: true },
+  });
 
-  const [tasks, milestones] = await Promise.all([
-    prisma.task.findMany({
-      where: {
-        AND: [taskScope, { dueDate: { gte: weekStart, lt: weekEnd } }],
-      },
-      orderBy: { dueDate: "asc" },
-      include: { project: true, assignee: true },
-    }),
-    prisma.milestone.findMany({
-      where: {
-        dueDate: { gte: weekStart, lt: weekEnd },
-        project: projectScope,
-      },
-      orderBy: { dueDate: "asc" },
-      include: { project: true },
-    }),
-  ]);
+  const projects = await prisma.project.findMany({ select: { id: true, name: true } });
+  const projectName = new Map(projects.map((p) => [p.id, p.name]));
+
+  let unreachable = false;
+  let tasks: WorksiteTask[] = [];
+  let users: WorksiteUser[] = [];
+  try {
+    [tasks, users] = await Promise.all([worksiteListTasks(), worksiteListUsers()]);
+  } catch {
+    unreachable = true;
+  }
+  const userById = new Map(users.map((u) => [u.id, u]));
+
+  function tasksFor(day: Date) {
+    const key = ymd(day);
+    return tasks.filter((t) => t.due === key);
+  }
 
   const days = [0, 1, 2, 3, 4].map((i) => addDays(weekStart, i));
   const weekLabel = weekStart.toLocaleDateString("en-US", { month: "long", day: "numeric" });
@@ -99,7 +104,7 @@ export default async function SchedulePage({
     <>
       <PageHeader
         title="Schedule"
-        subtitle={`Week of ${weekLabel} — tasks and milestones across ${canViewAllProjects(role) ? "every project" : "your projects"}.`}
+        subtitle={`Week of ${weekLabel} — Henley Tasks and project milestones in one view.`}
         actions={
           <>
             <Link href={`/schedule?w=${ymd(addDays(weekStart, -7))}`} className="btn-secondary">← Prev</Link>
@@ -110,10 +115,18 @@ export default async function SchedulePage({
         }
       />
       <div className="p-6">
+        {unreachable && (
+          <div className="hh-panel p-4 mb-6 flex items-center gap-3">
+            <span className="hh-dot hh-dot--red" />
+            <div className="hh-secondary">
+              Henley Tasks is unreachable — showing project milestones only.
+            </div>
+          </div>
+        )}
         <div className="grid gap-4 md:grid-cols-5">
           {days.map((day) => {
             const isToday = sameDay(day, today);
-            const dayTasks = tasks.filter((t) => t.dueDate && sameDay(t.dueDate, day));
+            const dayTasks = tasksFor(day);
             const dayMilestones = milestones.filter((m) => m.dueDate && sameDay(m.dueDate, day));
             return (
               <section
@@ -150,9 +163,8 @@ export default async function SchedulePage({
                           <span className="hh-primary">{t.title}</span>
                         </span>
                         <span className="hh-caption">
-                          {t.assignee?.name ?? "Unassigned"}
-                          {t.project ? ` · ${t.project.name}` : ""}
-                          {t.status === "DONE" ? " · done" : ""}
+                          {(t.assignees ?? []).map((id) => userById.get(id)?.name ?? "?").join(", ") || "Unassigned"}
+                          {t.projectId && projectName.has(t.projectId) ? ` · ${projectName.get(t.projectId)}` : ""}
                         </span>
                       </Link>
                     </li>
@@ -163,7 +175,7 @@ export default async function SchedulePage({
           })}
         </div>
         <p className="hh-caption mt-6">
-          Tasks come from the task board; milestones from each project plan. Henley Tasks sync lands here once the two systems are connected.
+          Tasks stream live from Henley Tasks; milestones come from each Hub project plan.
         </p>
       </div>
     </>
