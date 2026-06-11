@@ -904,3 +904,10 @@ html:not(.light) .border-slate-100,
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* Horizontal filter rows on touch screens */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.touch-scroll::-webkit-scrollbar { display: none; }

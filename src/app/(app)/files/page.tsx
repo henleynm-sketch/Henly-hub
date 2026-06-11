@@ -173,7 +173,7 @@ export default async function FilesPage({
         }
       />
       <div className="space-y-6 p-6">
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex md:flex-wrap items-center gap-1.5 overflow-x-auto md:overflow-visible touch-scroll">
           <Link
             href={filterHref()}
             className={`hh-badge !ml-0 ${!kindFilter ? "" : "opacity-60 hover:opacity-100"}`}

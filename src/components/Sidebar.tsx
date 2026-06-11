@@ -82,18 +82,20 @@ export default function Sidebar({
   userEmail,
   focusArea,
   signOutSlot,
+  className,
 }: {
   role: Role;
   userName: string;
   userEmail: string;
   focusArea?: string | null;
   signOutSlot?: React.ReactNode;
+  className?: string;
 }) {
   const items = navByRole[role] ?? navByRole.OFFICE;
   const pathname = usePathname();
 
   return (
-    <GlassSidebar>
+    <GlassSidebar className={className}>
       {/* Brand logo header */}
       <div className="flex h-14 items-center gap-2.5 border-b border-glass-border px-4">
         <div
@@ -118,7 +120,7 @@ export default function Sidebar({
                 <Link
                   href={it.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-200 border transform active:scale-98",
+                    "flex items-center gap-2 rounded-lg px-3 py-3 md:py-2 text-sm transition-all duration-200 border transform active:scale-98",
                     active
                       ? "bg-accent/10 border-accent/20 text-accent font-semibold"
                       : "text-ink-soft border-transparent hover:bg-row-hover hover:text-ink"

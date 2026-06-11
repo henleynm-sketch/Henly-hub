@@ -28,7 +28,25 @@ export default async function EstimatesPage() {
         actions={<Link href="/estimates/new" className="btn-primary">+ New estimate</Link>}
       />
       <div className="p-6">
-        <section className="hh-panel overflow-x-auto">
+        <section className="md:hidden space-y-2">
+          {estimates.length === 0 && (
+            <div className="hh-panel p-6 hh-secondary">No estimates yet.</div>
+          )}
+          {estimates.map((e) => (
+            <Link key={e.id} href={`/estimates/${e.id}`} className="hh-row flex-col !items-start !gap-1">
+              <span className="flex items-center justify-between w-full gap-2">
+                <span className="hh-primary truncate">{e.client.name}</span>
+                <span className={statusBadge(e.status)}>{e.status}</span>
+              </span>
+              <span className="hh-secondary truncate w-full">{e.title}</span>
+              <span className="hh-caption">
+                <span className="hh-chip">{e.number}</span> · {formatMoney(e.totalCents)} · {formatRelative(e.createdAt)}
+              </span>
+            </Link>
+          ))}
+        </section>
+
+        <section className="hh-panel overflow-x-auto hidden md:block">
           <table className="min-w-full text-sm">
             <thead className="border-b border-glass-border">
               <tr>

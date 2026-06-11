@@ -36,7 +36,7 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed z-50 bottom-4 right-4 max-md:bottom-auto max-md:right-auto max-md:top-16 max-md:left-3">
       {open ? (
         <div className="hh-panel w-72 flex flex-col gap-4">
           <div className="flex items-center justify-between">

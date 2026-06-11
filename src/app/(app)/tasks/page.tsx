@@ -144,7 +144,7 @@ export default async function TasksPage({
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex md:flex-wrap items-center gap-1.5 overflow-x-auto md:overflow-visible touch-scroll">
           <Link href="/tasks" className={`hh-badge !ml-0 ${mineOnly ? "opacity-60 hover:opacity-100" : ""}`}>
             All tasks
           </Link>

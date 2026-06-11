@@ -110,7 +110,7 @@ export default async function ClientsPage({
             )}
           </form>
 
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex md:flex-wrap items-center gap-1.5 overflow-x-auto md:overflow-visible touch-scroll">
             <Link
               href={buildHref({ stage: undefined, page: "1" })}
               className={`badge ${!stage ? "border-accent bg-accent/10 text-accent font-semibold" : "bg-row-bg border border-glass-border text-ink-soft hover:bg-row-hover hover:text-ink"}`}
@@ -134,7 +134,7 @@ export default async function ClientsPage({
           </div>
 
           {sources.length > 1 && (
-            <div className="flex flex-wrap items-center gap-1.5 border-t border-glass-border pt-3">
+            <div className="flex md:flex-wrap items-center gap-1.5 border-t border-glass-border pt-3 overflow-x-auto md:overflow-visible touch-scroll">
               <span className="hh-label mr-1">Source:</span>
               <Link
                 href={buildHref({ source: undefined, page: "1" })}
@@ -159,7 +159,7 @@ export default async function ClientsPage({
           )}
         </section>
 
-        <section className="hh-panel overflow-x-auto">
+        <section className="hh-panel overflow-x-auto hidden md:block">
           <table className="min-w-full text-sm">
             <thead className="border-b border-glass-border">
               <tr>
@@ -209,6 +209,35 @@ export default async function ClientsPage({
                   <Link href={buildHref({ page: String(page + 1) })} className="btn-ghost">Next →</Link>
                 )}
               </div>
+            </div>
+          )}
+        </section>
+
+        <section className="md:hidden space-y-2">
+          {clients.length === 0 && (
+            <div className="hh-panel p-6 hh-secondary">No clients match those filters.</div>
+          )}
+          {clients.map((c) => (
+            <Link key={c.id} href={`/clients/${c.id}`} className="hh-row flex-col !items-start !gap-1">
+              <span className="flex items-center justify-between w-full gap-2">
+                <span className="hh-primary truncate">{c.name}</span>
+                <span className={stageBadge(c.stage)}>{stageLabel(c.stage)}</span>
+              </span>
+              <span className="hh-secondary truncate w-full">{c.primaryEmail ?? c.primaryPhone ?? "—"}</span>
+              <span className="hh-caption">
+                {c._count.projects} projects · {c._count.threads} threads · {formatRelative(c.updatedAt)}
+              </span>
+            </Link>
+          ))}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2">
+              {page > 1 ? (
+                <Link href={buildHref({ page: String(page - 1) })} className="btn-secondary">← Prev</Link>
+              ) : <span />}
+              <span className="hh-caption">Page {page} of {totalPages}</span>
+              {page < totalPages ? (
+                <Link href={buildHref({ page: String(page + 1) })} className="btn-secondary">Next →</Link>
+              ) : <span />}
             </div>
           )}
         </section>
