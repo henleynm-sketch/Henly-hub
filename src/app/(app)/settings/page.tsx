@@ -219,14 +219,15 @@ export default async function SettingsPage({
     redirect("/settings#departments");
   }
 
-  async function renameDepartment(formData: FormData) {
+  async function updateDepartment(formData: FormData) {
     "use server";
     const me = await requireCeo();
     if (!me) return;
     const id = String(formData.get("id") || "");
     const name = String(formData.get("name") || "").trim();
     if (!name) return;
-    await prisma.department.update({ where: { id }, data: { name } }).catch(() => {});
+    const leaderId = String(formData.get("leaderId") || "") || null;
+    await prisma.department.update({ where: { id }, data: { name, leaderId } }).catch(() => {});
     revalidatePath("/settings");
     redirect("/settings#departments");
   }
@@ -464,15 +465,27 @@ export default async function SettingsPage({
                   </>
                 ) : (
                   <ul className="space-y-2">
-                    {departments.map((d) => (
-                      <li key={d.id}>
-                        <form action={renameDepartment} className="hh-row !gap-2">
-                          <input type="hidden" name="id" value={d.id} />
-                          <input name="name" className="input flex-1" defaultValue={d.name} />
-                          <button className="btn-ghost text-xs shrink-0" type="submit">Rename</button>
-                        </form>
-                      </li>
-                    ))}
+                    {departments.map((d) => {
+                      const members = users.filter((u) => u.department === d.name && u.active).length;
+                      return (
+                        <li key={d.id}>
+                          <form action={updateDepartment} className="hh-row flex-col sm:flex-row !items-stretch sm:!items-center !gap-2">
+                            <input type="hidden" name="id" value={d.id} />
+                            <input name="name" className="input flex-1" defaultValue={d.name} />
+                            <select name="leaderId" className="input sm:w-44" defaultValue={d.leaderId ?? ""}>
+                              <option value="">No leader</option>
+                              {users.filter((u) => u.active).map((u) => (
+                                <option key={u.id} value={u.id}>{u.name}</option>
+                              ))}
+                            </select>
+                            <span className="hh-caption whitespace-nowrap self-center">
+                              {members} {members === 1 ? "member" : "members"}
+                            </span>
+                            <button className="btn-ghost text-xs shrink-0" type="submit">Save</button>
+                          </form>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </section>
