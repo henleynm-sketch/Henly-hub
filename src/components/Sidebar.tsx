@@ -165,7 +165,11 @@ export default function Sidebar({
 
       {/* User profile section at bottom */}
       <div className="border-t border-glass-border p-3">
-        <div className="flex items-center gap-3 rounded-lg bg-glass-bg border border-glass-border p-2 shadow-sm">
+        <Link
+          href="/profile"
+          className="sidebar-usercard bg-glass-bg border border-glass-border shadow-sm"
+          aria-label="Open your profile"
+        >
           <div
             className="grid h-8 w-8 place-items-center rounded-full bg-accent text-xs font-bold text-white shrink-0"
             style={{ boxShadow: "0 2px 6px rgba(92,124,250,0.25)" }}
@@ -182,7 +186,7 @@ export default function Sidebar({
               {focusArea ? `${focusArea} · ${userEmail}` : userEmail}
             </div>
           </div>
-        </div>
+        </Link>
         <div className="mt-2">{signOutSlot}</div>
       </div>
     </GlassSidebar>

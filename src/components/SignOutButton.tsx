@@ -1,4 +1,5 @@
 import { signOut } from "@/auth";
+import { LogOut } from "lucide-react";
 
 export default function SignOutButton() {
   async function action() {
@@ -7,7 +8,10 @@ export default function SignOutButton() {
   }
   return (
     <form action={action}>
-      <button className="btn-ghost w-full justify-center text-xs">Sign out</button>
+      <button className="sidebar-signout" type="submit">
+        <LogOut size={14} />
+        Sign out
+      </button>
     </form>
   );
 }
