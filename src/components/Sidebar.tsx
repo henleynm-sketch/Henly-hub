@@ -14,7 +14,6 @@ import {
   Settings,
   Wrench,
   Hammer,
-  HardHat,
   Home,
   Upload,
   CheckSquare,
@@ -52,6 +51,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/contracts", label: "Contracts", icon: ClipboardList },
     { href: "/files", label: "Files", icon: Folder },
     { href: "/import", label: "Import data", icon: Upload },
+    { href: "/settings", label: "Settings", icon: Settings },
   ],
   FIELD: [
     { href: "/dashboard", label: "Today", icon: LayoutDashboard },
@@ -137,30 +137,6 @@ export default function Sidebar({
           })}
         </ul>
 
-        {(role === "CEO" || role === "OFFICE") && (
-          <div className="mt-6">
-            <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-ink-muted">
-              Integrations
-            </div>
-            <ul className="mt-2 space-y-1">
-              <li>
-                <Link
-                  href="/integrations/quickbooks"
-                  className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-200 border transform active:scale-98",
-                    pathname.startsWith("/integrations/quickbooks")
-                      ? "bg-accent/10 border-accent/20 text-accent font-semibold"
-                      : "text-ink-soft border-transparent hover:bg-row-hover hover:text-ink"
-                  )}
-                >
-                  <HardHat size={16} className={pathname.startsWith("/integrations/quickbooks") ? "text-accent animate-pulse" : "text-ink-soft"} />
-                  QuickBooks
-                  <span className="hh-badge hh-badge--warning">setup</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-        )}
       </nav>
 
       {/* User profile section at bottom */}

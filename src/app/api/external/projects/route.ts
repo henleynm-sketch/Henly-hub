@@ -9,8 +9,21 @@ function unauthorized() {
   );
 }
 
-function keyMatches(presented: string | null): boolean {
-  const expected = process.env.HUB_TASKS_API_KEY;
+// The active Door 1 key is rotatable from Settings, so it lives in the
+// Setting table; process.env is only the bootstrap fallback. Never write
+// .env from the running server.
+async function activeKey(): Promise<string | null> {
+  try {
+    const row = await prisma.setting.findUnique({ where: { key: "HUB_TASKS_API_KEY" } });
+    if (row?.value) return row.value;
+  } catch {
+    // Setting table may not exist yet on a fresh install.
+  }
+  return process.env.HUB_TASKS_API_KEY ?? null;
+}
+
+async function keyMatches(presented: string | null): Promise<boolean> {
+  const expected = await activeKey();
   if (!expected || !presented) return false;
   const a = Buffer.from(presented);
   const b = Buffer.from(expected);
@@ -21,7 +34,7 @@ function keyMatches(presented: string | null): boolean {
 export async function GET(req: Request) {
   const header = req.headers.get("authorization");
   const presented = header?.startsWith("Bearer ") ? header.slice(7) : null;
-  if (!keyMatches(presented)) return unauthorized();
+  if (!(await keyMatches(presented))) return unauthorized();
 
   const projects = await prisma.project.findMany({
     orderBy: { updatedAt: "desc" },

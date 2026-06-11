@@ -21,6 +21,12 @@ model User {
   clientId    String?  // if role=CLIENT, link to the Client record they own
   client      Client?  @relation("ClientUsers", fields: [clientId], references: [id])
   qbEmployeeId String?
+  department  String?
+  reportsToId String?
+  reportsTo   User?    @relation("ReportsTo", fields: [reportsToId], references: [id])
+  reports     User[]   @relation("ReportsTo")
+  active      Boolean  @default(true)
+  notificationPrefs UserNotificationPref[]
   assignedProjects ProjectAssignment[]
   authoredLogs DailyLog[]
   authoredMessages Message[] @relation("AuthoredMessages")
@@ -307,4 +313,36 @@ model Setting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+model Department {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  leaderId String?
+}
+
+model SettingAudit {
+  id     String   @id @default(cuid())
+  key    String
+  action String
+  userId String
+  ts     DateTime @default(now())
+}
+
+model AuditLog {
+  id      String   @id @default(cuid())
+  actorId String
+  action  String
+  target  String
+  ts      DateTime @default(now())
+}
+
+model UserNotificationPref {
+  id     String  @id @default(cuid())
+  userId String
+  user   User    @relation(fields: [userId], references: [id])
+  event  String  // DAILY_LOG | SELECTION_OVERDUE | CONTRACT_SIGNED | DEPOSIT_PAID | TIME_NEEDS_APPROVAL
+  email  Boolean @default(false)
+  sms    Boolean @default(false)
+  @@unique([userId, event])
 }
