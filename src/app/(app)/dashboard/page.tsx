@@ -7,45 +7,20 @@ import FieldDashboard from "./FieldDashboard";
 import SubDashboard from "./SubDashboard";
 import ClientDashboard from "./ClientDashboard";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ activity?: string }>;
+}) {
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
   const role = session.user.role as Role;
   const userId = session.user.id;
   const clientId = session.user.clientId;
+  const sp = await searchParams;
 
   if (role === "CEO" || role === "OFFICE") {
-    const [clientCount, activeProjects, pipelineCents, openEstimates, recentLogs, threads] =
-      await Promise.all([
-        prisma.client.count(),
-        prisma.project.count({ where: { status: { in: ["IN_PROGRESS", "FINISHING", "PERMITTING", "DESIGN", "CLOSING"] } } }),
-        prisma.estimate.aggregate({
-          _sum: { totalCents: true },
-          where: { status: { in: ["DRAFT", "SENT"] } },
-        }),
-        prisma.estimate.count({ where: { status: { in: ["DRAFT", "SENT"] } } }),
-        prisma.dailyLog.findMany({
-          take: 5,
-          orderBy: { createdAt: "desc" },
-          include: { project: true, author: true },
-        }),
-        prisma.thread.findMany({
-          take: 5,
-          orderBy: { lastAt: "desc" },
-          include: { client: true, messages: { take: 1, orderBy: { sentAt: "desc" } } },
-        }),
-      ]);
-    return (
-      <OfficeDashboard
-        role={role}
-        clientCount={clientCount}
-        activeProjects={activeProjects}
-        pipelineCents={pipelineCents._sum.totalCents ?? 0}
-        openEstimates={openEstimates}
-        recentLogs={recentLogs}
-        threads={threads}
-      />
-    );
+    return <OfficeDashboard role={role} activity={sp.activity ?? "all"} />;
   }
 
   if (role === "FIELD") {
