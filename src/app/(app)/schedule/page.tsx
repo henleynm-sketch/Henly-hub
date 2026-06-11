@@ -5,12 +5,6 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { canViewAllProjects, isInternal } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
-import {
-  worksiteListTasks,
-  worksiteListUsers,
-  type WorksiteTask,
-  type WorksiteUser,
-} from "@/lib/worksite";
 
 function startOfWeek(d: Date) {
   const copy = new Date(d);
@@ -33,12 +27,6 @@ function ymd(d: Date) {
 
 function sameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-
-function priorityDot(p: string) {
-  if (p === "high") return "hh-dot--red";
-  if (p === "low") return "hh-dot--blue";
-  return "hh-dot--orange";
 }
 
 function msBadge(s: string) {
@@ -79,24 +67,6 @@ export default async function SchedulePage({
     include: { project: true },
   });
 
-  const projects = await prisma.project.findMany({ select: { id: true, name: true } });
-  const projectName = new Map(projects.map((p) => [p.id, p.name]));
-
-  let unreachable = false;
-  let tasks: WorksiteTask[] = [];
-  let users: WorksiteUser[] = [];
-  try {
-    [tasks, users] = await Promise.all([worksiteListTasks(), worksiteListUsers()]);
-  } catch {
-    unreachable = true;
-  }
-  const userById = new Map(users.map((u) => [u.id, u]));
-
-  function tasksFor(day: Date) {
-    const key = ymd(day);
-    return tasks.filter((t) => t.due === key);
-  }
-
   const days = [0, 1, 2, 3, 4].map((i) => addDays(weekStart, i));
   const weekLabel = weekStart.toLocaleDateString("en-US", { month: "long", day: "numeric" });
 
@@ -104,29 +74,19 @@ export default async function SchedulePage({
     <>
       <PageHeader
         title="Schedule"
-        subtitle={`Week of ${weekLabel} — Henley Tasks and project milestones in one view.`}
+        subtitle={`Week of ${weekLabel} — milestones across ${canViewAllProjects(role) ? "every project" : "your projects"}.`}
         actions={
           <>
             <Link href={`/schedule?w=${ymd(addDays(weekStart, -7))}`} className="btn-secondary">← Prev</Link>
             <Link href="/schedule" className="btn-secondary">This week</Link>
             <Link href={`/schedule?w=${ymd(addDays(weekStart, 7))}`} className="btn-secondary">Next →</Link>
-            <Link href="/tasks" className="btn-primary">Task board</Link>
           </>
         }
       />
       <div className="p-6">
-        {unreachable && (
-          <div className="hh-panel p-4 mb-6 flex items-center gap-3">
-            <span className="hh-dot hh-dot--red" />
-            <div className="hh-secondary">
-              Henley Tasks is unreachable — showing project milestones only.
-            </div>
-          </div>
-        )}
         <div className="grid gap-4 md:grid-cols-5">
           {days.map((day) => {
             const isToday = sameDay(day, today);
-            const dayTasks = tasksFor(day);
             const dayMilestones = milestones.filter((m) => m.dueDate && sameDay(m.dueDate, day));
             return (
               <section
@@ -142,7 +102,7 @@ export default async function SchedulePage({
                   </span>
                 </div>
                 <hr className="hh-divider" />
-                {dayTasks.length === 0 && dayMilestones.length === 0 && (
+                {dayMilestones.length === 0 && (
                   <div className="hh-caption text-center py-2">—</div>
                 )}
                 <ul className="space-y-2">
@@ -155,27 +115,13 @@ export default async function SchedulePage({
                       </Link>
                     </li>
                   ))}
-                  {dayTasks.map((t) => (
-                    <li key={t.id}>
-                      <Link href="/tasks" className="hh-row hh-row--flat flex-col !items-start !gap-1">
-                        <span className="flex items-center gap-2">
-                          <span className={`hh-dot ${priorityDot(t.priority)}`} />
-                          <span className="hh-primary">{t.title}</span>
-                        </span>
-                        <span className="hh-caption">
-                          {(t.assignees ?? []).map((id) => userById.get(id)?.name ?? "?").join(", ") || "Unassigned"}
-                          {t.projectId && projectName.has(t.projectId) ? ` · ${projectName.get(t.projectId)}` : ""}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
                 </ul>
               </section>
             );
           })}
         </div>
         <p className="hh-caption mt-6">
-          Tasks stream live from Henley Tasks; milestones come from each Hub project plan.
+          Milestones come from each project plan. Day-to-day task work lives in Henley Tasks.
         </p>
       </div>
     </>

@@ -35,8 +35,6 @@ model User {
   approvedTimeEntries TimeEntry[] @relation("TimeEntryApprover")
   uploadedDocuments Document[] @relation("UploadedDocuments")
   authoredContracts Contract[] @relation("ContractAuthor")
-  tasksAssigned Task[] @relation("TaskAssignee")
-  tasksCreated  Task[] @relation("TaskCreator")
   createdAt   DateTime @default(now())
 }
 
@@ -90,7 +88,6 @@ model Project {
   assignments  ProjectAssignment[]
   timeEntries  TimeEntry[]
   contracts    Contract[]
-  tasks        Task[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -116,26 +113,6 @@ model Milestone {
   clientVisible Boolean @default(true)
   order       Int       @default(0)
   createdAt   DateTime  @default(now())
-}
-
-model Task {
-  id          String    @id @default(cuid())
-  title       String
-  notes       String?
-  status      String    @default("OPEN") // OPEN | IN_PROGRESS | DONE
-  priority    String    @default("MEDIUM") // LOW | MEDIUM | HIGH
-  dueDate     DateTime?
-  projectId   String?
-  project     Project?  @relation(fields: [projectId], references: [id])
-  assigneeId  String?
-  assignee    User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
-  createdById String
-  createdBy   User      @relation("TaskCreator", fields: [createdById], references: [id])
-  completedAt DateTime?
-  externalId  String?   @unique // id in Henley Tasks once the two systems sync
-  source      String    @default("HUB") // HUB | HENLEY_TASKS
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
 }
 
 model Selection {

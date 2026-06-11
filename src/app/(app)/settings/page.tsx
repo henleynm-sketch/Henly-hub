@@ -7,7 +7,6 @@ import { randomBytes } from "crypto";
 import { canManageTeam, ROLE_LABELS, type Role } from "@/lib/roles";
 import PageHeader from "@/components/PageHeader";
 import { isM365Configured, syncInbox } from "@/lib/microsoft365";
-import { worksitePing } from "@/lib/worksite";
 import { formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
@@ -64,8 +63,6 @@ export default async function SettingsPage({
   searchParams: Promise<{
     synced?: string;
     syncError?: string;
-    ws?: string;
-    wsError?: string;
     reveal?: string;
     notice?: string;
   }>;
@@ -87,23 +84,18 @@ export default async function SettingsPage({
     prisma.qBOToken.findUnique({ where: { id: "global" } }).catch(() => null),
   ]);
 
-  const [orgName, orgAddress, orgTz, orgFiscal, hubKey, worksiteLastOk, m365LastSync] =
+  const [orgName, orgAddress, orgTz, orgFiscal, hubKey, m365LastSync] =
     await Promise.all([
       getSetting("org.name"),
       getSetting("org.address"),
       getSetting("org.timezone"),
       getSetting("org.fiscalYearStart"),
       getSetting("HUB_TASKS_API_KEY"),
-      getSetting("worksiteLastOk"),
       getSetting("m365LastSync"),
     ]);
 
   const activeHubKey = hubKey ?? process.env.HUB_TASKS_API_KEY ?? null;
   const m365Ready = isM365Configured();
-  const worksiteUrlSet = Boolean(process.env.WORKSITE_API_URL);
-  const worksiteKeySet = Boolean(
-    process.env.WORKSITE_API_KEY && process.env.WORKSITE_API_KEY !== "PLACEHOLDER_UNTIL_AYANDIP_SHIPS"
-  );
 
   const myPrefs = await prisma.userNotificationPref
     .findMany({ where: { userId: session.user.id } })
@@ -252,22 +244,6 @@ export default async function SettingsPage({
     } catch (err) {
       if ((err as Error).message?.includes("NEXT_REDIRECT")) throw err;
       redirect(`/settings?syncError=${encodeURIComponent((err as Error).message ?? "Sync failed")}#integrations`);
-    }
-  }
-
-  async function testWorksite() {
-    "use server";
-    const me = await requireCeo();
-    if (!me) return;
-    try {
-      const ping = await worksitePing();
-      await setSetting("worksiteLastOk", new Date().toISOString());
-      const enums = [...(ping.enums?.status ?? []), ...(ping.enums?.priority ?? [])].join(", ");
-      revalidatePath("/settings");
-      redirect(`/settings?ws=${encodeURIComponent(enums || "ok")}#integrations`);
-    } catch (err) {
-      if ((err as Error).message?.includes("NEXT_REDIRECT")) throw err;
-      redirect(`/settings?wsError=${encodeURIComponent((err as Error).message ?? "Unreachable")}#integrations`);
     }
   }
 
@@ -563,30 +539,20 @@ export default async function SettingsPage({
 
               <div className="hh-row hh-row--flat flex-col !items-start !gap-2">
                 <div className="flex items-center justify-between w-full">
-                  <span className="hh-primary">Henley Tasks (Worksite)</span>
-                  {worksiteUrlSet && worksiteKeySet ? (
-                    <span className="hh-badge hh-badge--success">configured</span>
+                  <span className="hh-primary">Henley Tasks</span>
+                  {activeHubKey ? (
+                    <span className="hh-badge hh-badge--success">key configured</span>
                   ) : (
-                    <span className="hh-badge hh-badge--warning">waiting on keys</span>
+                    <span className="hh-badge hh-badge--warning">key missing</span>
                   )}
                 </div>
                 <span className="hh-secondary">
-                  Door 1 (Hub → Tasks): key {activeHubKey ? "configured" : "missing"} · {maskKey(activeHubKey)} —
-                  Tasks polls <code className="hh-chip">GET /api/external/projects</code> with{" "}
-                  <code className="hh-chip">Authorization: Bearer &lt;key&gt;</code>
+                  HUB_TASKS_API_KEY configured: {activeHubKey ? "yes" : "no"} · <code className="hh-chip">{maskKey(activeHubKey)}</code>
                 </span>
                 <span className="hh-secondary">
-                  Door 2 (Tasks → Hub): URL {worksiteUrlSet ? "configured" : "missing"} · key{" "}
-                  {worksiteKeySet ? "configured" : "placeholder"} · last successful call:{" "}
-                  {worksiteLastOk ? formatRelative(new Date(worksiteLastOk)) : "never"}
+                  Henley Tasks reads from <code className="hh-chip">GET /api/external/projects</code> using a Bearer
+                  token. This is a one-way feed — the Hub does not read from Henley Tasks.
                 </span>
-                {sp.ws && <span className="hh-secondary">Connection OK — enums: {sp.ws}</span>}
-                {sp.wsError && <span className="hh-secondary">Test failed: {sp.wsError}</span>}
-                {isCeo && (
-                  <form action={testWorksite}>
-                    <button className="btn-secondary text-xs" type="submit">Test connection</button>
-                  </form>
-                )}
               </div>
             </section>
 

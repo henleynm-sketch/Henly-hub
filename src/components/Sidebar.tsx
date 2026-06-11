@@ -16,7 +16,6 @@ import {
   Hammer,
   Home,
   Upload,
-  CheckSquare,
   CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,7 +30,6 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/inbox", label: "Inbox", icon: Inbox },
     { href: "/clients", label: "CRM", icon: Users },
     { href: "/projects", label: "Projects", icon: Briefcase },
-    { href: "/tasks", label: "Tasks", icon: CheckSquare },
     { href: "/schedule", label: "Schedule", icon: CalendarDays },
     { href: "/estimates", label: "Estimates", icon: FileText },
     { href: "/contracts", label: "Contracts", icon: ClipboardList },
@@ -45,7 +43,6 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/inbox", label: "Inbox", icon: Inbox },
     { href: "/clients", label: "CRM", icon: Users },
     { href: "/projects", label: "Projects", icon: Briefcase },
-    { href: "/tasks", label: "Tasks", icon: CheckSquare },
     { href: "/schedule", label: "Schedule", icon: CalendarDays },
     { href: "/estimates", label: "Estimates", icon: FileText },
     { href: "/contracts", label: "Contracts", icon: ClipboardList },
@@ -56,7 +53,6 @@ const navByRole: Record<Role, Item[]> = {
   FIELD: [
     { href: "/dashboard", label: "Today", icon: LayoutDashboard },
     { href: "/projects", label: "My Jobs", icon: Hammer },
-    { href: "/tasks", label: "My Tasks", icon: CheckSquare },
     { href: "/schedule", label: "Schedule", icon: CalendarDays },
     { href: "/inbox", label: "Messages", icon: Inbox },
     { href: "/files", label: "Files", icon: Folder },
@@ -64,7 +60,6 @@ const navByRole: Record<Role, Item[]> = {
   SUB: [
     { href: "/dashboard", label: "Schedule", icon: LayoutDashboard },
     { href: "/projects", label: "My Scopes", icon: Wrench },
-    { href: "/tasks", label: "My Tasks", icon: CheckSquare },
     { href: "/inbox", label: "Messages", icon: Inbox },
     { href: "/files", label: "Files", icon: Folder },
   ],
