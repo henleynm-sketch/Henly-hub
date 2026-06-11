@@ -196,6 +196,7 @@ model Thread {
   channel    String    // EMAIL | SMS | IN_APP | CALL_NOTE
   lastAt     DateTime  @default(now())
   unread     Int       @default(0)
+  graphConversationId String? @unique
   messages   Message[]
 }
 
@@ -210,6 +211,7 @@ model Message {
   body       String
   channel    String   // EMAIL | SMS | IN_APP | CALL_NOTE
   sentAt     DateTime @default(now())
+  graphMessageId String? @unique
 }
 
 model Estimate {
@@ -299,4 +301,10 @@ model QBOToken {
   realmId      String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }
