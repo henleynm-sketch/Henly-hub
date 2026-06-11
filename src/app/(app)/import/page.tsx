@@ -58,9 +58,9 @@ export default async function ImportPage({
         subtitle="Upload a CSV from HubSpot, QuickBooks, your milestone tracker — anything. Columns get auto-matched."
       />
       <div className="grid gap-6 p-6 lg:grid-cols-3">
-        <form action={importCsv} className="card lg:col-span-2">
-          <div className="border-b border-slate-100 px-5 py-4">
-            <h2 className="text-sm font-semibold">Upload CSV</h2>
+        <form action={importCsv} className="hh-panel !p-0 lg:col-span-2">
+          <div className="border-b border-glass-border px-5 py-4">
+            <h2 className="hh-label">Upload CSV</h2>
           </div>
           <div className="space-y-4 p-5">
             <div>
@@ -70,9 +70,9 @@ export default async function ImportPage({
                 type="file"
                 accept=".csv,text/csv"
                 required
-                className="mt-1 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-brand-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-brand-700"
+                className="input input-file mt-1"
               />
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 hh-caption">
                 Must include a header row. Existing clients (matched by email) are skipped, not duplicated.
               </p>
             </div>
@@ -88,7 +88,7 @@ export default async function ImportPage({
         <aside className="space-y-4">
           <section className="card p-5">
             <h2 className="text-sm font-semibold">Auto-matched fields</h2>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 hh-caption">
               The importer looks for these header names (case-insensitive):
             </p>
             <ul className="mt-3 space-y-2 text-xs text-slate-600">
@@ -104,7 +104,7 @@ export default async function ImportPage({
           </section>
           <section className="card p-5">
             <h2 className="text-sm font-semibold">HubSpot stage mapping</h2>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 hh-caption">
               HubSpot lifecycle / deal stages are normalized:
             </p>
             <ul className="mt-2 space-y-1 text-xs text-slate-600">

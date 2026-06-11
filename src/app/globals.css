@@ -79,6 +79,7 @@
   --color-text-secondary: #5A616B;
   --color-accent: #E8621A;
   --color-accent-hover: #D4571A;
+  --btn-primary-text: #331503;
   --glass-sidebar-bg: #1C1C1E;
   --glass-sidebar-text: #FFFFFF;
   --glass-sidebar-accent: #E8621A;
@@ -198,13 +199,17 @@ body {
 }
 
 /* Redefine buttons to fit design language */
-.btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 active:scale-95 disabled:pointer-events-none disabled:opacity-50;
+.btn, .btn-primary, .btn-secondary, .btn-ghost, .btn-destructive {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 active:scale-95 disabled:pointer-events-none disabled:opacity-50;
   border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  min-height: 36px;
+  white-space: nowrap;
 }
 
 .btn-primary {
   background-color: var(--accent);
+  border-color: var(--accent-hover);
   color: #FFFFFF;
   box-shadow: 0 4px 14px rgba(92, 124, 250, 0.3);
 }
@@ -499,13 +504,14 @@ body {
 /* Light Mode button primary presets */
 .light .btn-primary {
   background-color: var(--color-accent) !important;
-  color: #FFFFFF !important;
+  border-color: var(--color-accent-hover) !important;
+  color: var(--btn-primary-text) !important;
   box-shadow: 0 4px 14px rgba(232, 98, 26, 0.25) !important;
 }
 
 .light .btn-primary:hover {
   background-color: var(--color-accent-hover) !important;
-  color: #FFFFFF !important;
+  color: var(--btn-primary-text) !important;
   box-shadow: 0 6px 20px rgba(232, 98, 26, 0.4) !important;
 }
 
@@ -838,4 +844,21 @@ html:not(.light) .border-slate-100,
 
 @media (prefers-reduced-motion: reduce) {
   .hh-row, .hh-row:hover { transform: none; }
+}
+
+/* Native file inputs: style the picker button like .btn-secondary */
+.input-file::file-selector-button {
+  margin-right: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.light .input-file::file-selector-button {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
 }

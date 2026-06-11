@@ -216,7 +216,7 @@ export default async function FilesPage({
               </div>
               <div className="md:col-span-3">
                 <label className="hh-label block mb-1.5">Files</label>
-                <input type="file" name="files" multiple required className="input" />
+                <input type="file" name="files" multiple required className="input input-file" />
               </div>
               <div className="md:col-span-2 flex items-center gap-2 pb-2">
                 <input type="checkbox" name="clientVisible" id="clientVisible" />
