@@ -151,7 +151,7 @@ export default function TimeClockTab({
               <button
                 onClick={handleClockOut}
                 disabled={isPending}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-700 px-6 py-4 text-sm font-semibold text-white shadow-md active:bg-rose-800 transition-all disabled:opacity-50 min-h-[58px]"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-700 px-6 py-4 text-base md:text-sm font-semibold text-white shadow-md active:bg-rose-800 transition-all disabled:opacity-50 min-h-[64px]"
               >
                 {isPending ? (
                   <Loader2 className="animate-spin" size={18} />
@@ -187,7 +187,7 @@ export default function TimeClockTab({
                 <select
                   value={selectedProjectId}
                   onChange={(e) => setSelectedProjectId(e.target.value)}
-                  className="input h-[44px] w-full"
+                  className="input min-h-[52px] md:min-h-0 md:h-[44px] w-full"
                   disabled={isPending}
                   required
                 >
@@ -204,7 +204,7 @@ export default function TimeClockTab({
                 <select
                   value={selectedCostCode}
                   onChange={(e) => setSelectedCostCode(e.target.value)}
-                  className="input h-[44px] w-full"
+                  className="input min-h-[52px] md:min-h-0 md:h-[44px] w-full"
                   disabled={isPending}
                   required
                 >
@@ -219,7 +219,7 @@ export default function TimeClockTab({
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-sm active:bg-emerald-800 transition-colors disabled:opacity-50 h-[44px]"
+                className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-5 py-3 text-base md:text-sm font-semibold text-white shadow-sm active:bg-emerald-800 transition-colors disabled:opacity-50 min-h-[64px] md:min-h-0 md:h-[44px]"
               >
                 {isPending ? (
                   <Loader2 className="animate-spin" size={16} />
