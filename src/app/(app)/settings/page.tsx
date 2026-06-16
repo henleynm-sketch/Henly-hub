@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { canManageTeam, ROLE_LABELS, type Role } from "@/lib/roles";
 import PageHeader from "@/components/PageHeader";
-import { isM365Configured, syncInbox } from "@/lib/microsoft365";
+import M365Card, { type M365CardData } from "@/components/M365Card";
 import { formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
@@ -61,8 +61,6 @@ export default async function SettingsPage({
   searchParams,
 }: {
   searchParams: Promise<{
-    synced?: string;
-    syncError?: string;
     reveal?: string;
     notice?: string;
   }>;
@@ -84,18 +82,30 @@ export default async function SettingsPage({
     prisma.qBOToken.findUnique({ where: { id: "global" } }).catch(() => null),
   ]);
 
-  const [orgName, orgAddress, orgTz, orgFiscal, hubKey, m365LastSync] =
+  const [orgName, orgAddress, orgTz, orgFiscal, hubKey, m365Row] =
     await Promise.all([
       getSetting("org.name"),
       getSetting("org.address"),
       getSetting("org.timezone"),
       getSetting("org.fiscalYearStart"),
       getSetting("HUB_TASKS_API_KEY"),
-      getSetting("m365LastSync"),
+      prisma.m365Config.findUnique({ where: { id: "singleton" } }).catch(() => null),
     ]);
 
   const activeHubKey = hubKey ?? process.env.HUB_TASKS_API_KEY ?? null;
-  const m365Ready = isM365Configured();
+  const m365Configured = Boolean(m365Row?.tenantId && m365Row?.clientId && m365Row?.clientSecret && m365Row?.mailbox);
+  const m365Data: M365CardData = {
+    configured: m365Configured,
+    connected: m365Configured && m365Row?.lastSyncOk === true,
+    mailbox: m365Row?.mailbox ?? null,
+    tenantId: m365Row?.tenantId ?? null,
+    clientId: m365Row?.clientId ?? null,
+    tenantIdMasked: m365Row?.tenantId ? `${m365Row.tenantId.slice(0, 4)}••••` : null,
+    hasSecret: Boolean(m365Row?.clientSecret),
+    lastSyncAt: m365Row?.lastSyncAt ? m365Row.lastSyncAt.toISOString() : null,
+    lastSyncOk: m365Row?.lastSyncOk ?? null,
+    lastSyncMsg: m365Row?.lastSyncMsg ?? null,
+  };
 
   const myPrefs = await prisma.userNotificationPref
     .findMany({ where: { userId: session.user.id } })
@@ -230,22 +240,6 @@ export default async function SettingsPage({
     await prisma.department.update({ where: { id }, data: { name, leaderId } }).catch(() => {});
     revalidatePath("/settings");
     redirect("/settings#departments");
-  }
-
-  async function syncNow() {
-    "use server";
-    const me = await requireCeo();
-    if (!me || !isM365Configured()) return;
-    try {
-      const result = await syncInbox();
-      await setSetting("m365LastSync", new Date().toISOString());
-      revalidatePath("/settings");
-      revalidatePath("/inbox");
-      redirect(`/settings?synced=${result.fetched}-${result.created}#integrations`);
-    } catch (err) {
-      if ((err as Error).message?.includes("NEXT_REDIRECT")) throw err;
-      redirect(`/settings?syncError=${encodeURIComponent((err as Error).message ?? "Sync failed")}#integrations`);
-    }
   }
 
   async function rotateHubKey() {
@@ -515,40 +509,7 @@ export default async function SettingsPage({
                 </span>
               </div>
 
-              <div className="hh-row hh-row--flat flex-col !items-start !gap-2">
-                <div className="flex items-center justify-between w-full">
-                  <span className="hh-primary">Microsoft 365</span>
-                  {m365Ready ? (
-                    <span className="hh-badge hh-badge--success">connected</span>
-                  ) : (
-                    <span className="hh-badge hh-badge--warning">not configured</span>
-                  )}
-                </div>
-                {sp.synced && (
-                  <span className="hh-secondary">
-                    Synced — {sp.synced.split("-")[0]} fetched, {sp.synced.split("-")[1]} new.
-                  </span>
-                )}
-                {sp.syncError && <span className="hh-secondary">Sync failed: {sp.syncError}</span>}
-                {m365Ready ? (
-                  <>
-                    <span className="hh-secondary">
-                      Shared mailbox feeds the unified inbox. {m365LastSync ? `Last sync ${formatRelative(new Date(m365LastSync))}.` : "Last sync: never."}
-                    </span>
-                    {isCeo && (
-                      <form action={syncNow}>
-                        <button className="btn-secondary text-xs" type="submit">Sync inbox now</button>
-                      </form>
-                    )}
-                  </>
-                ) : (
-                  <span className="hh-secondary">
-                    Needs <code className="hh-chip">M365_TENANT_ID</code> <code className="hh-chip">M365_CLIENT_ID</code>{" "}
-                    <code className="hh-chip">M365_CLIENT_SECRET</code> <code className="hh-chip">M365_MAILBOX</code> in .env
-                    (Azure app registration with Mail.Read + admin consent).
-                  </span>
-                )}
-              </div>
+              <M365Card data={m365Data} isCeo={isCeo} canTest={role === "CEO" || role === "OFFICE"} />
 
               <div className="hh-row hh-row--flat flex-col !items-start !gap-2">
                 <div className="flex items-center justify-between w-full">

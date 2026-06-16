@@ -323,3 +323,15 @@ model UserNotificationPref {
   sms    Boolean @default(false)
   @@unique([userId, event])
 }
+
+model M365Config {
+  id           String    @id @default("singleton")
+  tenantId     String?
+  clientId     String?
+  clientSecret String?   // TODO: encrypt at rest once an encryption helper exists
+  mailbox      String?
+  lastSyncAt   DateTime?
+  lastSyncOk   Boolean?
+  lastSyncMsg  String?
+  updatedAt    DateTime  @updatedAt
+}
