@@ -92,7 +92,12 @@ export default async function SettingsPage({
       getSetting("HUB_TASKS_API_KEY"),
       prisma.m365Config.findUnique({ where: { id: "singleton" } }).catch(() => null),
     ]);
-  const quoRow = await prisma.quoConfig.findUnique({ where: { id: "singleton" } }).catch(() => null);
+  let quoRow: Awaited<ReturnType<typeof prisma.quoConfig.findUnique>> = null;
+  try {
+    quoRow = await prisma.quoConfig.findUnique({ where: { id: "singleton" } });
+  } catch {
+    // QuoConfig model not generated yet (run prisma generate) — treat as unconfigured.
+  }
 
   const activeHubKey = hubKey ?? process.env.HUB_TASKS_API_KEY ?? null;
   const m365Configured = Boolean(m365Row?.tenantId && m365Row?.clientId && m365Row?.clientSecret && m365Row?.mailbox);
