@@ -7,6 +7,7 @@ import { randomBytes } from "crypto";
 import { canManageTeam, ROLE_LABELS, type Role } from "@/lib/roles";
 import PageHeader from "@/components/PageHeader";
 import M365Card, { type M365CardData } from "@/components/M365Card";
+import QuoCard, { type QuoCardData } from "@/components/QuoCard";
 import { formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
@@ -91,6 +92,7 @@ export default async function SettingsPage({
       getSetting("HUB_TASKS_API_KEY"),
       prisma.m365Config.findUnique({ where: { id: "singleton" } }).catch(() => null),
     ]);
+  const quoRow = await prisma.quoConfig.findUnique({ where: { id: "singleton" } }).catch(() => null);
 
   const activeHubKey = hubKey ?? process.env.HUB_TASKS_API_KEY ?? null;
   const m365Configured = Boolean(m365Row?.tenantId && m365Row?.clientId && m365Row?.clientSecret && m365Row?.mailbox);
@@ -105,6 +107,18 @@ export default async function SettingsPage({
     lastSyncAt: m365Row?.lastSyncAt ? m365Row.lastSyncAt.toISOString() : null,
     lastSyncOk: m365Row?.lastSyncOk ?? null,
     lastSyncMsg: m365Row?.lastSyncMsg ?? null,
+  };
+  const quoConfigured = Boolean(quoRow?.apiKey && quoRow?.baseUrl);
+  const quoData: QuoCardData = {
+    configured: quoConfigured,
+    connected: quoConfigured && quoRow?.lastSyncOk === true,
+    baseUrl: quoRow?.baseUrl ?? null,
+    inboxNumber: quoRow?.inboxNumber ?? null,
+    apiKeyMasked: quoRow?.apiKey ? `${quoRow.apiKey.slice(0, 6)}••••••` : null,
+    hasKey: Boolean(quoRow?.apiKey),
+    lastSyncAt: quoRow?.lastSyncAt ? quoRow.lastSyncAt.toISOString() : null,
+    lastSyncOk: quoRow?.lastSyncOk ?? null,
+    lastSyncMsg: quoRow?.lastSyncMsg ?? null,
   };
 
   const myPrefs = await prisma.userNotificationPref
@@ -510,6 +524,8 @@ export default async function SettingsPage({
               </div>
 
               <M365Card data={m365Data} isCeo={isCeo} canTest={role === "CEO" || role === "OFFICE"} />
+
+              <QuoCard data={quoData} isCeo={isCeo} canTest={role === "CEO" || role === "OFFICE"} />
 
               <div className="hh-row hh-row--flat flex-col !items-start !gap-2">
                 <div className="flex items-center justify-between w-full">

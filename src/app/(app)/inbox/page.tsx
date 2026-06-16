@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { formatRelative } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
+import { sendQuoSms } from "@/lib/quo";
 import { Send, MessageSquare } from "lucide-react";
 
 const CHANNELS: { value: string; label: string; dot: string }[] = [
@@ -69,8 +70,21 @@ export default async function InboxPage({
     if (!threadId || !body) return;
     const me = await auth();
     if (!me?.user) return;
-    const t = await prisma.thread.findUnique({ where: { id: threadId } });
+    const t = await prisma.thread.findUnique({
+      where: { id: threadId },
+      include: { client: true },
+    });
     if (!t) return;
+
+    // Two-way SMS: if this is a Quo-backed SMS thread, push the text out
+    // through Quo. The message is recorded either way; delivery is best-effort.
+    if (t.channel === "SMS" && t.quoThreadKey) {
+      const toPhone = t.quoThreadKey.startsWith("quo:")
+        ? `+${t.quoThreadKey.slice(4)}`
+        : t.client?.primaryPhone ?? "";
+      if (toPhone) await sendQuoSms(toPhone, body).catch(() => {});
+    }
+
     await prisma.message.create({
       data: {
         threadId,
@@ -125,9 +139,7 @@ export default async function InboxPage({
       />
 
       <div className="p-6">
-        <div
-          className="hh-panel !p-0 grid grid-cols-12 overflow-hidden"
-        >
+        <div className="hh-panel !p-0 grid grid-cols-12 overflow-hidden">
           {/* Thread List Column */}
           <aside className="col-span-12 md:col-span-5 lg:col-span-4 border-r border-glass-border flex flex-col h-[calc(100vh-13rem)] md:h-[calc(100vh-11rem)] overflow-hidden">
             {/* Channel Filters */}
@@ -292,7 +304,7 @@ export default async function InboxPage({
                     </button>
                   </div>
                   <div className="hh-caption text-center mt-2.5">
-                    Replies go out on the same channel as the thread. Email/SMS gateways are stubbed.
+                    Replies on Quo-linked SMS threads send through Quo. Email gateway is stubbed.
                   </div>
                 </form>
 

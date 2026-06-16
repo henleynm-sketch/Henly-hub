@@ -180,6 +180,7 @@ model Thread {
   lastAt     DateTime  @default(now())
   unread     Int       @default(0)
   graphConversationId String? @unique
+  quoThreadKey String? @unique
   messages   Message[]
 }
 
@@ -195,6 +196,7 @@ model Message {
   channel    String   // EMAIL | SMS | IN_APP | CALL_NOTE
   sentAt     DateTime @default(now())
   graphMessageId String? @unique
+  quoMessageId   String? @unique
 }
 
 model Estimate {
@@ -330,6 +332,17 @@ model M365Config {
   clientId     String?
   clientSecret String?   // TODO: encrypt at rest once an encryption helper exists
   mailbox      String?
+  lastSyncAt   DateTime?
+  lastSyncOk   Boolean?
+  lastSyncMsg  String?
+  updatedAt    DateTime  @updatedAt
+}
+
+model QuoConfig {
+  id           String    @id @default("singleton")
+  apiKey       String?
+  baseUrl      String?   // Quo REST API base, e.g. https://api.quo.com/v1
+  inboxNumber  String?   // the Henley inbox phone these messages belong to
   lastSyncAt   DateTime?
   lastSyncOk   Boolean?
   lastSyncMsg  String?
