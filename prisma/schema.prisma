@@ -35,6 +35,8 @@ model User {
   approvedTimeEntries TimeEntry[] @relation("TimeEntryApprover")
   uploadedDocuments Document[] @relation("UploadedDocuments")
   authoredContracts Contract[] @relation("ContractAuthor")
+  createdApiKeys ApiKey[]      @relation("ApiKeyCreator")
+  apiKeyAudits   ApiKeyAudit[] @relation("ApiKeyAudit")
   createdAt   DateTime @default(now())
 }
 
@@ -348,4 +350,49 @@ model QuoConfig {
   lastSyncOk       Boolean?
   lastSyncMsg      String?
   updatedAt        DateTime  @updatedAt
+}
+
+// --- External v1 API: per-consumer keys, audit trail, and call log -------
+// These power the /api/v1 surface. The full key is never stored — only its
+// sha256 hash (unique) plus the first 8 chars for masked display.
+model ApiKey {
+  id          String        @id @default(cuid())
+  name        String        // human-readable, e.g. "Henley Tasks production"
+  hashPrefix  String        // first 8 chars of the key, for masked display
+  hash        String        @unique // sha256 of the full key
+  scopes      String        // comma-separated scope strings
+  createdById String
+  createdBy   User          @relation("ApiKeyCreator", fields: [createdById], references: [id])
+  createdAt   DateTime      @default(now())
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  audits      ApiKeyAudit[]
+  callLogs    ApiCallLog[]
+}
+
+model ApiKeyAudit {
+  id       String   @id @default(cuid())
+  apiKeyId String?
+  apiKey   ApiKey?  @relation(fields: [apiKeyId], references: [id])
+  action   String   // created | rotated | revoked | scope_changed
+  actorId  String
+  actor    User     @relation("ApiKeyAudit", fields: [actorId], references: [id])
+  ts       DateTime @default(now())
+  detail   String?  // JSON string for extra context
+}
+
+model ApiCallLog {
+  id             String   @id @default(cuid())
+  apiKeyId       String?
+  apiKey         ApiKey?  @relation(fields: [apiKeyId], references: [id])
+  method         String   // GET | POST | PATCH | DELETE
+  path           String
+  status         Int
+  scopeUsed      String?
+  idempotencyKey String?
+  durationMs     Int
+  ts             DateTime @default(now())
+
+  @@index([apiKeyId, ts])
+  @@index([ts])
 }
