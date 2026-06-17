@@ -10,7 +10,7 @@ import { ValidationError, fail, failFromError } from "./errors";
 
 // A handler returns plain data (wrapped in the success envelope), optionally
 // with a custom status, or a Response it built itself (escape hatch).
-export type ApiResult = { data: unknown; status?: number } | Response;
+export type ApiResult = { data: unknown; status?: number; meta?: Record<string, unknown> } | Response;
 
 export type ApiCtx<P extends Record<string, string> = Record<string, string>> = {
   apiKey: ApiKey;
@@ -106,7 +106,7 @@ export function apiRoute<P extends Record<string, string> = Record<string, strin
       }
 
       const status = result.status ?? 200;
-      const envelope = { ok: true, data: result.data };
+      const envelope = { ok: true, data: result.data, ...(result.meta ?? {}) };
       // Only cache successful responses for idempotent replay.
       if (idemKey && status >= 200 && status < 300) {
         setIdempotent(apiKey.id, idemKey, status, envelope);
