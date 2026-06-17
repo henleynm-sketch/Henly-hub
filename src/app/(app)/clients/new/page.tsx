@@ -1,12 +1,14 @@
 import PageHeader from "@/components/PageHeader";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/services/clientService";
 import { redirect } from "next/navigation";
 
 export default function NewClientPage() {
   async function create(formData: FormData) {
     "use server";
-    const data = {
-      name: String(formData.get("name") || "").trim(),
+    const name = String(formData.get("name") || "").trim();
+    if (!name) return;
+    const c = await createClient({
+      name,
       primaryEmail: String(formData.get("email") || "").trim() || null,
       primaryPhone: String(formData.get("phone") || "").trim() || null,
       address: String(formData.get("address") || "").trim() || null,
@@ -14,11 +16,8 @@ export default function NewClientPage() {
       state: String(formData.get("state") || "").trim() || null,
       zip: String(formData.get("zip") || "").trim() || null,
       source: String(formData.get("source") || "").trim() || null,
-      stage: "LEAD",
       notes: String(formData.get("notes") || "").trim() || null,
-    };
-    if (!data.name) return;
-    const c = await prisma.client.create({ data });
+    });
     redirect(`/clients/${c.id}`);
   }
 

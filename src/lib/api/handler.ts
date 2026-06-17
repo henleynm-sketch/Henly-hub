@@ -54,7 +54,7 @@ export function apiRoute<P extends Record<string, string> = Record<string, strin
   scope: Scope,
   fn: (ctx: ApiCtx<P>) => Promise<ApiResult>
 ) {
-  return async (req: Request, nextCtx?: NextRouteCtx<P>): Promise<Response> => {
+  return async (req: Request, nextCtx: NextRouteCtx<P>): Promise<Response> => {
     const start = Date.now();
     const method = req.method.toUpperCase();
     const url = new URL(req.url);
@@ -89,7 +89,7 @@ export function apiRoute<P extends Record<string, string> = Record<string, strin
     }
 
     try {
-      const params = nextCtx ? await nextCtx.params : ({} as P);
+      const params = ((await nextCtx?.params) ?? {}) as P;
       const body = async () => {
         try {
           return await req.json();

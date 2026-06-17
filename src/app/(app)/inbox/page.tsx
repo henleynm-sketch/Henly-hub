@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
+import { createMessage } from "@/lib/services/threadService";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { formatRelative } from "@/lib/utils";
@@ -76,21 +77,12 @@ export default async function InboxPage({
     if (!threadId || !body) return;
     const me = await auth();
     if (!me?.user) return;
-    const t = await prisma.thread.findUnique({ where: { id: threadId } });
-    if (!t) return;
-    await prisma.message.create({
-      data: {
-        threadId,
-        body,
-        direction: "OUT",
-        channel: t.channel,
-        authorId: me.user.id,
-        fromName: me.user.name ?? "Henley",
-      },
-    });
-    await prisma.thread.update({
-      where: { id: threadId },
-      data: { lastAt: new Date(), unread: 0 },
+    await createMessage({
+      threadId,
+      body,
+      authorId: me.user.id,
+      fromName: me.user.name ?? "Henley",
+      direction: "OUT",
     });
     revalidatePath("/inbox");
   }

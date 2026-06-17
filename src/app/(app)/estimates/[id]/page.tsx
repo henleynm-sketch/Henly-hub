@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
+import { setEstimateStatus } from "@/lib/services/estimateService";
 import { auth } from "@/auth";
 import { canSeeFinancials } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
@@ -22,7 +23,7 @@ export default async function EstimateDetail({ params }: { params: Promise<{ id:
     if (!me?.user || !canSeeFinancials(me.user.role as Role)) return;
     const status = String(formData.get("status") || "");
     if (!["DRAFT", "SENT", "ACCEPTED", "DECLINED"].includes(status)) return;
-    await prisma.estimate.update({ where: { id }, data: { status } });
+    await setEstimateStatus(id, status);
     revalidatePath(`/estimates/${id}`);
     revalidatePath("/estimates");
     revalidatePath("/contracts");

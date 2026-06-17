@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
+import { createProject } from "@/lib/services/projectService";
 import { redirect } from "next/navigation";
 
 export default async function NewProjectPage() {
@@ -10,16 +11,13 @@ export default async function NewProjectPage() {
     const name = String(formData.get("name") || "").trim();
     const clientId = String(formData.get("clientId") || "");
     if (!name || !clientId) return;
-    const p = await prisma.project.create({
-      data: {
-        name,
-        clientId,
-        address: String(formData.get("address") || "") || null,
-        contractCents: Math.round(Number(formData.get("contract") || 0) * 100),
-        budgetCents: Math.round(Number(formData.get("budget") || 0) * 100),
-        description: String(formData.get("description") || "") || null,
-        status: "PLANNING",
-      },
+    const p = await createProject({
+      name,
+      clientId,
+      address: String(formData.get("address") || "") || null,
+      contractCents: Math.round(Number(formData.get("contract") || 0) * 100),
+      budgetCents: Math.round(Number(formData.get("budget") || 0) * 100),
+      description: String(formData.get("description") || "") || null,
     });
     redirect(`/projects/${p.id}`);
   }

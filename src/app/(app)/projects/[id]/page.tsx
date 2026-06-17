@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
+import { createDailyLog } from "@/lib/services/dailyLogService";
+import { updateMilestoneStatus } from "@/lib/services/milestoneService";
 import { auth } from "@/auth";
 import { canSeeFinancials, canViewAllProjects, isInternal } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
@@ -161,17 +163,15 @@ export default async function ProjectDetail({
       }
     }
 
-    await prisma.dailyLog.create({
-      data: {
-        projectId,
-        authorId: me.user.id,
-        notes,
-        weather: String(formData.get("weather") || "") || null,
-        crewOnSite: String(formData.get("crew") || "") || null,
-        hoursWorked: Number(formData.get("hours") || 0) || null,
-        clientVisible: formData.get("clientVisible") === "on",
-        photos: savedUrls.length > 0 ? JSON.stringify(savedUrls) : null,
-      },
+    await createDailyLog({
+      projectId,
+      authorId: me.user.id,
+      notes,
+      weather: String(formData.get("weather") || "") || null,
+      crewOnSite: String(formData.get("crew") || "") || null,
+      hoursWorked: Number(formData.get("hours") || 0) || null,
+      clientVisible: formData.get("clientVisible") === "on",
+      photos: savedUrls,
     });
     revalidatePath(`/projects/${projectId}`);
   }
@@ -184,7 +184,7 @@ export default async function ProjectDetail({
     if (r === "CLIENT" || r === "SUB") return;
     const id = String(formData.get("id"));
     const status = String(formData.get("status"));
-    await prisma.milestone.update({ where: { id }, data: { status } });
+    await updateMilestoneStatus(id, status);
     revalidatePath(`/projects/${projectId}`);
   }
 

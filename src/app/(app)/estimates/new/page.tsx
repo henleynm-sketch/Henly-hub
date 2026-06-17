@@ -1,5 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
+import { createEstimate } from "@/lib/services/estimateService";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
@@ -39,45 +40,22 @@ export default async function NewEstimatePage({
     const title = String(formData.get("title") || "").trim();
     if (!clientId || !title) return;
 
-    const lines: { category: string; description: string; qty: number; unitCents: number }[] = [];
-    SUGGESTED_CATEGORIES.forEach((cat) => {
-      const desc = String(formData.get(`desc_${cat}`) || "").trim();
-      const qty = Number(formData.get(`qty_${cat}`) || 0);
+    const lines = SUGGESTED_CATEGORIES.flatMap((cat) => {
+      const description = String(formData.get(`desc_${cat}`) || "").trim();
+      const quantity = Number(formData.get(`qty_${cat}`) || 0);
       const unit = Number(formData.get(`unit_${cat}`) || 0);
-      if (desc && qty > 0 && unit > 0) {
-        lines.push({ category: cat, description: desc, qty, unitCents: Math.round(unit * 100) });
-      }
+      return description && quantity > 0 && unit > 0
+        ? [{ category: cat, description, quantity, unitCents: Math.round(unit * 100) }]
+        : [];
     });
 
-    const subtotalCents = lines.reduce((a, l) => a + l.qty * l.unitCents, 0);
-    const taxRate = Number(formData.get("taxRate") || 0) / 100;
-    const taxCents = Math.round(subtotalCents * taxRate);
-    const totalCents = subtotalCents + taxCents;
-
-    const count = await prisma.estimate.count();
-    const number = `EST-${String(1001 + count).padStart(4, "0")}`;
-
-    const est = await prisma.estimate.create({
-      data: {
-        clientId,
-        authorId: session.user.id,
-        number,
-        title,
-        status: "DRAFT",
-        notes: String(formData.get("notes") || "") || null,
-        subtotalCents,
-        taxCents,
-        totalCents,
-        lineItems: {
-          create: lines.map((l) => ({
-            category: l.category,
-            description: l.description,
-            quantity: l.qty,
-            unitCents: l.unitCents,
-            totalCents: l.qty * l.unitCents,
-          })),
-        },
-      },
+    const est = await createEstimate({
+      clientId,
+      authorId: session.user.id,
+      title,
+      notes: String(formData.get("notes") || "") || null,
+      taxRate: Number(formData.get("taxRate") || 0),
+      lines,
     });
     redirect(`/estimates/${est.id}`);
   }

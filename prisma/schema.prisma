@@ -81,6 +81,7 @@ model Project {
   budgetCents  Int       @default(0)
   contractCents Int      @default(0)
   description  String?
+  archivedAt   DateTime?  // set by the v1 API archive endpoint; never hard-deletes
   milestones   Milestone[]
   dailyLogs    DailyLog[]
   budgetItems  BudgetItem[]
@@ -163,7 +164,9 @@ model Document {
   project       Project? @relation(fields: [projectId], references: [id])
   name          String
   kind          String   // CONTRACT | PLAN | PERMIT | INVOICE | PHOTO | OTHER
-  url           String
+  url           String   // storage URL; empty string while pending (no backend)
+  mimeType      String?
+  pending       Boolean  @default(false) // true = metadata only, binary not stored yet
   sizeBytes     Int?
   clientVisible Boolean  @default(false)
   uploadedById  String?

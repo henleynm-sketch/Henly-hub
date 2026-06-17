@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
+import { createStoredFile, setFileVisibility, deleteFile, getFileById } from "@/lib/services/fileService";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { canViewAllProjects, isInternal } from "@/lib/roles";
@@ -109,16 +110,14 @@ export default async function FilesPage({
       const filename = `${crypto.randomUUID()}${ext}`;
       const buffer = Buffer.from(await file.arrayBuffer());
       await writeFile(path.join(UPLOAD_DIR, filename), new Uint8Array(buffer));
-      await prisma.document.create({
-        data: {
-          projectId,
-          name: file.name,
-          kind,
-          url: `/uploads/documents/${filename}`,
-          sizeBytes: file.size,
-          clientVisible: formData.get("clientVisible") === "on",
-          uploadedById: me.user.id,
-        },
+      await createStoredFile({
+        projectId,
+        name: file.name,
+        kind,
+        url: `/uploads/documents/${filename}`,
+        sizeBytes: file.size,
+        clientVisible: formData.get("clientVisible") === "on",
+        uploadedById: me.user.id,
       });
     }
     revalidatePath("/files");
@@ -131,9 +130,9 @@ export default async function FilesPage({
     const r = me.user.role as Role;
     if (r !== "CEO" && r !== "OFFICE") return;
     const id = String(formData.get("id") || "");
-    const doc = await prisma.document.findUnique({ where: { id } });
+    const doc = await getFileById(id).catch(() => null);
     if (!doc) return;
-    await prisma.document.update({ where: { id }, data: { clientVisible: !doc.clientVisible } });
+    await setFileVisibility(id, !doc.clientVisible);
     revalidatePath("/files");
   }
 
@@ -144,9 +143,8 @@ export default async function FilesPage({
     const r = me.user.role as Role;
     if (r !== "CEO" && r !== "OFFICE") return;
     const id = String(formData.get("id") || "");
-    const doc = await prisma.document.findUnique({ where: { id } });
+    const doc = await deleteFile(id).catch(() => null);
     if (!doc) return;
-    await prisma.document.delete({ where: { id } });
     if (doc.url.startsWith("/uploads/documents/")) {
       const filePath = path.join(UPLOAD_DIR, path.basename(doc.url));
       try {
