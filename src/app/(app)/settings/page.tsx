@@ -618,7 +618,10 @@ export default async function SettingsPage({
 
             {/* 5 — API keys */}
             <section id="apikeys" className="hh-panel p-6 flex flex-col gap-4 scroll-mt-24">
-              <h2 className="hh-label">API keys</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="hh-label">API keys</h2>
+                <Link href="/settings/api/docs" className="btn-secondary text-xs">API docs →</Link>
+              </div>
               {legacyMigrated && (
                 <div className="hh-row hh-row--flat">
                   <span className="hh-secondary">
