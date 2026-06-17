@@ -5,16 +5,22 @@ import { redirect } from "next/navigation";
 import { formatRelative } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
-import { sendQuoSms } from "@/lib/quo";
-import { Send, MessageSquare } from "lucide-react";
+import { Send, MessageSquare, Mail, MessageCircle, Phone } from "lucide-react";
 
 const CHANNELS: { value: string; label: string; dot: string }[] = [
-  { value: "ALL", label: "All channels", dot: "hh-dot--purple" },
+  { value: "ALL", label: "All", dot: "hh-dot--purple" },
   { value: "EMAIL", label: "Email", dot: "hh-dot--blue" },
   { value: "SMS", label: "SMS", dot: "hh-dot--green" },
-  { value: "IN_APP", label: "Hub message", dot: "hh-dot--purple" },
-  { value: "CALL_NOTE", label: "Call notes", dot: "hh-dot--orange" },
+  { value: "CALL_NOTE", label: "Voice", dot: "hh-dot--orange" },
 ];
+
+// Per-thread channel icon. Voice maps to the app's CALL_NOTE channel.
+function ChannelIcon({ channel }: { channel: string }) {
+  const c = channel.toUpperCase();
+  if (c === "SMS") return <MessageCircle className="h-3.5 w-3.5 text-ink-soft shrink-0" />;
+  if (c === "CALL_NOTE") return <Phone className="h-3.5 w-3.5 text-ink-soft shrink-0" />;
+  return <Mail className="h-3.5 w-3.5 text-ink-soft shrink-0" />;
+}
 
 export default async function InboxPage({
   searchParams,
@@ -70,21 +76,8 @@ export default async function InboxPage({
     if (!threadId || !body) return;
     const me = await auth();
     if (!me?.user) return;
-    const t = await prisma.thread.findUnique({
-      where: { id: threadId },
-      include: { client: true },
-    });
+    const t = await prisma.thread.findUnique({ where: { id: threadId } });
     if (!t) return;
-
-    // Two-way SMS: if this is a Quo-backed SMS thread, push the text out
-    // through Quo. The message is recorded either way; delivery is best-effort.
-    if (t.channel === "SMS" && t.quoThreadKey) {
-      const toPhone = t.quoThreadKey.startsWith("quo:")
-        ? `+${t.quoThreadKey.slice(4)}`
-        : t.client?.primaryPhone ?? "";
-      if (toPhone) await sendQuoSms(toPhone, body).catch(() => {});
-    }
-
     await prisma.message.create({
       data: {
         threadId,
@@ -189,12 +182,14 @@ export default async function InboxPage({
                       <span className="absolute left-0 top-2.5 bottom-2.5 w-[3px] bg-accent rounded-r-md" />
                     )}
                     <div className="flex items-center justify-between gap-2">
-                      <span className="hh-primary truncate">
-                        {t.client?.name ?? "Internal Info"}
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <ChannelIcon channel={t.channel} />
+                        <span className="hh-primary truncate">
+                          {t.client?.name ?? t.subject}
+                        </span>
                       </span>
                       <span className="hh-caption shrink-0">{formatRelative(t.lastAt)}</span>
                     </div>
-                    <div className="hh-primary truncate mt-1">{t.subject}</div>
                     {t.messages[0] && (
                       <div className="hh-secondary truncate mt-0.5">{t.messages[0].body}</div>
                     )}

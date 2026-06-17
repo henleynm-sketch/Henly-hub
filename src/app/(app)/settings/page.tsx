@@ -113,14 +113,14 @@ export default async function SettingsPage({
     lastSyncOk: m365Row?.lastSyncOk ?? null,
     lastSyncMsg: m365Row?.lastSyncMsg ?? null,
   };
-  const quoConfigured = Boolean(quoRow?.apiKey && quoRow?.baseUrl);
+  const quoConfigured = Boolean(quoRow?.apiKey);
   const quoData: QuoCardData = {
     configured: quoConfigured,
     connected: quoConfigured && quoRow?.lastSyncOk === true,
-    baseUrl: quoRow?.baseUrl ?? null,
-    inboxNumber: quoRow?.inboxNumber ?? null,
+    defaultInboxName: quoRow?.defaultInboxName ?? null,
     apiKeyMasked: quoRow?.apiKey ? `${quoRow.apiKey.slice(0, 6)}••••••` : null,
     hasKey: Boolean(quoRow?.apiKey),
+    apiBase: quoRow?.apiBase ?? null,
     lastSyncAt: quoRow?.lastSyncAt ? quoRow.lastSyncAt.toISOString() : null,
     lastSyncOk: quoRow?.lastSyncOk ?? null,
     lastSyncMsg: quoRow?.lastSyncMsg ?? null,

@@ -180,7 +180,7 @@ model Thread {
   lastAt     DateTime  @default(now())
   unread     Int       @default(0)
   graphConversationId String? @unique
-  quoThreadKey String? @unique
+  quoConversationId String? @unique
   messages   Message[]
 }
 
@@ -339,12 +339,13 @@ model M365Config {
 }
 
 model QuoConfig {
-  id           String    @id @default("singleton")
-  apiKey       String?
-  baseUrl      String?   // Quo REST API base, e.g. https://api.quo.com/v1
-  inboxNumber  String?   // the Henley inbox phone these messages belong to
-  lastSyncAt   DateTime?
-  lastSyncOk   Boolean?
-  lastSyncMsg  String?
-  updatedAt    DateTime  @updatedAt
+  id               String    @id @default("singleton")
+  apiKey           String?   // TODO: encrypt at rest (no encryption helper in codebase)
+  defaultInboxId   String?
+  defaultInboxName String?
+  apiBase          String?   // optional override; defaults to the standard Quo API base
+  lastSyncAt       DateTime?
+  lastSyncOk       Boolean?
+  lastSyncMsg      String?
+  updatedAt        DateTime  @updatedAt
 }
