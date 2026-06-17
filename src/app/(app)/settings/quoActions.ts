@@ -4,9 +4,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageTeam, isInternal, type Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
-import { testQuoConnection, syncQuoMessages, syncQuoCalls, type Inbox } from "@/lib/quo";
+import { testQuoConnection, syncQuoMessages, syncQuoCalls, type PhoneNumber } from "@/lib/quo";
 
-export type SaveResult = { ok: boolean; error?: string; inboxes?: Inbox[] };
+export type SaveResult = { ok: boolean; error?: string; phoneNumbers?: PhoneNumber[] };
 export type ActionResult = { ok: boolean; error?: string };
 export type SyncResult = { ok: boolean; sms?: number; calls?: number; error?: string; partial?: string };
 
@@ -16,8 +16,8 @@ async function ceo() {
   return me;
 }
 
-// Step 1: write key + base, run a live test. On success returns the inboxes
-// so the UI can show the inbox picker. An empty apiKey keeps the existing one.
+// Step 1: write key + base, run a live test. On success returns the phone
+// numbers so the UI can show the picker. An empty apiKey keeps the existing one.
 export async function saveQuoCredentials(formData: FormData): Promise<SaveResult> {
   const me = await ceo();
   if (!me) return { ok: false, error: "Not authorized" };
@@ -44,17 +44,18 @@ export async function saveQuoCredentials(formData: FormData): Promise<SaveResult
   const test = await testQuoConnection();
   revalidatePath("/settings");
   if (!test.ok) return { ok: false, error: test.error };
-  return { ok: true, inboxes: test.inboxes ?? [] };
+  return { ok: true, phoneNumbers: test.phoneNumbers ?? [] };
 }
 
-// Step 2: persist the chosen inbox.
-export async function saveQuoInbox(inboxId: string, inboxName: string): Promise<ActionResult> {
+// Step 2: persist the chosen phone number. The display name carries both the
+// name and the E.164 number so the connected card can show them together.
+export async function saveQuoPhoneNumber(phoneNumberId: string, displayName: string): Promise<ActionResult> {
   const me = await ceo();
   if (!me) return { ok: false, error: "Not authorized" };
-  if (!inboxId) return { ok: false, error: "Pick an inbox" };
+  if (!phoneNumberId) return { ok: false, error: "Pick a phone number" };
   await prisma.quoConfig.update({
     where: { id: "singleton" },
-    data: { defaultInboxId: inboxId, defaultInboxName: inboxName || null },
+    data: { defaultPhoneNumberId: phoneNumberId, defaultPhoneNumberName: displayName || null },
   });
   revalidatePath("/settings");
   return { ok: true };
@@ -75,7 +76,7 @@ export async function disconnectQuo(): Promise<ActionResult> {
   await prisma.quoConfig
     .update({
       where: { id: "singleton" },
-      data: { apiKey: null, defaultInboxId: null, defaultInboxName: null },
+      data: { apiKey: null, defaultPhoneNumberId: null, defaultPhoneNumberName: null },
     })
     .catch(() => {});
   await prisma.auditLog.create({ data: { actorId: me.user.id, action: "quo.disconnect", target: "quo" } });
@@ -87,11 +88,11 @@ export async function syncQuoNow(): Promise<SyncResult> {
   const me = await ceo();
   if (!me) return { ok: false, error: "Not authorized" };
   const cfg = await prisma.quoConfig.findUnique({ where: { id: "singleton" } }).catch(() => null);
-  if (!cfg?.defaultInboxId) return { ok: false, error: "No default inbox selected" };
+  if (!cfg?.defaultPhoneNumberId) return { ok: false, error: "No phone number selected" };
 
   const [smsRes, callRes] = await Promise.allSettled([
-    syncQuoMessages(cfg.defaultInboxId),
-    syncQuoCalls(cfg.defaultInboxId),
+    syncQuoMessages(cfg.defaultPhoneNumberId),
+    syncQuoCalls(cfg.defaultPhoneNumberId),
   ]);
   revalidatePath("/settings");
   revalidatePath("/inbox");

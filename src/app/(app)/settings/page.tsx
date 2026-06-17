@@ -117,7 +117,7 @@ export default async function SettingsPage({
   const quoData: QuoCardData = {
     configured: quoConfigured,
     connected: quoConfigured && quoRow?.lastSyncOk === true,
-    defaultInboxName: quoRow?.defaultInboxName ?? null,
+    defaultPhoneNumberName: quoRow?.defaultPhoneNumberName ?? null,
     apiKeyMasked: quoRow?.apiKey ? `${quoRow.apiKey.slice(0, 6)}••••••` : null,
     hasKey: Boolean(quoRow?.apiKey),
     apiBase: quoRow?.apiBase ?? null,

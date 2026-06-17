@@ -4,19 +4,20 @@ import { prisma } from "@/lib/prisma";
 /**
  * Quo (my.quo.com) SMS + voice ingestion — read-only.
  *
- * The API key lives in the QuoConfig singleton (pasted from Settings, no
- * redeploy, never in .env) — same pattern as HUB_TASKS_API_KEY and Microsoft
- * 365. NOTE: Quo's REST shape is not documented in this session. The endpoints
- * and field mapping below are the assumed contract; if the real API differs,
- * the only changes needed are QUO_ENDPOINTS and the map* functions — everything
- * else (config, dedupe, inbox wiring, UI) is stable.
+ * Quo is the rebrand of OpenPhone; the REST API still lives on openphone.com.
+ * The API key is stored in the QuoConfig singleton (pasted from Settings, never
+ * in .env). Auth is the bare key in the Authorization header — NOT a Bearer
+ * token (this is unusual but correct for the OpenPhone API).
+ *
+ * Identifiers are prefix-typed: phone numbers start with "PN", users "US".
  */
-const DEFAULT_API_BASE = "https://api.quo.com/v1";
+const QUO_API_BASE_DEFAULT = "https://api.openphone.com";
 
 const QUO_ENDPOINTS = {
-  inboxes: "/inboxes",
-  conversations: (inboxId: string) => `/inboxes/${inboxId}/conversations`,
-  calls: (inboxId: string) => `/inboxes/${inboxId}/calls`,
+  phoneNumbers: "/v1/phone-numbers",
+  conversations: "/v1/conversations",
+  messages: "/v1/messages",
+  calls: "/v1/calls",
 };
 
 export class QuoError extends Error {
@@ -26,13 +27,14 @@ export class QuoError extends Error {
   }
 }
 
-export type Inbox = { id: string; name: string; number?: string };
+// A Quo "inbox" in the UI is a phone number in the API.
+export type PhoneNumber = { id: string; name: string; number: string; users?: string[] };
 
 type QuoConfigRow = {
   apiKey: string | null;
   apiBase: string | null;
-  defaultInboxId: string | null;
-  defaultInboxName: string | null;
+  defaultPhoneNumberId: string | null;
+  defaultPhoneNumberName: string | null;
 };
 
 async function readConfig(): Promise<QuoConfigRow | null> {
@@ -50,13 +52,13 @@ export async function isQuoConfigured(): Promise<boolean> {
 
 export async function getQuoApiBase(): Promise<string> {
   const row = await readConfig();
-  return (row?.apiBase || DEFAULT_API_BASE).replace(/\/$/, "");
+  return (row?.apiBase || QUO_API_BASE_DEFAULT).replace(/\/$/, "");
 }
 
 export async function quoCall<T>(endpoint: string, init?: RequestInit): Promise<T> {
   const row = await readConfig();
   if (!row?.apiKey) throw new QuoError("Quo is not configured");
-  const base = (row.apiBase || DEFAULT_API_BASE).replace(/\/$/, "");
+  const base = (row.apiBase || QUO_API_BASE_DEFAULT).replace(/\/$/, "");
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 5000);
@@ -64,7 +66,8 @@ export async function quoCall<T>(endpoint: string, init?: RequestInit): Promise<
     const res = await fetch(`${base}${endpoint}`, {
       ...init,
       headers: {
-        Authorization: `Bearer ${row.apiKey}`,
+        // OpenPhone uses the raw key, no "Bearer" prefix.
+        Authorization: row.apiKey,
         "Content-Type": "application/json",
         Accept: "application/json",
         ...(init?.headers ?? {}),
@@ -72,9 +75,19 @@ export async function quoCall<T>(endpoint: string, init?: RequestInit): Promise<
       signal: controller.signal,
       cache: "no-store",
     });
-    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; message?: string } & T;
+    const data = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+      message?: string;
+      errors?: { message?: string }[];
+    } & T;
     if (!res.ok || data?.ok === false) {
-      throw new QuoError(String(data?.error ?? data?.message ?? `Quo returned HTTP ${res.status}`));
+      const msg =
+        data?.errors?.[0]?.message ??
+        data?.message ??
+        data?.error ??
+        `Quo returned HTTP ${res.status}`;
+      throw new QuoError(String(msg));
     }
     return data;
   } catch (err) {
@@ -117,14 +130,19 @@ async function linkClientByPhone(phone: string | null | undefined): Promise<stri
   return match?.id ?? null;
 }
 
-// --- test / inbox list ---------------------------------------------------
-export async function testQuoConnection(): Promise<{ ok: boolean; inboxes?: Inbox[]; error?: string }> {
+// --- test / phone-number list -------------------------------------------
+export async function testQuoConnection(): Promise<{ ok: boolean; phoneNumbers?: PhoneNumber[]; error?: string }> {
   if (!(await isQuoConfigured())) return { ok: false, error: "Quo is not configured" };
   try {
-    const data = await quoCall<{ inboxes?: Inbox[]; data?: Inbox[] }>(QUO_ENDPOINTS.inboxes);
-    const inboxes = data.inboxes ?? data.data ?? [];
-    await recordSync(true, "Connection test passed");
-    return { ok: true, inboxes };
+    const data = await quoCall<{ data?: PhoneNumber[] }>(QUO_ENDPOINTS.phoneNumbers);
+    const phoneNumbers = (data.data ?? []).map((p) => ({
+      id: p.id,
+      name: p.name,
+      number: p.number,
+      users: p.users,
+    }));
+    await recordSync(true, "ok");
+    return { ok: true, phoneNumbers };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Connection test failed";
     await recordSync(false, msg);
@@ -132,37 +150,41 @@ export async function testQuoConnection(): Promise<{ ok: boolean; inboxes?: Inbo
   }
 }
 
-// --- mapping (isolate the Quo payload shape here) ------------------------
+// --- payload shapes (isolate the Quo API mapping here) ------------------
 type QuoConversation = {
   id: string;
-  contactName?: string;
-  contactPhone?: string;
-  phone?: string;
-  messages?: QuoMessagePayload[];
+  name?: string;
+  participants?: string[]; // phone numbers
+  lastActivityAt?: string;
 };
 type QuoMessagePayload = {
   id: string;
-  direction?: string; // inbound | outbound | in | out
-  body?: string;
+  direction?: string; // incoming | outgoing
+  from?: string;
+  to?: string[] | string;
   text?: string;
-  timestamp?: string;
+  body?: string;
   createdAt?: string;
 };
 type QuoCallPayload = {
   id: string;
-  direction?: string;
-  contactName?: string;
-  contactPhone?: string;
-  phone?: string;
-  status?: string; // missed | completed | voicemail
-  durationSec?: number;
-  transcript?: string;
-  timestamp?: string;
+  direction?: string; // incoming | outgoing
+  from?: string;
+  to?: string;
+  participants?: string[];
+  status?: string; // completed | missed | no-answer | voicemail
+  duration?: number; // seconds
   createdAt?: string;
 };
 
-function isOutbound(d: string | undefined): boolean {
-  return d === "out" || d === "outbound";
+function isOutgoing(d: string | undefined): boolean {
+  return d === "outgoing" || d === "out" || d === "outbound";
+}
+
+function otherParty(parts: string[] | undefined, ownNumber: string | null): string {
+  const own = toE164(ownNumber);
+  const list = (parts ?? []).map((p) => toE164(p)).filter(Boolean) as string[];
+  return list.find((p) => p !== own) ?? list[0] ?? "Unknown";
 }
 
 function mapDuration(sec: number | undefined): string {
@@ -174,26 +196,29 @@ function mapDuration(sec: number | undefined): string {
 
 function mapQuoCallToBody(c: QuoCallPayload, name: string): string {
   const status = (c.status ?? "").toLowerCase();
-  if (status === "voicemail" && c.transcript) return `Voicemail: ${c.transcript}`;
-  if (status === "missed") return `Missed call from ${name}`;
-  if (isOutbound(c.direction)) return `Outgoing call${mapDuration(c.durationSec)}`;
-  return `Incoming call${mapDuration(c.durationSec)}`;
+  if (status === "voicemail") return `Voicemail from ${name}`;
+  if (status === "missed" || status === "no-answer") return `Missed call from ${name}`;
+  if (isOutgoing(c.direction)) return `Outgoing call${mapDuration(c.duration)}`;
+  return `Incoming call${mapDuration(c.duration)}`;
+  // TODO (paid plans only): GET /v1/calls/{id}/summary and /transcription return
+  // AI summaries/transcripts. They 403/404 on non-business plans — add later.
 }
 
 export type SyncResult = { fetched: number; created: number; skipped: number };
 
-export async function syncQuoMessages(inboxId: string): Promise<SyncResult> {
-  const data = await quoCall<{ conversations?: QuoConversation[]; data?: QuoConversation[] }>(
-    QUO_ENDPOINTS.conversations(inboxId)
+export async function syncQuoMessages(phoneNumberId: string): Promise<SyncResult> {
+  const convData = await quoCall<{ data?: QuoConversation[] }>(
+    `${QUO_ENDPOINTS.conversations}?phoneNumberId=${encodeURIComponent(phoneNumberId)}`
   );
-  const conversations = data.conversations ?? data.data ?? [];
+  const conversations = convData.data ?? [];
+  const ownNumber = (await readConfig())?.defaultPhoneNumberName ?? null;
   let fetched = 0;
   let created = 0;
   let skipped = 0;
 
   for (const conv of conversations) {
-    const phone = conv.contactPhone ?? conv.phone ?? "";
-    const subject = conv.contactName?.trim() || phone || "Unknown";
+    const phone = otherParty(conv.participants, ownNumber);
+    const subject = conv.name?.trim() || phone || "Unknown";
     const convKey = `quo-conv-${conv.id}`;
     let thread = await prisma.thread.findUnique({ where: { quoConversationId: convKey } });
     if (!thread) {
@@ -207,7 +232,11 @@ export async function syncQuoMessages(inboxId: string): Promise<SyncResult> {
         },
       });
     }
-    for (const m of conv.messages ?? []) {
+
+    const msgData = await quoCall<{ data?: QuoMessagePayload[] }>(
+      `${QUO_ENDPOINTS.messages}?conversationId=${encodeURIComponent(conv.id)}`
+    );
+    for (const m of msgData.data ?? []) {
       fetched++;
       const msgKey = `quo-msg-${m.id}`;
       const existing = await prisma.message.findUnique({ where: { quoMessageId: msgKey } });
@@ -215,8 +244,8 @@ export async function syncQuoMessages(inboxId: string): Promise<SyncResult> {
         skipped++;
         continue;
       }
-      const when = new Date(m.timestamp ?? m.createdAt ?? Date.now());
-      const out = isOutbound(m.direction);
+      const when = new Date(m.createdAt ?? Date.now());
+      const out = isOutgoing(m.direction);
       await prisma.message.create({
         data: {
           threadId: thread.id,
@@ -224,7 +253,7 @@ export async function syncQuoMessages(inboxId: string): Promise<SyncResult> {
           fromName: subject,
           direction: out ? "OUT" : "IN",
           channel: "SMS",
-          body: m.body ?? m.text ?? "",
+          body: m.text ?? m.body ?? "",
           sentAt: when,
         },
       });
@@ -241,18 +270,20 @@ export async function syncQuoMessages(inboxId: string): Promise<SyncResult> {
   return { fetched, created, skipped };
 }
 
-export async function syncQuoCalls(inboxId: string): Promise<SyncResult> {
-  const data = await quoCall<{ calls?: QuoCallPayload[]; data?: QuoCallPayload[] }>(
-    QUO_ENDPOINTS.calls(inboxId)
+export async function syncQuoCalls(phoneNumberId: string): Promise<SyncResult> {
+  const data = await quoCall<{ data?: QuoCallPayload[] }>(
+    `${QUO_ENDPOINTS.calls}?phoneNumberId=${encodeURIComponent(phoneNumberId)}`
   );
-  const calls = data.calls ?? data.data ?? [];
+  const calls = data.data ?? [];
+  const ownNumber = (await readConfig())?.defaultPhoneNumberName ?? null;
   let created = 0;
   let skipped = 0;
 
   for (const c of calls) {
-    const phone = c.contactPhone ?? c.phone ?? "";
-    const name = c.contactName?.trim() || phone || "Unknown";
-    // Voice activity shares the conversation thread keyed by phone.
+    const phone = c.participants
+      ? otherParty(c.participants, ownNumber)
+      : toE164(isOutgoing(c.direction) ? c.to : c.from) ?? "Unknown";
+    const name = phone;
     const convKey = `quo-voice-${toE164(phone) ?? c.id}`;
     let thread = await prisma.thread.findUnique({ where: { quoConversationId: convKey } });
     if (!thread) {
@@ -272,13 +303,13 @@ export async function syncQuoCalls(inboxId: string): Promise<SyncResult> {
       skipped++;
       continue;
     }
-    const when = new Date(c.timestamp ?? c.createdAt ?? Date.now());
+    const when = new Date(c.createdAt ?? Date.now());
     await prisma.message.create({
       data: {
         threadId: thread.id,
         quoMessageId: callKey,
         fromName: name,
-        direction: isOutbound(c.direction) ? "OUT" : "IN",
+        direction: isOutgoing(c.direction) ? "OUT" : "IN",
         channel: "CALL_NOTE",
         body: mapQuoCallToBody(c, name),
         sentAt: when,

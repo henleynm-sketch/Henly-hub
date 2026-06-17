@@ -341,8 +341,8 @@ model M365Config {
 model QuoConfig {
   id               String    @id @default("singleton")
   apiKey           String?   // TODO: encrypt at rest (no encryption helper in codebase)
-  defaultInboxId   String?
-  defaultInboxName String?
+  defaultPhoneNumberId   String?
+  defaultPhoneNumberName String?
   apiBase          String?   // optional override; defaults to the standard Quo API base
   lastSyncAt       DateTime?
   lastSyncOk       Boolean?

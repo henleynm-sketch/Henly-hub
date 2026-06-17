@@ -4,17 +4,17 @@ import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import {
   saveQuoCredentials,
-  saveQuoInbox,
+  saveQuoPhoneNumber,
   testQuo,
   disconnectQuo,
   syncQuoNow,
 } from "@/app/(app)/settings/quoActions";
-import type { Inbox } from "@/lib/quo";
+import type { PhoneNumber } from "@/lib/quo";
 
 export type QuoCardData = {
   configured: boolean;
   connected: boolean;
-  defaultInboxName: string | null;
+  defaultPhoneNumberName: string | null; // already "Name · +E.164"
   apiKeyMasked: string | null;
   hasKey: boolean;
   apiBase: string | null;
@@ -34,7 +34,8 @@ function relative(iso: string | null): string {
   return `${Math.round(hrs / 24)}d ago`;
 }
 
-const HENLEY_LINE = "705";
+// Henley's main line; used to default-select the right phone number.
+const HENLEY_LINE = "705242";
 
 export default function QuoCard({
   data,
@@ -50,9 +51,9 @@ export default function QuoCard({
   const [confirmDisconnect, setConfirmDisconnect] = useState(false);
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null);
   const [sheetError, setSheetError] = useState<string | null>(null);
-  const [step, setStep] = useState<"creds" | "inbox">("creds");
-  const [inboxes, setInboxes] = useState<Inbox[]>([]);
-  const [pickedInbox, setPickedInbox] = useState<string>("");
+  const [step, setStep] = useState<"creds" | "number">("creds");
+  const [numbers, setNumbers] = useState<PhoneNumber[]>([]);
+  const [picked, setPicked] = useState<string>("");
 
   function flash(ok: boolean, msg: string) {
     setToast({ ok, msg });
@@ -60,7 +61,7 @@ export default function QuoCard({
   }
   function openSheet() {
     setStep("creds");
-    setInboxes([]);
+    setNumbers([]);
     setSheetError(null);
     setSheetOpen(true);
   }
@@ -73,21 +74,22 @@ export default function QuoCard({
         setSheetError(`Quo says: ${r.error ?? "request failed"}`);
         return;
       }
-      const list = r.inboxes ?? [];
-      setInboxes(list);
+      const list = r.phoneNumbers ?? [];
+      setNumbers(list);
       const henley = list.find(
-        (i) => i.number?.includes(HENLEY_LINE) || i.name?.includes(HENLEY_LINE)
+        (p) => p.number?.replace(/\D/g, "").includes(HENLEY_LINE) || p.name?.includes("Henley")
       );
-      setPickedInbox(henley?.id ?? list[0]?.id ?? "");
-      setStep("inbox");
+      setPicked(henley?.id ?? list[0]?.id ?? "");
+      setStep("number");
     });
   }
-  function onSaveInbox() {
+  function onSaveNumber() {
     start(async () => {
-      const name = inboxes.find((i) => i.id === pickedInbox)?.name ?? "";
-      const r = await saveQuoInbox(pickedInbox, name);
+      const pn = numbers.find((p) => p.id === picked);
+      const displayName = pn ? `${pn.name} · ${pn.number}` : "";
+      const r = await saveQuoPhoneNumber(picked, displayName);
       if (!r.ok) {
-        setSheetError(r.error ?? "Could not save inbox");
+        setSheetError(r.error ?? "Could not save phone number");
         return;
       }
       setSheetOpen(false);
@@ -135,7 +137,7 @@ export default function QuoCard({
       ) : (
         <>
           <span className="hh-secondary">
-            {data.defaultInboxName ?? "Inbox not selected"} · key {data.apiKeyMasked}
+            {data.defaultPhoneNumberName ?? "Phone number not selected"} · key {data.apiKeyMasked}
           </span>
           <span className="hh-secondary">
             {data.connected
@@ -204,8 +206,9 @@ export default function QuoCard({
             {step === "creds" ? (
               <>
                 <p className="hh-caption mt-2">
-                  Generate an API key in Quo → Settings → API. Paste it here. We&apos;ll fetch your
-                  inboxes and ask which one to sync.
+                  Generate an API key in Quo → Workspace settings → API (workspace owner or admin only).
+                  Paste it here. We&apos;ll fetch your phone numbers and ask which one to sync. Quo calls
+                  these &ldquo;inboxes&rdquo; in the app — same thing.
                 </p>
                 <form action={onSaveCreds} className="mt-4 flex flex-col gap-3">
                   <div>
@@ -224,8 +227,8 @@ export default function QuoCard({
                   </div>
                   <div>
                     <label className="hh-label block mb-1.5">API base (optional)</label>
-                    <input name="apiBase" className="input" defaultValue={data.apiBase ?? ""} placeholder="https://api.quo.com/v1" />
-                    <p className="hh-caption mt-1">Only change if Quo support gave you a different URL.</p>
+                    <input name="apiBase" className="input" defaultValue={data.apiBase ?? ""} placeholder="https://api.openphone.com" />
+                    <p className="hh-caption mt-1">Quo&apos;s API still uses openphone.com — this is correct, not a typo.</p>
                   </div>
                   {sheetError && (
                     <div className="flex items-center gap-2">
@@ -244,18 +247,19 @@ export default function QuoCard({
               </>
             ) : (
               <>
-                <p className="hh-caption mt-2">Connection works. Pick the inbox to sync into the Hub.</p>
+                <p className="hh-caption mt-2">Connection works. Pick the phone number to sync into the Hub.</p>
                 <div className="mt-4 flex flex-col gap-3">
                   <div>
-                    <label className="hh-label block mb-1.5">Default inbox</label>
-                    <select className="input" value={pickedInbox} onChange={(e) => setPickedInbox(e.target.value)}>
-                      {inboxes.length === 0 && <option value="">No inboxes returned</option>}
-                      {inboxes.map((i) => (
-                        <option key={i.id} value={i.id}>
-                          {i.name}{i.number ? ` · ${i.number}` : ""}
+                    <label className="hh-label block mb-1.5">Phone number to sync</label>
+                    <select className="input" value={picked} onChange={(e) => setPicked(e.target.value)}>
+                      {numbers.length === 0 && <option value="">No phone numbers returned</option>}
+                      {numbers.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}{p.number ? ` · ${p.number}` : ""}
                         </option>
                       ))}
                     </select>
+                    <p className="hh-caption mt-1">Quo calls these &ldquo;inboxes&rdquo; in the app; the API calls them phone numbers.</p>
                   </div>
                   {sheetError && (
                     <div className="flex items-center gap-2">
@@ -265,7 +269,7 @@ export default function QuoCard({
                   )}
                   <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end mt-1">
                     <button type="button" className="btn-secondary w-full sm:w-auto" onClick={() => setStep("creds")}>Back</button>
-                    <button type="button" className="btn-primary w-full sm:w-auto inline-flex items-center justify-center gap-1.5" disabled={pending || !pickedInbox} onClick={onSaveInbox}>
+                    <button type="button" className="btn-primary w-full sm:w-auto inline-flex items-center justify-center gap-1.5" disabled={pending || !picked} onClick={onSaveNumber}>
                       {pending && <Loader2 size={14} className="animate-spin" />}
                       Save
                     </button>
