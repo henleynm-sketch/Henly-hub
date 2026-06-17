@@ -20,6 +20,22 @@ const QUO_ENDPOINTS = {
   calls: "/v1/calls",
 };
 
+// Quo serializes array query params with bracket notation, e.g.
+// participants[]=+1555..., phoneNumbers[]=PN... . maxResults is required on
+// the list endpoints.
+function quoQuery(params: Record<string, string | number | string[] | undefined>): string {
+  const sp = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined) continue;
+    if (Array.isArray(value)) {
+      for (const item of value) sp.append(`${key}[]`, item);
+    } else {
+      sp.append(key, String(value));
+    }
+  }
+  return sp.toString();
+}
+
 export class QuoError extends Error {
   constructor(message: string) {
     super(message);
@@ -181,10 +197,9 @@ function isOutgoing(d: string | undefined): boolean {
   return d === "outgoing" || d === "out" || d === "outbound";
 }
 
-function otherParty(parts: string[] | undefined, ownNumber: string | null): string {
-  const own = toE164(ownNumber);
-  const list = (parts ?? []).map((p) => toE164(p)).filter(Boolean) as string[];
-  return list.find((p) => p !== own) ?? list[0] ?? "Unknown";
+// Conversation.participants already excludes our own Quo number, in E.164.
+function participantsE164(parts: string[] | undefined): string[] {
+  return (parts ?? []).map((p) => toE164(p)).filter(Boolean) as string[];
 }
 
 function mapDuration(sec: number | undefined): string {
@@ -208,17 +223,18 @@ export type SyncResult = { fetched: number; created: number; skipped: number };
 
 export async function syncQuoMessages(phoneNumberId: string): Promise<SyncResult> {
   const convData = await quoCall<{ data?: QuoConversation[] }>(
-    `${QUO_ENDPOINTS.conversations}?phoneNumberId=${encodeURIComponent(phoneNumberId)}`
+    `${QUO_ENDPOINTS.conversations}?${quoQuery({ phoneNumbers: [phoneNumberId], maxResults: 100 })}`
   );
   const conversations = convData.data ?? [];
-  const ownNumber = (await readConfig())?.defaultPhoneNumberName ?? null;
   let fetched = 0;
   let created = 0;
   let skipped = 0;
 
   for (const conv of conversations) {
-    const phone = otherParty(conv.participants, ownNumber);
-    const subject = conv.name?.trim() || phone || "Unknown";
+    const others = participantsE164(conv.participants);
+    if (others.length === 0) continue;
+    const phone = others[0];
+    const subject = conv.name?.trim() || phone;
     const convKey = `quo-conv-${conv.id}`;
     let thread = await prisma.thread.findUnique({ where: { quoConversationId: convKey } });
     if (!thread) {
@@ -234,7 +250,7 @@ export async function syncQuoMessages(phoneNumberId: string): Promise<SyncResult
     }
 
     const msgData = await quoCall<{ data?: QuoMessagePayload[] }>(
-      `${QUO_ENDPOINTS.messages}?conversationId=${encodeURIComponent(conv.id)}`
+      `${QUO_ENDPOINTS.messages}?${quoQuery({ phoneNumberId, participants: others, maxResults: 100 })}`
     );
     for (const m of msgData.data ?? []) {
       fetched++;
@@ -271,20 +287,28 @@ export async function syncQuoMessages(phoneNumberId: string): Promise<SyncResult
 }
 
 export async function syncQuoCalls(phoneNumberId: string): Promise<SyncResult> {
-  const data = await quoCall<{ data?: QuoCallPayload[] }>(
-    `${QUO_ENDPOINTS.calls}?phoneNumberId=${encodeURIComponent(phoneNumberId)}`
+  const convData = await quoCall<{ data?: QuoConversation[] }>(
+    `${QUO_ENDPOINTS.conversations}?${quoQuery({ phoneNumbers: [phoneNumberId], maxResults: 100 })}`
   );
-  const calls = data.data ?? [];
-  const ownNumber = (await readConfig())?.defaultPhoneNumberName ?? null;
+  const conversations = convData.data ?? [];
+  let fetched = 0;
   let created = 0;
   let skipped = 0;
 
-  for (const c of calls) {
-    const phone = c.participants
-      ? otherParty(c.participants, ownNumber)
-      : toE164(isOutgoing(c.direction) ? c.to : c.from) ?? "Unknown";
-    const name = phone;
-    const convKey = `quo-voice-${toE164(phone) ?? c.id}`;
+  for (const conv of conversations) {
+    const others = participantsE164(conv.participants);
+    if (others.length === 0) continue;
+    const phone = others[0];
+    const name = conv.name?.trim() || phone;
+
+    // /v1/calls is limited to one participant (1:1 conversations only).
+    const callData = await quoCall<{ data?: QuoCallPayload[] }>(
+      `${QUO_ENDPOINTS.calls}?${quoQuery({ phoneNumberId, participants: [phone], maxResults: 100 })}`
+    );
+    const calls = callData.data ?? [];
+    if (calls.length === 0) continue;
+
+    const convKey = `quo-voice-${conv.id}`;
     let thread = await prisma.thread.findUnique({ where: { quoConversationId: convKey } });
     if (!thread) {
       thread = await prisma.thread.create({
@@ -297,29 +321,33 @@ export async function syncQuoCalls(phoneNumberId: string): Promise<SyncResult> {
         },
       });
     }
-    const callKey = `quo-call-${c.id}`;
-    const existing = await prisma.message.findUnique({ where: { quoMessageId: callKey } });
-    if (existing) {
-      skipped++;
-      continue;
+
+    for (const c of calls) {
+      fetched++;
+      const callKey = `quo-call-${c.id}`;
+      const existing = await prisma.message.findUnique({ where: { quoMessageId: callKey } });
+      if (existing) {
+        skipped++;
+        continue;
+      }
+      const when = new Date(c.createdAt ?? Date.now());
+      await prisma.message.create({
+        data: {
+          threadId: thread.id,
+          quoMessageId: callKey,
+          fromName: name,
+          direction: isOutgoing(c.direction) ? "OUT" : "IN",
+          channel: "CALL_NOTE",
+          body: mapQuoCallToBody(c, name),
+          sentAt: when,
+        },
+      });
+      if (when > thread.lastAt) {
+        await prisma.thread.update({ where: { id: thread.id }, data: { lastAt: when } });
+      }
+      created++;
     }
-    const when = new Date(c.createdAt ?? Date.now());
-    await prisma.message.create({
-      data: {
-        threadId: thread.id,
-        quoMessageId: callKey,
-        fromName: name,
-        direction: isOutgoing(c.direction) ? "OUT" : "IN",
-        channel: "CALL_NOTE",
-        body: mapQuoCallToBody(c, name),
-        sentAt: when,
-      },
-    });
-    if (when > thread.lastAt) {
-      await prisma.thread.update({ where: { id: thread.id }, data: { lastAt: when } });
-    }
-    created++;
   }
   await recordSync(true, `Synced ${created} new calls`);
-  return { fetched: calls.length, created, skipped };
+  return { fetched, created, skipped };
 }
