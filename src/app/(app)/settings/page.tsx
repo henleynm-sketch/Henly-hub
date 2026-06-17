@@ -3,11 +3,13 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
+import { randomBytes, createHash } from "crypto";
 import { canManageTeam, ROLE_LABELS, type Role } from "@/lib/roles";
 import PageHeader from "@/components/PageHeader";
 import M365Card, { type M365CardData } from "@/components/M365Card";
 import QuoCard, { type QuoCardData } from "@/components/QuoCard";
+import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
+import { SCOPE_GROUPS } from "@/lib/api/scopes";
 import { formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
@@ -75,7 +77,7 @@ export default async function SettingsPage({
 
   const visibleSections = isCeo
     ? SECTIONS
-    : SECTIONS.filter((s) => ["organization", "team", "integrations"].includes(s.id));
+    : SECTIONS.filter((s) => ["organization", "team", "integrations", "apikeys"].includes(s.id));
 
   const [users, departments, qboToken] = await Promise.all([
     prisma.user.findMany({ orderBy: { createdAt: "asc" }, include: { client: true, reportsTo: true } }),
@@ -100,6 +102,69 @@ export default async function SettingsPage({
   }
 
   const activeHubKey = hubKey ?? process.env.HUB_TASKS_API_KEY ?? null;
+
+  // --- v1 API keys + one-time legacy migration ---
+  let apiKeyRowsRaw = await prisma.apiKey.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      createdBy: { select: { name: true } },
+      callLogs: { orderBy: { ts: "desc" }, take: 100 },
+      audits: { orderBy: { ts: "desc" }, include: { actor: { select: { name: true } } } },
+    },
+  });
+  let legacyMigrated = false;
+  if (isCeo && apiKeyRowsRaw.length === 0 && activeHubKey) {
+    try {
+      await prisma.apiKey.create({
+        data: {
+          name: "Henley Tasks (migrated)",
+          hashPrefix: activeHubKey.slice(0, 8),
+          hash: createHash("sha256").update(activeHubKey).digest("hex"),
+          scopes: "projects:read",
+          createdById: session.user.id,
+        },
+      });
+      legacyMigrated = true;
+      apiKeyRowsRaw = await prisma.apiKey.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+          createdBy: { select: { name: true } },
+          callLogs: { orderBy: { ts: "desc" }, take: 100 },
+          audits: { orderBy: { ts: "desc" }, include: { actor: { select: { name: true } } } },
+        },
+      });
+    } catch {
+      /* best-effort migration */
+    }
+  }
+  const apiKeyRows: ApiKeyRow[] = apiKeyRowsRaw.map((k) => ({
+    id: k.id,
+    name: k.name,
+    hashPrefix: k.hashPrefix,
+    scopes: k.scopes.split(",").filter(Boolean),
+    createdByName: k.createdBy?.name ?? "—",
+    createdAt: k.createdAt.toISOString(),
+    lastUsedAt: k.lastUsedAt ? k.lastUsedAt.toISOString() : null,
+    revoked: Boolean(k.revokedAt),
+    activity: k.callLogs.map((c) => ({
+      id: c.id,
+      ts: c.ts.toISOString(),
+      method: c.method,
+      path: c.path,
+      status: c.status,
+      scopeUsed: c.scopeUsed,
+      durationMs: c.durationMs,
+    })),
+    audits: k.audits.map((a) => ({
+      id: a.id,
+      ts: a.ts.toISOString(),
+      action: a.action,
+      actorName: a.actor?.name ?? "—",
+      detail: a.detail,
+    })),
+  }));
+  const scopeGroups: ScopeGroup[] = SCOPE_GROUPS.map((g) => ({ resource: g.resource, scopes: [...g.scopes] }));
+
   const m365Configured = Boolean(m365Row?.tenantId && m365Row?.clientId && m365Row?.clientSecret && m365Row?.mailbox);
   const m365Data: M365CardData = {
     configured: m365Configured,
@@ -552,12 +617,23 @@ export default async function SettingsPage({
             </section>
 
             {/* 5 — API keys */}
-            {isCeo && (
-              <section id="apikeys" className="hh-panel p-6 flex flex-col gap-4 scroll-mt-24">
-                <h2 className="hh-label">API keys</h2>
-                <div className="hh-row hh-row--flat flex-col !items-start !gap-2">
+            <section id="apikeys" className="hh-panel p-6 flex flex-col gap-4 scroll-mt-24">
+              <h2 className="hh-label">API keys</h2>
+              {legacyMigrated && (
+                <div className="hh-row hh-row--flat">
+                  <span className="hh-secondary">
+                    Legacy Henley Tasks key was migrated into this manager. It still works against /api/external/projects.
+                  </span>
+                </div>
+              )}
+              <ApiKeysManager keys={apiKeyRows} scopeGroups={scopeGroups} isCeo={isCeo} />
+
+              {isCeo && (
+                <div className="hh-row hh-row--flat flex-col !items-start !gap-2 mt-2 border-t border-glass-border pt-4">
                   <div className="flex items-center justify-between w-full">
-                    <span className="hh-primary">HUB_TASKS_API_KEY</span>
+                    <span className="hh-primary">
+                      HUB_TASKS_API_KEY <span className="hh-caption">(legacy Door 1)</span>
+                    </span>
                     <form action={rotateHubKey}>
                       <button className="btn-secondary text-xs" type="submit">Rotate</button>
                     </form>
@@ -565,20 +641,18 @@ export default async function SettingsPage({
                   {sp.reveal === "1" && hubKey ? (
                     <>
                       <code className="hh-chip break-all">{hubKey}</code>
-                      <span className="hh-caption">
-                        Copy it now and hand it to Ayandip through a secure channel — it masks after you leave this page.
-                      </span>
+                      <span className="hh-caption">Copy it now — it masks after you leave this page.</span>
                     </>
                   ) : (
                     <code className="hh-chip">{maskKey(activeHubKey)}</code>
                   )}
                   <span className="hh-caption">
-                    The active key lives in the database (Setting table); the projects feed reads it there first and
-                    falls back to .env. Rotation takes effect immediately — the old key gets 401.
+                    Door 1 one-way feed. The active key lives in the Setting table (read there first, falls back to
+                    .env). Rotation 401s the old key immediately.
                   </span>
                 </div>
-              </section>
-            )}
+              )}
+            </section>
 
             {/* 6 — Notifications */}
             {isCeo && (
