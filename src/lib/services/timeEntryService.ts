@@ -1,7 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { NotFoundError, ValidationError, ConflictError } from "@/lib/api/errors";
+import { NotFoundError, ValidationError, ConflictError, ApiError } from "@/lib/api/errors";
 import { cursorArgs, paginate, type Pagination } from "@/lib/api/validation";
+import { pushTimeActivityToQBO } from "@/lib/services/qboService";
 
 // NOTE: the field time-clock server actions live in
 // src/app/(app)/projects/[id]/timeActions.ts and are intentionally NOT
@@ -71,15 +72,29 @@ export async function createTimeEntry(input: CreateTimeEntryInput) {
   });
 }
 
-// Marks the entry approved + qbReady. The actual QuickBooks push remains in the
-// existing internal/UI flow (timeActions.ts → pushTimeActivity) to respect the
-// QBO guardrail; the API does not trigger QBO side effects.
+// Marks the entry approved + qbReady, then triggers the same QuickBooks
+// TimeActivity push the UI approve flow runs — by CALLING the existing pusher
+// (re-exported via qboService), never editing it. The pusher self-guards against
+// double-posting (it returns the existing TimeActivity id when qbTimeActivityId
+// is already set), so a second approve pushes once. On push failure we throw so
+// the API surfaces the error and leaves the push marker unset for retry; because
+// the v1 write path only caches successful (2xx) responses for idempotency, a
+// re-sent request after a failure will retry rather than replay.
 export async function approveTimeEntry(id: string, approvedById?: string | null) {
   const entry = await getTimeEntryById(id);
   if (!entry.clockOut) throw new ConflictError("Cannot approve a time entry that is still clocked in");
-  if (entry.approved) return entry;
-  return prisma.timeEntry.update({
-    where: { id },
-    data: { approved: true, approvedById: approvedById ?? null, approvedAt: new Date(), qbReady: true },
-  });
+
+  if (!entry.approved) {
+    await prisma.timeEntry.update({
+      where: { id },
+      data: { approved: true, approvedById: approvedById ?? null, approvedAt: new Date(), qbReady: true },
+    });
+  }
+
+  const push = await pushTimeActivityToQBO(id);
+  if (!push.ok) {
+    throw new ApiError("internal", `QuickBooks push failed: ${push.error}`);
+  }
+
+  return getTimeEntryById(id);
 }
