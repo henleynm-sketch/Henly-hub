@@ -4,6 +4,14 @@ import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
 import { createDailyLog } from "@/lib/services/dailyLogService";
 import { updateMilestoneStatus } from "@/lib/services/milestoneService";
+import { listProjectChangeOrders } from "@/lib/services/changeOrderService";
+import ChangeOrders from "@/components/ChangeOrders";
+import {
+  createChangeOrder,
+  sendChangeOrder,
+  approveChangeOrder,
+  declineChangeOrder,
+} from "./changeOrderActions";
 import { auth } from "@/auth";
 import { canSeeFinancials, canViewAllProjects, isInternal } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
@@ -128,6 +136,25 @@ export default async function ProjectDetail({
   const totalEstCents = project.budgetItems.reduce((a, b) => a + b.estimateCents, 0);
   const totalActCents = project.budgetItems.reduce((a, b) => a + b.actualCents, 0);
   const overUnder = totalActCents - totalEstCents;
+
+  // Change orders: office/CEO manage all; the client sees only client-visible
+  // ones. Field/sub never see them.
+  const canManageChangeOrders = canSeeFinancials(role);
+  const showChangeOrders = canManageChangeOrders || isClient;
+  const changeOrderRows = showChangeOrders ? await listProjectChangeOrders(projectId) : [];
+  const changeOrderItems = (isClient ? changeOrderRows.filter((c) => c.clientVisible) : changeOrderRows).map((c) => ({
+    id: c.id,
+    number: c.number,
+    title: c.title,
+    description: c.description,
+    status: c.status,
+    amountCents: c.amountCents,
+    clientVisible: c.clientVisible,
+    decidedByName: c.decidedByName,
+    decidedAt: c.decidedAt,
+    createdByName: c.createdBy.name,
+    createdAt: c.createdAt,
+  }));
 
   async function addLog(formData: FormData) {
     "use server";
@@ -429,6 +456,19 @@ export default async function ProjectDetail({
                 </table>
               </div>
             </section>
+          )}
+
+          {(canManageChangeOrders || changeOrderItems.length > 0) && (
+            <ChangeOrders
+              projectId={project.id}
+              items={changeOrderItems}
+              canManage={canManageChangeOrders}
+              canDecide={canManageChangeOrders || isClient}
+              createAction={createChangeOrder}
+              sendAction={sendChangeOrder}
+              approveAction={approveChangeOrder}
+              declineAction={declineChangeOrder}
+            />
           )}
         </div>
 

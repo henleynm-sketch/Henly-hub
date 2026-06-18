@@ -35,6 +35,7 @@ model User {
   approvedTimeEntries TimeEntry[] @relation("TimeEntryApprover")
   uploadedDocuments Document[] @relation("UploadedDocuments")
   authoredContracts Contract[] @relation("ContractAuthor")
+  createdChangeOrders ChangeOrder[] @relation("ChangeOrderAuthor")
   createdApiKeys ApiKey[]      @relation("ApiKeyCreator")
   apiKeyAudits   ApiKeyAudit[] @relation("ApiKeyAudit")
   createdAt   DateTime @default(now())
@@ -91,6 +92,7 @@ model Project {
   assignments  ProjectAssignment[]
   timeEntries  TimeEntry[]
   contracts    Contract[]
+  changeOrders ChangeOrder[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -219,6 +221,7 @@ model Estimate {
   notes      String?
   lineItems  EstimateLine[]
   contracts  Contract[]
+  changeOrders ChangeOrder[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -257,6 +260,27 @@ model Contract {
   signedAt      DateTime?
   signedByName  String?
   qbInvoiceId   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model ChangeOrder {
+  id            String    @id @default(cuid())
+  number        String    @unique
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id])
+  estimateId    String?
+  estimate      Estimate? @relation(fields: [estimateId], references: [id])
+  createdById   String
+  createdBy     User      @relation("ChangeOrderAuthor", fields: [createdById], references: [id])
+  title         String
+  description   String?
+  status        String    @default("DRAFT") // DRAFT | SENT | APPROVED | DECLINED (validated in changeOrderService)
+  amountCents   Int       @default(0) // signed: positive adds scope, negative is a credit
+  clientVisible Boolean   @default(false)
+  sentAt        DateTime?
+  decidedAt     DateTime?
+  decidedByName String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
