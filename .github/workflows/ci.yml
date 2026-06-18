@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [claude/henley-hub-platform-2wIAN]
+  pull_request:
+    branches: [claude/henley-hub-platform-2wIAN]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: typecheck + build
+    runs-on: ubuntu-latest
+
+    # Placeholder values only — never real secrets. Just enough for Prisma to
+    # generate against SQLite and for Next/Auth.js to build without throwing on
+    # missing env. Real secrets live in .env / the Setting + ApiKey tables.
+    env:
+      DATABASE_URL: "file:./ci.db"
+      AUTH_SECRET: "ci-placeholder-not-a-real-secret-do-not-use"
+      AUTH_URL: "http://localhost:3000"
+      AUTH_TRUST_HOST: "true"
+      HUB_TASKS_API_KEY: ""
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: TypeScript no-emit check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
