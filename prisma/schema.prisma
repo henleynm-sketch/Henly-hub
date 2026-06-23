@@ -52,6 +52,7 @@ model Client {
   zip          String?
   stage        String    @default("LEAD") // LEAD | QUALIFIED | PROPOSAL | WON | LOST | ACTIVE | PAST
   source       String?
+  leadSource   String?    // see LEAD_SOURCE in src/lib/taxonomy.ts
   notes        String?
   qbCustomerId String?
   users        User[]    @relation("ClientUsers")
@@ -71,7 +72,7 @@ model Project {
   address      String?
   city         String?
   projectType  String?   // Custom Home | Addition | Renovation | Kitchen | Garage | ADU | Misc Small Jobs | Handyman Services | Warranty
-  status       String    @default("PLANNING") // PLANNING | DESIGN | PERMITTING | IN_PROGRESS | FINISHING | WARRANTY | CLOSING | ON_HOLD | COMPLETE
+  status       String    @default("OPEN") // CLOSED | GENERAL | OPEN | PRESALE | WARRANTY -- see isValidJobStatus in src/lib/taxonomy.ts
   currentPhase String?   // free-text operational phase (e.g. "Permitting / Design Refresh", "Finishings 80%")
   nextStep     String?   // free-text next-action description from the operational tracker
   team         String?   // comma-separated names of PMs / owners (free-text)
@@ -83,6 +84,14 @@ model Project {
   contractCents Int      @default(0)
   description  String?
   archivedAt   DateTime?  // set by the v1 API archive endpoint; never hard-deletes
+  jobType           String?    // see JOB_TYPE in src/lib/taxonomy.ts
+  pipelineStage     String?    // see PIPELINE_STAGE in src/lib/taxonomy.ts
+  constructionPhase String?    // see CONSTRUCTION_PHASE in src/lib/taxonomy.ts
+  warrantyPhase     String?    // see WARRANTY_PHASE in src/lib/taxonomy.ts
+  division          String?    // see DIVISION in src/lib/taxonomy.ts
+  projectManager    String?    // PM name (free-text; FK to User planned for later)
+  salesRep          String?    // sales rep name
+  customerPO        String?    // customer PO / reference number
   milestones   Milestone[]
   dailyLogs    DailyLog[]
   budgetItems  BudgetItem[]
@@ -383,7 +392,7 @@ model QuoConfig {
 }
 
 // --- External v1 API: per-consumer keys, audit trail, and call log -------
-// These power the /api/v1 surface. The full key is never stored — only its
+// These power the /api/v1 surface. The full key is never stored â€” only its
 // sha256 hash (unique) plus the first 8 chars for masked display.
 model ApiKey {
   id          String        @id @default(cuid())
