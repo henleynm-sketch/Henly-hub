@@ -1,13 +1,12 @@
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
-import { createMessage } from "@/lib/services/threadService";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { formatRelative } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
-import { revalidatePath } from "next/cache";
-import { Send, MessageSquare, Mail, MessageCircle, Phone } from "lucide-react";
+import { MessageSquare, Mail, MessageCircle, Phone } from "lucide-react";
 import type { ElementType } from "react";
+import ReplyBar from "./ReplyBar";
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
@@ -124,24 +123,6 @@ export default async function InboxPage({
         },
       })
     : null;
-
-  // ── Server action (unchanged from original) ───────────────────────────────────
-  async function send(formData: FormData) {
-    "use server";
-    const threadId = String(formData.get("threadId") || "");
-    const body = String(formData.get("body") || "").trim();
-    if (!threadId || !body) return;
-    const me = await auth();
-    if (!me?.user) return;
-    await createMessage({
-      threadId,
-      body,
-      authorId: me.user.id,
-      fromName: me.user.name ?? "Henley",
-      direction: "OUT",
-    });
-    revalidatePath("/inbox");
-  }
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -334,28 +315,8 @@ export default async function InboxPage({
                   })}
                 </div>
 
-                {/* Reply Bar — unchanged from original */}
-                <form action={send} className="border-t border-glass-border bg-row-bg p-4 shrink-0">
-                  <input type="hidden" name="threadId" value={activeThread.id} />
-                  <div className="flex items-center gap-3 bg-row-bg border border-glass-border focus-within:border-accent/40 rounded-xl p-2 transition">
-                    <textarea
-                      name="body"
-                      rows={1}
-                      className="flex-1 bg-transparent border-none outline-none text-[13.5px] text-ink placeholder:text-ink-muted resize-none py-1.5 px-1 font-normal leading-normal"
-                      placeholder={`Reply via ${activeThread.channel.replace("_", " ").toLowerCase()}...`}
-                    />
-                    <button
-                      type="submit"
-                      className="w-8 h-8 rounded-full bg-accent hover:bg-accent/90 transition flex items-center justify-center text-white shrink-0 shadow-sm"
-                      title="Send Message"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <div className="hh-caption text-center mt-2.5">
-                    Replies on Quo-linked SMS threads send through Quo. Email gateway is stubbed.
-                  </div>
-                </form>
+                {/* Reply Bar */}
+                <ReplyBar threadId={activeThread.id} channel={activeThread.channel} />
 
                 {/* Auto-scroll to bottom */}
                 <script

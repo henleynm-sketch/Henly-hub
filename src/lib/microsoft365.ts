@@ -228,3 +228,30 @@ export async function syncInbox(): Promise<SyncResult> {
     throw err;
   }
 }
+
+// Reply in-thread via Graph. Requires Mail.Send application permission.
+// Throws with verbatim Graph error on failure.
+export async function sendReply(graphMessageId: string, body: string): Promise<void> {
+  const creds = await getM365Credentials();
+  if (!creds) throw new Error("Microsoft 365 is not configured");
+  const token = await getGraphToken(creds);
+  const res = await fetch(
+    `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(creds.mailbox)}/messages/${encodeURIComponent(graphMessageId)}/reply`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ comment: body }),
+      cache: "no-store",
+    }
+  );
+  if (res.ok) return; // 202 Accepted — no response body
+  const errBody = (await res.json().catch(() => ({}))) as {
+    error?: { code?: string; message?: string };
+  };
+  const code = errBody.error?.code ?? "";
+  const msg = errBody.error?.message ?? `Graph reply failed (HTTP ${res.status})`;
+  throw new Error(code ? `${code}: ${msg}` : msg);
+}
