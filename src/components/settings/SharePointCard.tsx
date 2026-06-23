@@ -70,34 +70,29 @@ export function SharePointCard({ initialSiteUrl, initialSiteId }: Props) {
     }
   }
 
-  // ── Status pill ───────────────────────────────────────────────────────────
+  // ── Status badge ──────────────────────────────────────────────────────────
 
-  function StatusPill() {
-    if (connected) {
-      return (
-        <span className="hh-badge hh-badge-success text-xs">Connected</span>
-      );
-    }
-    if (siteUrl) {
-      return (
-        <span className="hh-badge hh-badge-warning text-xs">Configured</span>
-      );
-    }
-    return (
-      <span className="hh-badge hh-badge-neutral text-xs">Not configured</span>
-    );
-  }
+  const statusBadge = connected ? (
+    <span className="hh-badge hh-badge--success">connected</span>
+  ) : siteUrl ? (
+    <span className="hh-badge">configured</span>
+  ) : (
+    <span className="hh-badge hh-badge--warning">not configured</span>
+  );
 
   return (
-    <div className="hh-card p-6 flex flex-col gap-5">
+    <div className="hh-row hh-row--flat flex-col !items-start !gap-3">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-3">
           {/* SharePoint icon — inline SVG to avoid an external dep */}
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--hh-surface-2)]">
+          <div
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+            style={{ background: "var(--hh-chip-bg)" }}
+          >
             <svg
               viewBox="0 0 24 24"
-              className="h-5 w-5"
+              className="h-4 w-4"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
@@ -110,27 +105,24 @@ export function SharePointCard({ initialSiteUrl, initialSiteId }: Props) {
               />
             </svg>
           </div>
-
-          <div>
-            <h3 className="hh-heading text-sm font-semibold">SharePoint</h3>
-            <p className="hh-text-muted text-xs mt-0.5">
-              Browse document libraries from your SharePoint site.
-            </p>
-          </div>
+          <span className="hh-primary">SharePoint</span>
         </div>
-
-        <StatusPill />
+        {statusBadge}
       </div>
 
+      <span className="hh-secondary">
+        Browse document libraries from your SharePoint site.
+      </span>
+
       {/* Site URL input */}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="sp-site-url" className="hh-label text-xs">
+      <div className="flex flex-col gap-1.5 w-full">
+        <label htmlFor="sp-site-url" className="hh-label block">
           Site URL
         </label>
         <input
           id="sp-site-url"
           type="url"
-          className="hh-input text-sm"
+          className="input"
           placeholder="https://contoso.sharepoint.com/sites/HenleyHub"
           value={siteUrl}
           onChange={(e) => {
@@ -145,71 +137,83 @@ export function SharePointCard({ initialSiteUrl, initialSiteId }: Props) {
           spellCheck={false}
         />
         {saveError && (
-          <p className="hh-text-error text-xs mt-1">{saveError}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="hh-dot hh-dot--red" />
+            <span className="hh-caption">{saveError}</span>
+          </div>
         )}
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-3">
+      <span className="flex flex-wrap gap-2">
         <button
           type="button"
-          className="hh-btn hh-btn-primary text-sm"
+          className="btn-secondary text-xs"
           onClick={handleSave}
           disabled={saving || testing || !siteUrl.trim()}
         >
           {saving ? "Saving…" : "Save"}
         </button>
-
         <button
           type="button"
-          className="hh-btn hh-btn-secondary text-sm"
+          className="btn-secondary text-xs"
           onClick={handleTest}
           disabled={saving || testing || !siteUrl.trim()}
         >
-          {testing ? "Testing…" : "Test Connection"}
+          {testing ? "Testing…" : "Test connection"}
         </button>
-      </div>
+      </span>
 
-      {/* Test result */}
+      {/* Test error */}
       {testError && (
-        <div className="hh-callout hh-callout-error text-sm rounded-lg p-3">
-          <p className="font-medium mb-0.5">Connection failed</p>
-          <p className="hh-text-muted text-xs">{testError}</p>
+        <div className="flex items-start gap-2">
+          <span className="hh-dot hh-dot--red mt-0.5 flex-shrink-0" />
+          <div>
+            <span className="hh-secondary block">Connection failed</span>
+            <span className="hh-caption">{testError}</span>
+          </div>
         </div>
       )}
 
+      {/* No drives warning */}
       {drives !== null && drives.length === 0 && (
-        <div className="hh-callout hh-callout-warning text-sm rounded-lg p-3">
-          <p>Connected — but no document libraries found on this site.</p>
+        <div className="flex items-center gap-2">
+          <span className="hh-dot hh-dot--orange" />
+          <span className="hh-secondary">
+            Connected — but no document libraries found on this site.
+          </span>
         </div>
       )}
 
+      {/* Drives list */}
       {drives !== null && drives.length > 0 && (
-        <div className="hh-callout hh-callout-success rounded-lg p-3">
-          <p className="text-sm font-medium mb-2">
-            Connected — {drives.length} document librar
-            {drives.length === 1 ? "y" : "ies"} found
-          </p>
-          <ul className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2">
+            <span className="hh-dot hh-dot--green" />
+            <span className="hh-secondary">
+              Connected —{" "}
+              {drives.length} document librar
+              {drives.length === 1 ? "y" : "ies"} found
+            </span>
+          </div>
+          <div className="flex flex-col gap-1 pl-5">
             {drives.map((d) => (
-              <li key={d.id} className="flex items-center gap-2 text-xs hh-text-muted">
-                <span aria-hidden>📁</span>
-                <span>{d.name}</span>
-                <span className="opacity-50">({d.driveType})</span>
-              </li>
+              <span key={d.id} className="hh-caption">
+                {d.name}{" "}
+                <span style={{ opacity: 0.5 }}>({d.driveType})</span>
+              </span>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 
       {/* Help text */}
-      <p className="hh-text-muted text-xs leading-relaxed">
+      <span className="hh-caption">
         Uses the Microsoft 365 app registration above — no extra credentials
-        needed. Requires{" "}
-        <strong>Sites.Read.All</strong> and{" "}
+        needed. Requires <strong>Sites.Read.All</strong> and{" "}
         <strong>Files.Read.All</strong> Application permissions with admin
         consent in Azure.
-      </p>
+      </span>
     </div>
   );
 }

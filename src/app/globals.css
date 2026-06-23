@@ -780,6 +780,8 @@ html:not(.light) .border-slate-100,
 .hh-row + .hh-row { margin-top: 8px; }
 .hh-row--flat { background: transparent; }
 .hh-row--flat:hover, .hh-row--active { background: var(--hh-row); }
+/* Integration containers are not click targets — suppress lift and hover-fill */
+.hh-row.hh-row--flat:hover { transform: none; background: transparent; }
 
 .hh-primary {
   font-size: 14px;
