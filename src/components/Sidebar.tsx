@@ -29,7 +29,8 @@ const navByRole: Record<Role, Item[]> = {
   CEO: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/inbox", label: "Inbox", icon: Inbox },
-    { href: "/clients", label: "CRM", icon: Users },
+    { href: "/clients", label: "Clients", icon: Users },
+    { href: "/crm", label: "CRM", icon: Hammer },
     { href: "/projects", label: "Projects", icon: Briefcase },
     { href: "/schedule", label: "Schedule", icon: CalendarDays },
     { href: "/estimates", label: "Estimates", icon: FileText },
@@ -43,7 +44,8 @@ const navByRole: Record<Role, Item[]> = {
   OFFICE: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/inbox", label: "Inbox", icon: Inbox },
-    { href: "/clients", label: "CRM", icon: Users },
+    { href: "/clients", label: "Clients", icon: Users },
+    { href: "/crm", label: "CRM", icon: Hammer },
     { href: "/projects", label: "Projects", icon: Briefcase },
     { href: "/schedule", label: "Schedule", icon: CalendarDays },
     { href: "/estimates", label: "Estimates", icon: FileText },
