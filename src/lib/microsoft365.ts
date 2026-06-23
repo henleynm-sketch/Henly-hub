@@ -105,15 +105,20 @@ export async function testM365Connection(): Promise<TestResult> {
   if (!creds) return { ok: false, error: "Microsoft 365 is not configured" };
   try {
     const token = await getGraphToken(creds);
+    // Hit /mailFolders/inbox — requires Mail.Read (app-only), not User.Read.All.
     const res = await fetch(
-      `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(creds.mailbox)}?$select=mail,displayName`,
+      `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(creds.mailbox)}/mailFolders/inbox`,
       { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }
     );
     if (!res.ok) {
-      const data = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
-      const lookupErr = data.error?.message ?? `Mailbox lookup failed (HTTP ${res.status})`;
-      await recordSync(false, lookupErr);
-      return { ok: false, error: lookupErr };
+      const body = (await res.json().catch(() => ({}))) as {
+        error?: { code?: string; message?: string };
+      };
+      const code = body.error?.code ?? "";
+      const msg = body.error?.message ?? `HTTP ${res.status}`;
+      const verbatim = code ? `${code}: ${msg}` : msg;
+      await recordSync(false, verbatim);
+      return { ok: false, error: verbatim };
     }
     await recordSync(true, "Connection test passed");
     return { ok: true };
@@ -153,8 +158,12 @@ export async function syncInbox(): Promise<SyncResult> {
       { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }
     );
     if (!res.ok) {
-      const data = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
-      throw new Error(data.error?.message ?? `Graph messages request failed (HTTP ${res.status})`);
+      const body = (await res.json().catch(() => ({}))) as {
+        error?: { code?: string; message?: string };
+      };
+      const code = body.error?.code ?? "";
+      const msg = body.error?.message ?? `Graph messages request failed (HTTP ${res.status})`;
+      throw new Error(code ? `${code}: ${msg}` : msg);
     }
     const data = (await res.json()) as { value: GraphMessage[] };
     const messages = data.value ?? [];
