@@ -1,14 +1,15 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
-import { createStoredFile, setFileVisibility, deleteFile, getFileById } from "@/lib/services/fileService";
+import { storeFileBinary, setFileVisibility, deleteFile, getFileById } from "@/lib/services/fileService";
+import { deleteObject } from "@/lib/storage";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { canViewAllProjects, isInternal } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
 import { formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
-import { writeFile, mkdir, unlink } from "fs/promises";
+import { unlink } from "fs/promises";
 import path from "path";
 
 const KINDS = ["CONTRACT", "PLAN", "PERMIT", "INVOICE", "PHOTO", "OTHER"] as const;
@@ -102,21 +103,20 @@ export default async function FilesPage({
 
     const files = formData.getAll("files") as File[];
     if (!files.length) return;
-    await mkdir(UPLOAD_DIR, { recursive: true });
+    const clientVisible = formData.get("clientVisible") === "on";
 
     for (const file of files) {
       if (!file || file.size === 0) continue;
-      const ext = path.extname(file.name) || "";
-      const filename = `${crypto.randomUUID()}${ext}`;
       const buffer = Buffer.from(await file.arrayBuffer());
-      await writeFile(path.join(UPLOAD_DIR, filename), new Uint8Array(buffer));
-      await createStoredFile({
+      // storeFileBinary routes to S3/R2 when configured, else local disk.
+      await storeFileBinary({
         projectId,
         name: file.name,
         kind,
-        url: `/uploads/documents/${filename}`,
+        bytes: buffer,
+        mimeType: file.type || null,
         sizeBytes: file.size,
-        clientVisible: formData.get("clientVisible") === "on",
+        clientVisible,
         uploadedById: me.user.id,
       });
     }
@@ -145,7 +145,10 @@ export default async function FilesPage({
     const id = String(formData.get("id") || "");
     const doc = await deleteFile(id).catch(() => null);
     if (!doc) return;
-    if (doc.url.startsWith("/uploads/documents/")) {
+    if (doc.storageKey) {
+      // Best-effort: a dangling object is not worth failing the deletion.
+      await deleteObject(doc.storageKey).catch(() => {});
+    } else if (doc.url.startsWith("/uploads/documents/")) {
       const filePath = path.join(UPLOAD_DIR, path.basename(doc.url));
       try {
         await unlink(filePath);
@@ -260,9 +263,18 @@ export default async function FilesPage({
                   <li key={d.id} className="hh-row hh-row--flat">
                     <span className={`hh-dot ${kindDot(d.kind)}`} />
                     <div className="min-w-0 flex-1">
-                      <a href={d.url} target="_blank" rel="noopener noreferrer" className="hh-primary truncate block">
-                        {d.name}
-                      </a>
+                      {d.storageKey || d.url ? (
+                        <a
+                          href={d.storageKey ? `/api/files/${d.id}` : d.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hh-primary truncate block"
+                        >
+                          {d.name}
+                        </a>
+                      ) : (
+                        <span className="hh-primary truncate block">{d.name} <span className="hh-caption">(no file)</span></span>
+                      )}
                       <div className="hh-secondary mt-0.5">
                         {d.kind.toLowerCase()} · {formatBytes(d.sizeBytes)}
                         {d.uploadedBy ? ` · ${d.uploadedBy.name}` : ""} · {formatRelative(d.createdAt)}

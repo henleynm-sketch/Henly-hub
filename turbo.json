@@ -1,0 +1,39 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "AUTH_SECRET",
+    "AUTH_URL",
+    "AUTH_TRUST_HOST",
+    "QB_ENV",
+    "QB_CLIENT_ID",
+    "QB_CLIENT_SECRET",
+    "QB_REDIRECT_URI",
+    "HUB_TASKS_API_KEY",
+    "M365_TENANT_ID",
+    "M365_CLIENT_ID",
+    "M365_CLIENT_SECRET",
+    "M365_MAILBOX",
+    "API_PORT",
+    "WEB_PORT",
+    "WEB_ORIGIN",
+    "API_ORIGIN",
+    "NEXT_PUBLIC_API_ORIGIN"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {},
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    }
+  }
+}

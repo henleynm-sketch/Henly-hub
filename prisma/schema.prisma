@@ -166,7 +166,8 @@ model Document {
   project       Project? @relation(fields: [projectId], references: [id])
   name          String
   kind          String   // CONTRACT | PLAN | PERMIT | INVOICE | PHOTO | OTHER
-  url           String   // storage URL; empty string while pending (no backend)
+  url           String   // local/public URL; empty when stored via object storage (use storageKey) or pending
+  storageKey    String?  // object key in S3/R2 when stored in cloud; null for local-disk or pending
   mimeType      String?
   pending       Boolean  @default(false) // true = metadata only, binary not stored yet
   sizeBytes     Int?
@@ -365,6 +366,8 @@ model M365Config {
   lastSyncOk   Boolean?
   lastSyncMsg  String?
   updatedAt    DateTime  @updatedAt
+  sharePointSiteUrl String @default("")
+  sharePointSiteId  String @default("")
 }
 
 model QuoConfig {

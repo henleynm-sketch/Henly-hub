@@ -26,6 +26,7 @@ export const SCOPES = [
   "messages:read",
   "messages:write",
   "users:read",
+  "sharepoint:read",
   "admin",
 ] as const;
 

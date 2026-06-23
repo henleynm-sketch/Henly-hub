@@ -7,11 +7,23 @@ import { randomBytes, createHash } from "crypto";
 import { canManageTeam, ROLE_LABELS, type Role } from "@/lib/roles";
 import PageHeader from "@/components/PageHeader";
 import M365Card, { type M365CardData } from "@/components/M365Card";
+import { SharePointCard } from "@/components/settings/SharePointCard";
 import QuoCard, { type QuoCardData } from "@/components/QuoCard";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
 import { SCOPE_GROUPS } from "@/lib/api/scopes";
 import { formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
+
+// Server-side guard shared by the CEO-only settings actions. Defined at module
+// scope (not inside the component) so the inline "use server" actions reference
+// a stable module binding instead of closing over a component-scope function —
+// closing a server action over a function is what produced the runtime
+// "requireCeo is not defined" error.
+async function requireCeo() {
+  const me = await auth();
+  if (!me?.user || !canManageTeam(me.user.role as Role)) return null;
+  return me;
+}
 
 const SECTIONS = [
   { id: "organization", label: "Organization" },
@@ -211,12 +223,6 @@ export default async function SettingsPage({
     .slice(0, 50);
 
   /* ---------------- server actions ---------------- */
-
-  async function requireCeo() {
-    const me = await auth();
-    if (!me?.user || !canManageTeam(me.user.role as Role)) return null;
-    return me;
-  }
 
   async function saveOrganization(formData: FormData) {
     "use server";
@@ -596,6 +602,7 @@ export default async function SettingsPage({
               <M365Card data={m365Data} isCeo={isCeo} canTest={role === "CEO" || role === "OFFICE"} />
 
               <QuoCard data={quoData} isCeo={isCeo} canTest={role === "CEO" || role === "OFFICE"} />
+              <SharePointCard initialSiteUrl={m365Row?.sharePointSiteUrl ?? ""} initialSiteId={m365Row?.sharePointSiteId ?? ""} />
 
               <div className="hh-row hh-row--flat flex-col !items-start !gap-2">
                 <div className="flex items-center justify-between w-full">

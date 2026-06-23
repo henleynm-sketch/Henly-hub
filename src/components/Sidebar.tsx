@@ -17,6 +17,7 @@ import {
   Home,
   Upload,
   CalendarDays,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
@@ -35,6 +36,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/contracts", label: "Contracts", icon: ClipboardList },
     { href: "/financials", label: "Financials", icon: DollarSign },
     { href: "/files", label: "Files", icon: Folder },
+    { href: "/documents", label: "Documents", icon: BookOpen },
     { href: "/import", label: "Import data", icon: Upload },
     { href: "/settings", label: "Settings", icon: Settings },
   ],
@@ -47,6 +49,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/estimates", label: "Estimates", icon: FileText },
     { href: "/contracts", label: "Contracts", icon: ClipboardList },
     { href: "/files", label: "Files", icon: Folder },
+    { href: "/documents", label: "Documents", icon: BookOpen },
     { href: "/import", label: "Import data", icon: Upload },
     { href: "/settings", label: "Settings", icon: Settings },
   ],
