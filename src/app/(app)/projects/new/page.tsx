@@ -1,7 +1,16 @@
 import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
-import { createProject } from "@/lib/services/projectService";
 import { redirect } from "next/navigation";
+import {
+  JOB_STATUS,
+  JOB_TYPE,
+  PIPELINE_STAGE,
+  DIVISION,
+  isValidJobStatus,
+  isValidJobType,
+  isValidPipelineStage,
+  isValidDivision,
+} from "@/lib/taxonomy";
 
 export default async function NewProjectPage() {
   const clients = await prisma.client.findMany({ orderBy: { name: "asc" } });
@@ -11,13 +20,27 @@ export default async function NewProjectPage() {
     const name = String(formData.get("name") || "").trim();
     const clientId = String(formData.get("clientId") || "");
     if (!name || !clientId) return;
-    const p = await createProject({
-      name,
-      clientId,
-      address: String(formData.get("address") || "") || null,
-      contractCents: Math.round(Number(formData.get("contract") || 0) * 100),
-      budgetCents: Math.round(Number(formData.get("budget") || 0) * 100),
-      description: String(formData.get("description") || "") || null,
+
+    const rawStatus = String(formData.get("status") || "OPEN");
+    const rawJobType = String(formData.get("jobType") || "");
+    const rawPipeline = String(formData.get("pipelineStage") || "");
+    const rawDivision = String(formData.get("division") || "");
+
+    const p = await prisma.project.create({
+      data: {
+        name,
+        clientId,
+        address: String(formData.get("address") || "") || null,
+        contractCents: Math.round(Number(formData.get("contract") || 0) * 100),
+        budgetCents: Math.round(Number(formData.get("budget") || 0) * 100),
+        description: String(formData.get("description") || "") || null,
+        status: isValidJobStatus(rawStatus) ? rawStatus : "OPEN",
+        jobType: isValidJobType(rawJobType) ? rawJobType : null,
+        pipelineStage: isValidPipelineStage(rawPipeline) ? rawPipeline : null,
+        division: isValidDivision(rawDivision) ? rawDivision : null,
+        projectManager: String(formData.get("projectManager") || "") || null,
+        salesRep: String(formData.get("salesRep") || "") || null,
+      },
     });
     redirect(`/projects/${p.id}`);
   }
@@ -27,10 +50,11 @@ export default async function NewProjectPage() {
       <PageHeader title="New project" />
       <form action={create} className="max-w-2xl space-y-4 p-6">
         <div className="card space-y-4 p-5">
+          {/* ── Client + name ─────────────────────────────────────────────── */}
           <div>
             <label className="label">Client</label>
             <select name="clientId" className="input mt-1" required>
-              <option value="">Select…</option>
+              <option value="">Select...</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
@@ -44,6 +68,59 @@ export default async function NewProjectPage() {
             <label className="label">Address</label>
             <input className="input mt-1" name="address" />
           </div>
+
+          {/* ── Taxonomy fields ───────────────────────────────────────────── */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">Status</label>
+              <select name="status" className="input mt-1" defaultValue="PRESALE">
+                {JOB_STATUS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Division</label>
+              <select name="division" className="input mt-1">
+                <option value="">—</option>
+                {DIVISION.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">Job type</label>
+              <select name="jobType" className="input mt-1">
+                <option value="">—</option>
+                {JOB_TYPE.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Pipeline stage</label>
+              <select name="pipelineStage" className="input mt-1">
+                <option value="">—</option>
+                {PIPELINE_STAGE.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="label">Project manager</label>
+              <input className="input mt-1" name="projectManager" placeholder="Name" />
+            </div>
+            <div>
+              <label className="label">Sales rep</label>
+              <input className="input mt-1" name="salesRep" placeholder="Name" />
+            </div>
+          </div>
+
+          {/* ── Financials ────────────────────────────────────────────────── */}
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="label">Contract ($)</label>

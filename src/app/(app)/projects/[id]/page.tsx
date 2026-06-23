@@ -480,6 +480,14 @@ export default async function ProjectDetail({
             <dl className="space-y-3.5 text-sm">
               <Field k="Status" v={project.status.replace("_", " ").toLowerCase()} />
               {project.projectType && <Field k="Type" v={project.projectType} />}
+              {project.jobType && <Field k={"Job type"} v={project.jobType} />}
+              {project.division && <Field k={"Division"} v={project.division} />}
+              {project.pipelineStage && <Field k={"Pipeline stage"} v={project.pipelineStage} />}
+              {project.constructionPhase && <Field k={"Phase"} v={project.constructionPhase} />}
+              {project.warrantyPhase && <Field k={"Warranty phase"} v={project.warrantyPhase} />}
+              {project.projectManager && <Field k={"PM"} v={project.projectManager} />}
+              {project.salesRep && <Field k={"Sales rep"} v={project.salesRep} />}
+              {project.customerPO && <Field k={"Customer PO"} v={project.customerPO} />}
               {project.city && <Field k="City" v={project.city} />}
               <Field k="Planned start" v={formatDate(project.startDate)} />
               {project.actualStart && <Field k="Actual start" v={formatDate(project.actualStart)} />}
