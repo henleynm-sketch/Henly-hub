@@ -152,3 +152,48 @@ export function buildClientFromRow(
     notes: get("notes").trim() || null,
   };
 }
+
+// Normalizes a raw "Deal Stage" string from a HubSpot deal CSV to a Henley
+// PIPELINE_STAGE constant (see src/lib/taxonomy.ts). Case-insensitive.
+// Returns null when no match is found (caller should fall back to "New Lead").
+export function normalizePipelineStage(raw: string | undefined | null): string | null {
+  if (!raw) return null;
+  const key = raw.trim().toLowerCase();
+  const map: Record<string, string> = {
+    "new lead": "New Lead",
+    "new": "New Lead",
+    "contacted": "Contacted",
+    "contact made": "Contacted",
+    "consultation booked": "Consultation Booked",
+    "consult booked": "Consultation Booked",
+    "onsite consultation complete": "Onsite Consultation Complete",
+    "onsite complete": "Onsite Consultation Complete",
+    "design proposal sent": "Design Proposal Sent",
+    "proposal sent": "Design Proposal Sent",
+    "design proposal signed": "Design Proposal Signed",
+    "proposal signed": "Design Proposal Signed",
+    "onsite kickoff": "Onsite Kickoff",
+    "kickoff": "Onsite Kickoff",
+    "budget & drawings underway": "Budget & Drawings Underway",
+    "budget and drawings underway": "Budget & Drawings Underway",
+    "drawings underway": "Budget & Drawings Underway",
+    "construction proposal sent": "Construction Proposal Sent",
+    "construction proposal": "Construction Proposal Sent",
+    "negotiation": "Negotiation",
+    "closed won": "Closed Won",
+    "won": "Closed Won",
+    "closed lost": "Closed Lost",
+    "lost": "Closed Lost",
+  };
+  return map[key] ?? null;
+}
+
+// Maps a normalized PIPELINE_STAGE to Project.status for the CRM board.
+// "Closed Won"  -> "OPEN"    (contract signed; active project; shows in default board filter)
+// "Closed Lost" -> "CLOSED"  (lost deal; hidden from default board filter)
+// everything else -> "PRESALE" (pre-contract; shows in default board filter)
+export function projectStatusForStage(stage: string | null): string {
+  if (stage === "Closed Won") return "OPEN";
+  if (stage === "Closed Lost") return "CLOSED";
+  return "PRESALE";
+}
