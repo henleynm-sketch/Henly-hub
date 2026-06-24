@@ -313,7 +313,7 @@ export default function GanttClient({
             {!selectedProjectId
               ? "Choose a project above to see its timeline."
               : isManager
-              ? "Click "Add task" to build the project timeline."
+              ? 'Click "Add task" to build the project timeline.'
               : "Tasks assigned to you will appear here once added."}
           </p>
         </div>
