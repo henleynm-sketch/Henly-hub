@@ -46,6 +46,7 @@ export default async function DashboardPage({
       where: { clientId },
       include: {
         client: true,
+
         milestones: { where: { clientVisible: true }, orderBy: { order: "asc" } },
         dailyLogs: {
           where: { clientVisible: true },

@@ -110,6 +110,7 @@ export default async function OfficeDashboard({
     prisma.timeEntry.count({ where: { approved: false, clockOut: { not: null } } }),
     prisma.selection.count({ where: { status: "PROPOSED" } }),
     prisma.dailyLog.count({ where: { createdAt: { gte: weekStart } } }),
+
     prisma.dailyLog.count({ where: { clientVisible: true, createdAt: { gte: monthStart } } }),
     prisma.qBOToken.findUnique({ where: { id: "global" } }).catch(() => null),
   ]);

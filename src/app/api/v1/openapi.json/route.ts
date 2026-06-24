@@ -238,6 +238,7 @@ function buildSpec() {
       },
 
       "/api/v1/daily-logs": {
+
         post: op({ tag: "daily-logs", summary: "Create a daily log", scope: "daily-logs:write", successStatus: "201", success: dataEnvelope(genericObject), body: obj({ projectId: str, authorId: str, notes: str, weather: strNull, crewOnSite: strNull, hoursWorked: { type: ["number", "null"] }, clientVisible: bool, photos: { type: "array", items: str } }, ["projectId", "authorId", "notes"]) }),
       },
       "/api/v1/daily-logs/{id}": {

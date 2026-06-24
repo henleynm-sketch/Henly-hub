@@ -10,8 +10,16 @@ export type CreateDailyLogInput = {
   weather?: string | null;
   crewOnSite?: string | null;
   hoursWorked?: number | null;
+
   clientVisible?: boolean;
   photos?: string[] | null; // stored as a JSON string on the row
+  // P7 structured fields
+  anticipatedDelays?: boolean;
+  materialDeliveries?: boolean;
+  safetyIncidents?: string | null;
+  tradesOnsite?: string | null;
+  unplannedTasks?: string | null;
+  internalNotes?: string | null;
 };
 
 export async function listProjectDailyLogs(projectId: string, p: Pagination) {

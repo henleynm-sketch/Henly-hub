@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import DailyLogStructuredFields from "@/components/DailyLogStructuredFields";
 import { Camera, X, Loader2, Image as ImageIcon } from "lucide-react";
 
 interface DailyLogFormProps {
@@ -139,6 +140,9 @@ export default function DailyLogForm({ addLogAction }: DailyLogFormProps) {
         />
       </div>
 
+
+      {/* P7: structured fields */}
+      <DailyLogStructuredFields mode="form" />
       {/* Photo Previews */}
       {previews.length > 0 && (
         <div className="grid grid-cols-5 gap-2 pt-1">
@@ -189,6 +193,7 @@ export default function DailyLogForm({ addLogAction }: DailyLogFormProps) {
           <label className="flex items-center gap-2 hh-secondary cursor-pointer select-none">
             <input
               type="checkbox"
+
               name="clientVisible"
               className="rounded border-slate-300 text-brand-600 focus:ring-brand-500"
               disabled={isPending}

@@ -10,8 +10,16 @@ const createDailyLogBody = z.object({
   weather: z.string().nullish(),
   crewOnSite: z.string().nullish(),
   hoursWorked: z.number().nonnegative().nullish(),
+
   clientVisible: z.boolean().optional(),
   photos: z.array(z.string()).nullish(),
+  // P7 structured fields
+  anticipatedDelays: z.boolean().optional(),
+  materialDeliveries: z.boolean().optional(),
+  safetyIncidents: z.string().nullish(),
+  tradesOnsite: z.string().nullish(),
+  unplannedTasks: z.string().nullish(),
+  internalNotes: z.string().nullish(),
 });
 
 export const POST = apiRoute("daily-logs:write", async ({ body }) => {

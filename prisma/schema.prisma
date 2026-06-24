@@ -170,6 +170,13 @@ model DailyLog {
   notes      String
   clientVisible Boolean @default(false)
   photos     String?
+  // -- Structured fields (P7) ------------------------------------------------
+  anticipatedDelays   Boolean @default(false)  // any delays expected today?
+  materialDeliveries  Boolean @default(false)  // pickups/deliveries scheduled?
+  safetyIncidents     String? // free-text; included in client-visible view
+  tradesOnsite        String? // comma-separated or narrative; client-visible
+  unplannedTasks      String? // free-text; client-visible
+  internalNotes       String? // INTERNAL ONLY — never rendered in client view
   createdAt  DateTime @default(now())
 }
 

@@ -220,6 +220,7 @@ export default async function FilesPage({
                 <input type="file" name="files" multiple required className="input input-file" />
               </div>
               <div className="md:col-span-2 flex items-center gap-2 pb-2">
+
                 <input type="checkbox" name="clientVisible" id="clientVisible" />
                 <label htmlFor="clientVisible" className="hh-secondary cursor-pointer select-none">Visible to client</label>
               </div>
