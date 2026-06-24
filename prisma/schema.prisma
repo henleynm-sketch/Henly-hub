@@ -104,6 +104,7 @@ model Project {
   timeEntries  TimeEntry[]
   contracts    Contract[]
   changeOrders ChangeOrder[]
+  warrantyItems WarrantyItem[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -458,6 +459,24 @@ model ApiCallLog {
 
   @@index([apiKeyId, ts])
   @@index([ts])
+}
+
+// ─── Warranty ─────────────────────────────────────────────────────────────────
+// Tracks deficiency items for projects in WARRANTY status.
+// warrantyPhase is a string field on Project validated against WARRANTY_PHASE.
+
+model WarrantyItem {
+  id            String    @id @default(cuid())
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id])
+  title         String
+  description   String?
+  status        String    @default("open")  // open | resolved
+  reportedAt    DateTime  @default(now())
+  resolvedAt    DateTime?
+  clientVisible Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 // ─── Job Templates ────────────────────────────────────────────────────────────

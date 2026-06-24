@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import ApplyTemplateCard from "./ApplyTemplateCard";
+import WarrantyPanel from "./WarrantyPanel";
 import { prisma } from "@/lib/prisma";
 import { createDailyLog } from "@/lib/services/dailyLogService";
 import { updateMilestoneStatus } from "@/lib/services/milestoneService";
@@ -225,6 +226,26 @@ export default async function ProjectDetail({
         orderBy: { name: 'asc' },
       })
     : [];
+
+
+  // Warranty: role-gated fetch (client sees own visible items only)
+  const warrantySession = await auth();
+  const warrantyRole = (warrantySession?.user?.role ?? "FIELD") as string;
+  const rawWarrantyItems = await prisma.warrantyItem.findMany({
+    where: warrantyRole === "CLIENT"
+      ? { projectId: project.id, clientVisible: true }
+      : { projectId: project.id },
+    orderBy: [{ status: "asc" }, { reportedAt: "asc" }],
+  });
+  const warrantyItems = rawWarrantyItems.map((wi) => ({
+    id:            wi.id,
+    title:         wi.title,
+    description:   wi.description,
+    status:        wi.status,
+    reportedAt:    wi.reportedAt.toISOString(),
+    resolvedAt:    wi.resolvedAt?.toISOString() ?? null,
+    clientVisible: wi.clientVisible,
+  }));
 
   return (
     <>
@@ -561,6 +582,12 @@ export default async function ProjectDetail({
         projectId={project.id}
         jobType={project.jobType ?? null}
         templates={matchingTemplates}
+      />
+          <WarrantyPanel
+        projectId={project.id}
+        warrantyPhase={project.warrantyPhase}
+        items={warrantyItems}
+        role={warrantyRole}
       />
         </>
   );
