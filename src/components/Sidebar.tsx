@@ -19,6 +19,7 @@ import {
   CalendarDays,
   BookOpen,
   LayoutTemplate,
+  HardHat,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
@@ -41,6 +42,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/documents", label: "Documents", icon: BookOpen },
     { href: "/import", label: "Import data", icon: Upload },
     { href: "/templates", label: "Templates", icon: LayoutTemplate },
+    { href: "/vendors",   label: "Vendors",   icon: HardHat },
     { href: "/settings", label: "Settings", icon: Settings },
   ],
   OFFICE: [
@@ -56,6 +58,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/documents", label: "Documents", icon: BookOpen },
     { href: "/import", label: "Import data", icon: Upload },
     { href: "/templates", label: "Templates", icon: LayoutTemplate },
+    { href: "/vendors",   label: "Vendors",   icon: HardHat },
     { href: "/settings", label: "Settings", icon: Settings },
   ],
   FIELD: [

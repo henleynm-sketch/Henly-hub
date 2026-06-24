@@ -87,6 +87,47 @@ export type Division = (typeof DIVISION)[number];
 export const isValidDivision = (v: string): v is Division =>
   (DIVISION as readonly string[]).includes(v);
 
+// -- Vendor Trade (Vendor.trade) -----------------------------------------------
+export const VENDOR_TRADE = [
+  "Concrete",
+  "Demolition",
+  "Drywall",
+  "Electrical",
+  "Excavation",
+  "Flooring",
+  "Framing",
+  "General",
+  "HVAC",
+  "Insulation",
+  "Landscaping",
+  "Masonry",
+  "Millwork / Cabinets",
+  "Painting",
+  "Plumbing",
+  "Roofing",
+  "Siding / Cladding",
+  "Site Services",
+  "Steel / Structural",
+  "Tile",
+  "Windows / Doors",
+  "Other",
+] as const;
+export type VendorTrade = (typeof VENDOR_TRADE)[number];
+export const isValidVendorTrade = (v: string): v is VendorTrade =>
+  (VENDOR_TRADE as readonly string[]).includes(v);
+
+// -- Vendor Type (Vendor.type) -------------------------------------------------
+export const VENDOR_TYPE = [
+  "Subcontractor",
+  "Supplier",
+  "Equipment",
+  "Professional Services",
+  "Other",
+] as const;
+export type VendorType = (typeof VENDOR_TYPE)[number];
+export const isValidVendorType = (v: string): v is VendorType =>
+  (VENDOR_TYPE as readonly string[]).includes(v);
+
 // -- Lead Source (Client.leadSource) -------------------------------------------
 export const LEAD_SOURCE = [
   "Referral",
