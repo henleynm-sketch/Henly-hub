@@ -365,10 +365,7 @@ export default function GanttClient({
                     <div className="flex items-center gap-1.5">
                       <span className="hh-primary text-sm font-medium truncate">{t.name}</span>
                       {slippage && (
-                        <AlertTriangle
-                          className="w-3.5 h-3.5 text-amber-500 shrink-0"
-                          title="Schedule slippage vs baseline"
-                        />
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                       )}
                     </div>
                     <div className="flex items-center gap-2">
