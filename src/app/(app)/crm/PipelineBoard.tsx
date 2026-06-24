@@ -188,143 +188,150 @@ export default function PipelineBoard({
       </div>
 
       {/* ── Kanban board ─────────────────────────────────────────────── */}
-      <div
-        className="flex gap-3 overflow-x-auto pb-4 px-6 flex-1"
-        aria-label="Sales pipeline board"
-      >
-        {PIPELINE_STAGE.map((stage) => {
-          const cards = visible.filter(
-            (p) => (p.pipelineStage ?? "New Lead") === stage
-          );
-          const isTarget = dropTarget === stage && draggingId !== null;
+      <div className="relative px-6">
+        {/* Right-edge scroll fade */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-6 top-0 bottom-0 w-12 z-20 bg-gradient-to-r from-transparent to-[var(--glass-bg)]"
+        />
+        <div
+          className="flex gap-3 overflow-x-auto pb-4 items-start"
+          aria-label="Sales pipeline board"
+        >
+          {PIPELINE_STAGE.map((stage) => {
+            const cards = visible.filter(
+              (p) => (p.pipelineStage ?? "New Lead") === stage
+            );
+            const isTarget = dropTarget === stage && draggingId !== null;
 
-          return (
-            <div
-              key={stage}
-              className="flex-shrink-0 w-52 flex flex-col"
-            >
-              {/* Column header */}
-              <div className="flex items-center justify-between px-1 py-1.5 mb-1">
-                <span
-                  className="text-xs font-semibold uppercase tracking-wide text-[var(--hh-muted)] truncate pr-1 leading-tight"
-                  title={stage}
-                >
-                  {stage}
-                </span>
-                <span className="text-xs font-mono text-[var(--hh-muted)] bg-[var(--hh-surface-alt)] rounded px-1.5 py-0.5 shrink-0">
-                  {cards.length}
-                </span>
-              </div>
-
-              {/* Drop zone */}
+            return (
               <div
-                className={[
-                  "flex flex-col gap-2 flex-1 min-h-20 rounded-lg p-1.5 transition-all border-2",
-                  isTarget
-                    ? "border-[var(--hh-accent)] border-dashed"
-                    : "border-transparent bg-[var(--hh-surface-alt)]",
-                ].join(" ")}
-                style={{ minHeight: "5rem" }}
-                onDragOver={(e) => handleDragOver(e, stage)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, stage)}
-                aria-label={`${stage} — ${cards.length} card${cards.length !== 1 ? "s" : ""}`}
+                key={stage}
+                className="flex-shrink-0 w-[280px] flex flex-col"
               >
-                {cards.length === 0 && (
-                  <p className="text-xs text-[var(--hh-muted)] text-center py-6 opacity-40 select-none">
-                    {isTarget ? "Drop here" : "Empty"}
-                  </p>
-                )}
-
-                {cards.map((p) => (
-                  <div
-                    key={p.id}
-                    draggable={canEdit}
-                    onDragStart={(e) => handleDragStart(e, p.id)}
-                    onDragEnd={handleDragEnd}
-                    role="article"
-                    aria-label={`${p.name}, ${p.client.name}`}
-                    className={[
-                      "card p-3 select-none transition-all rounded-lg",
-                      canEdit ? "cursor-grab active:cursor-grabbing" : "",
-                      draggingId === p.id
-                        ? "opacity-40 scale-95 shadow-lg"
-                        : "hover:shadow-md",
-                    ].join(" ")}
+                {/* Sticky column header */}
+                <div className="sticky top-0 z-10 bg-[var(--glass-bg)] flex items-center justify-between px-1 py-1.5 mb-1">
+                  <span
+                    className="text-xs font-semibold uppercase tracking-wide text-[var(--hh-muted)] truncate pr-1 leading-tight"
+                    title={stage}
                   >
-                    {/* Client name */}
-                    <p className="text-xs text-[var(--hh-muted)] truncate font-medium">
-                      {p.client.name}
+                    {stage}
+                  </span>
+                  <span className="text-xs font-mono text-[var(--hh-muted)] bg-[var(--hh-surface-alt)] rounded px-1.5 py-0.5 shrink-0">
+                    {cards.length}
+                  </span>
+                </div>
+
+                {/* Drop zone */}
+                <div
+                  className={[
+                    "flex flex-col gap-2 min-h-20 rounded-lg p-1.5 transition-all border-2",
+                    isTarget
+                      ? "border-[var(--hh-accent)] border-dashed"
+                      : "border-transparent bg-[var(--hh-surface-alt)]",
+                  ].join(" ")}
+                  style={{ minHeight: "5rem" }}
+                  onDragOver={(e) => handleDragOver(e, stage)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, stage)}
+                  aria-label={`${stage} — ${cards.length} card${cards.length !== 1 ? "s" : ""}`}
+                >
+                  {cards.length === 0 && (
+                    <p className="text-xs text-[var(--hh-muted)] text-center py-6 opacity-40 select-none">
+                      {isTarget ? "Drop here" : "No projects"}
                     </p>
+                  )}
 
-                    {/* Project name → links to detail */}
-                    <Link
-                      href={`/projects/${p.id}`}
-                      className="text-sm font-semibold truncate mt-0.5 hover:text-[var(--hh-accent)] transition-colors block"
-                      tabIndex={draggingId ? -1 : 0}
+                  {cards.map((p) => (
+                    <div
+                      key={p.id}
+                      draggable={canEdit}
+                      onDragStart={(e) => handleDragStart(e, p.id)}
+                      onDragEnd={handleDragEnd}
+                      role="article"
+                      aria-label={`${p.name}, ${p.client.name}`}
+                      className={[
+                        "card p-3 select-none transition-all rounded-lg",
+                        canEdit ? "cursor-grab active:cursor-grabbing" : "",
+                        draggingId === p.id
+                          ? "opacity-40 scale-95 shadow-lg"
+                          : "hover:shadow-md hover:-translate-y-0.5",
+                      ].join(" ")}
                     >
-                      {p.name}
-                    </Link>
+                      {/* Client name */}
+                      <p className="text-xs text-[var(--hh-muted)] truncate font-medium">
+                        {p.client.name}
+                      </p>
 
-                    {/* Value + job type */}
-                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                      <span className="text-xs font-mono font-semibold text-[var(--hh-accent)]">
-                        {fmtCents(p.contractCents)}
-                      </span>
-                      {p.jobType && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--hh-surface-alt)] text-[var(--hh-muted)] max-w-[90px] truncate">
-                          {p.jobType}
+                      {/* Project name → links to detail */}
+                      <Link
+                        href={`/projects/${p.id}`}
+                        className="text-sm font-semibold truncate mt-0.5 hover:text-[var(--hh-accent)] transition-colors block"
+                        tabIndex={draggingId ? -1 : 0}
+                      >
+                        {p.name}
+                      </Link>
+
+                      {/* Value + job type */}
+                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                        <span className="text-xs font-mono tabular-nums font-semibold text-[var(--hh-accent)]">
+                          {fmtCents(p.contractCents)}
                         </span>
+                        {p.jobType && (
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--hh-surface-alt)] text-[var(--hh-muted)] max-w-[90px] truncate">
+                            {p.jobType}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Office/CEO controls */}
+                      {canEdit && (
+                        <div className="mt-2 space-y-1">
+                          <select
+                            className="w-full text-xs input py-0.5"
+                            value={p.pipelineStage ?? ""}
+                            onChange={(e) =>
+                              handleStageSelect(p.id, e.target.value)
+                            }
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`Pipeline stage for ${p.name}`}
+                          >
+                            <option value="" disabled>
+                              — stage —
+                            </option>
+                            {PIPELINE_STAGE.map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+                          <select
+                            className="w-full text-xs input py-0.5"
+                            value={p.client.leadSource ?? ""}
+                            onChange={(e) =>
+                              handleSourceSelect(p.id, e.target.value)
+                            }
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`Lead source for ${p.client.name}`}
+                          >
+                            <option value="" disabled>
+                              — lead source —
+                            </option>
+                            {LEAD_SOURCE.map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       )}
                     </div>
-
-                    {/* Office/CEO controls */}
-                    {canEdit && (
-                      <div className="mt-2 space-y-1">
-                        <select
-                          className="w-full text-xs input py-0.5"
-                          value={p.pipelineStage ?? ""}
-                          onChange={(e) =>
-                            handleStageSelect(p.id, e.target.value)
-                          }
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label={`Pipeline stage for ${p.name}`}
-                        >
-                          <option value="" disabled>
-                            — stage —
-                          </option>
-                          {PIPELINE_STAGE.map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                        <select
-                          className="w-full text-xs input py-0.5"
-                          value={p.client.leadSource ?? ""}
-                          onChange={(e) =>
-                            handleSourceSelect(p.id, e.target.value)
-                          }
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label={`Lead source for ${p.client.name}`}
-                        >
-                          <option value="" disabled>
-                            — lead source —
-                          </option>
-                          {LEAD_SOURCE.map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* ── Lead source summary ──────────────────────────────────────── */}
