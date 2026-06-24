@@ -38,6 +38,7 @@ model User {
   createdChangeOrders ChangeOrder[] @relation("ChangeOrderAuthor")
   createdApiKeys ApiKey[]      @relation("ApiKeyCreator")
   apiKeyAudits   ApiKeyAudit[] @relation("ApiKeyAudit")
+  scheduleTasks  ScheduleTask[] @relation("ScheduleTaskAssignee")
   createdAt   DateTime @default(now())
 }
 
@@ -92,6 +93,7 @@ model Project {
   projectManager    String?    // PM name (free-text; FK to User planned for later)
   salesRep          String?    // sales rep name
   customerPO        String?    // customer PO / reference number
+  scheduleTasks ScheduleTask[]
   milestones   Milestone[]
   dailyLogs    DailyLog[]
   budgetItems  BudgetItem[]
@@ -394,6 +396,26 @@ model QuoConfig {
 // --- External v1 API: per-consumer keys, audit trail, and call log -------
 // These power the /api/v1 surface. The full key is never stored â€” only its
 // sha256 hash (unique) plus the first 8 chars for masked display.
+model ScheduleTask {
+  id                String         @id @default(cuid())
+  projectId         String
+  project           Project        @relation(fields: [projectId], references: [id])
+  name              String
+  startDate         DateTime
+  endDate           DateTime
+  baselineStartDate DateTime?
+  baselineEndDate   DateTime?
+  progress          Float          @default(0)  // 0.0–1.0
+  assigneeId        String?
+  assignee          User?          @relation("ScheduleTaskAssignee", fields: [assigneeId], references: [id])
+  dependsOnId       String?
+  dependsOn         ScheduleTask?  @relation("TaskDependency", fields: [dependsOnId], references: [id])
+  dependents        ScheduleTask[] @relation("TaskDependency")
+  order             Int            @default(0)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
 model ApiKey {
   id          String        @id @default(cuid())
   name        String        // human-readable, e.g. "Henley Tasks production"

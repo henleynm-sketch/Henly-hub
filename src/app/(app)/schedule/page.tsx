@@ -1,128 +1,96 @@
-import Link from "next/link";
-import PageHeader from "@/components/PageHeader";
-import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { canViewAllProjects, isInternal } from "@/lib/roles";
+import { prisma } from "@/lib/prisma";
+import PageHeader from "@/components/PageHeader";
 import type { Role } from "@/lib/roles";
-
-function startOfWeek(d: Date) {
-  const copy = new Date(d);
-  copy.setHours(0, 0, 0, 0);
-  const day = copy.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  copy.setDate(copy.getDate() + diff);
-  return copy;
-}
-
-function addDays(d: Date, n: number) {
-  const copy = new Date(d);
-  copy.setDate(copy.getDate() + n);
-  return copy;
-}
-
-function ymd(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function sameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-
-function msBadge(s: string) {
-  if (s === "DONE") return "hh-badge hh-badge--success";
-  if (s === "BLOCKED") return "hh-badge hh-badge--danger";
-  return "hh-badge";
-}
+import GanttClient from "./GanttClient";
 
 export default async function SchedulePage({
   searchParams,
 }: {
-  searchParams: Promise<{ w?: string }>;
+  searchParams: Promise<{ projectId?: string }>;
 }) {
+  const sp = await searchParams;
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
-  const role = session.user.role as Role;
+
+  const role   = session.user.role as Role;
   const userId = session.user.id;
-  if (!isInternal(role)) {
-    return <div className="p-8 hh-secondary">The schedule is internal to the Henley team.</div>;
-  }
+  const isField = role === "FIELD" || role === "SUB";
 
-  const sp = await searchParams;
-  const anchor = sp.w ? new Date(`${sp.w}T12:00:00`) : new Date();
-  const weekStart = startOfWeek(isNaN(anchor.getTime()) ? new Date() : anchor);
-  const weekEnd = addDays(weekStart, 5); // exclusive: Mon..Fri
-  const today = new Date();
-
-  const projectScope = canViewAllProjects(role)
-    ? {}
-    : { assignments: { some: { userId } } };
-
-  const milestones = await prisma.milestone.findMany({
-    where: {
-      dueDate: { gte: weekStart, lt: weekEnd },
-      project: projectScope,
-    },
-    orderBy: { dueDate: "asc" },
-    include: { project: true },
+  // Projects accessible to this user
+  const projects = await prisma.project.findMany({
+    where: isField
+      ? { assignments: { some: { userId } }, archivedAt: null }
+      : { archivedAt: null },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, client: { select: { name: true } } },
   });
 
-  const days = [0, 1, 2, 3, 4].map((i) => addDays(weekStart, i));
-  const weekLabel = weekStart.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  const projectId = sp.projectId ?? projects[0]?.id ?? null;
+
+  // Tasks for the selected project (field sees only their assigned tasks)
+  const tasks = projectId
+    ? await prisma.scheduleTask.findMany({
+        where: {
+          projectId,
+          ...(isField ? { assigneeId: userId } : {}),
+        },
+        include: {
+          assignee:  { select: { id: true, name: true } },
+          dependsOn: { select: { id: true, name: true } },
+        },
+        orderBy: [{ order: "asc" }, { startDate: "asc" }],
+      })
+    : [];
+
+  // Team member list for the assignee picker (managers only)
+  const teamMembers =
+    role === "CEO" || role === "OFFICE"
+      ? await prisma.user.findMany({
+          where: { active: true },
+          select: { id: true, name: true, role: true },
+          orderBy: { name: "asc" },
+        })
+      : [];
+
+  const selectedProject = projects.find((p) => p.id === projectId) ?? null;
+
+  const serialisedTasks = tasks.map((t) => ({
+    id:                   t.id,
+    projectId:            t.projectId,
+    name:                 t.name,
+    startDate:            t.startDate.toISOString(),
+    endDate:              t.endDate.toISOString(),
+    baselineStartDate:    t.baselineStartDate?.toISOString() ?? null,
+    baselineEndDate:      t.baselineEndDate?.toISOString()   ?? null,
+    progress:             t.progress,
+    assigneeId:           t.assigneeId,
+    assigneeName:         t.assignee?.name ?? null,
+    dependsOnId:          t.dependsOnId,
+    dependsOnName:        t.dependsOn?.name ?? null,
+    order:                t.order,
+  }));
 
   return (
     <>
       <PageHeader
         title="Schedule"
-        subtitle={`Week of ${weekLabel} — milestones across ${canViewAllProjects(role) ? "every project" : "your projects"}.`}
-        actions={
-          <>
-            <Link href={`/schedule?w=${ymd(addDays(weekStart, -7))}`} className="btn-secondary">← Prev</Link>
-            <Link href="/schedule" className="btn-secondary">This week</Link>
-            <Link href={`/schedule?w=${ymd(addDays(weekStart, 7))}`} className="btn-secondary">Next →</Link>
-          </>
+        subtitle={
+          selectedProject
+            ? `${selectedProject.client.name} — ${selectedProject.name}`
+            : "Project Gantt timeline with baseline and progress tracking"
         }
       />
       <div className="p-6">
-        <div className="grid gap-4 md:grid-cols-5">
-          {days.map((day) => {
-            const isToday = sameDay(day, today);
-            const dayMilestones = milestones.filter((m) => m.dueDate && sameDay(m.dueDate, day));
-            return (
-              <section
-                key={ymd(day)}
-                className={`hh-panel p-4 flex flex-col gap-3 ${isToday ? "border-accent" : ""}`}
-              >
-                <div className="flex items-baseline justify-between">
-                  <span className="hh-label">
-                    {day.toLocaleDateString("en-US", { weekday: "short" })}
-                  </span>
-                  <span className={isToday ? "text-accent font-bold text-lg" : "hh-primary text-lg"}>
-                    {day.getDate()}
-                  </span>
-                </div>
-                <hr className="hh-divider" />
-                {dayMilestones.length === 0 && (
-                  <div className="hh-caption text-center py-2">—</div>
-                )}
-                <ul className="space-y-2">
-                  {dayMilestones.map((m) => (
-                    <li key={m.id}>
-                      <Link href={`/projects/${m.projectId}`} className="hh-row hh-row--flat flex-col !items-start !gap-1">
-                        <span className={`${msBadge(m.status)} !ml-0`}>milestone</span>
-                        <span className="hh-primary">{m.title}</span>
-                        <span className="hh-caption">{m.project.name}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
-        </div>
-        <p className="hh-caption mt-6">
-          Milestones come from each project plan. Day-to-day task work lives in Henley Tasks.
-        </p>
+        <GanttClient
+          projects={projects}
+          selectedProjectId={projectId}
+          tasks={serialisedTasks}
+          teamMembers={teamMembers}
+          role={role}
+          userId={userId}
+        />
       </div>
     </>
   );
