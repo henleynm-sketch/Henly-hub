@@ -263,9 +263,9 @@ export default function PipelineBoard({
                         {p.client.name}
                       </p>
 
-                      {/* Project name → links to detail */}
+                      {/* Project name → opens deal detail */}
                       <Link
-                        href={`/projects/${p.id}`}
+                        href={`/crm/${p.id}`}
                         className="text-sm font-semibold truncate mt-0.5 hover:text-[var(--hh-accent)] transition-colors block"
                         tabIndex={draggingId ? -1 : 0}
                       >

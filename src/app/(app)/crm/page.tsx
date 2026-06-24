@@ -2,10 +2,12 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import PageHeader from "@/components/PageHeader";
 import PipelineBoard from "./PipelineBoard";
+import NewLeadModal from "./NewLeadModal";
 
 export default async function CRMPage() {
   const session = await auth();
-  const role = (session?.user as { role?: string } | undefined)?.role ?? "";
+  const role =
+    (session?.user as { role?: string } | undefined)?.role ?? "";
   const canEdit = role === "OFFICE" || role === "CEO";
 
   const projects = await prisma.project.findMany({
@@ -26,7 +28,10 @@ export default async function CRMPage() {
 
   return (
     <>
-      <PageHeader title="Sales pipeline" />
+      <PageHeader
+        title="Sales pipeline"
+        actions={canEdit ? <NewLeadModal /> : undefined}
+      />
       <PipelineBoard projects={projects} canEdit={canEdit} />
     </>
   );

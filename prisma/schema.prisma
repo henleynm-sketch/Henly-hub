@@ -39,6 +39,7 @@ model User {
   createdApiKeys ApiKey[]      @relation("ApiKeyCreator")
   apiKeyAudits   ApiKeyAudit[] @relation("ApiKeyAudit")
   scheduleTasks  ScheduleTask[] @relation("ScheduleTaskAssignee")
+  crmActivities  CrmActivity[] @relation("CrmActivityAuthor")
   createdAt   DateTime @default(now())
 }
 
@@ -61,6 +62,7 @@ model Client {
   threads      Thread[]
   estimates    Estimate[]
   contracts    Contract[]
+  crmActivities CrmActivity[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -103,6 +105,7 @@ model Project {
   assignments  ProjectAssignment[]
   timeEntries  TimeEntry[]
   contracts    Contract[]
+  crmActivities CrmActivity[]
   changeOrders ChangeOrder[]
   warrantyItems WarrantyItem[]
   createdAt    DateTime  @default(now())
@@ -539,4 +542,25 @@ model Vendor {
 
   @@index([name])
   @@index([coiExpiresAt])
+}
+
+// --- CRM Activities -----------------------------------------------------------
+// Tracks notes / calls / meetings logged against a client or a deal (project).
+// Either clientId or projectId (or both) must be set -- enforced in the action.
+
+model CrmActivity {
+  id         String   @id @default(cuid())
+  type       String   // NOTE | CALL | MEETING
+  body       String
+  occurredAt DateTime @default(now())
+  authorId   String
+  author     User     @relation("CrmActivityAuthor", fields: [authorId], references: [id])
+  clientId   String?
+  client     Client?  @relation(fields: [clientId], references: [id])
+  projectId  String?
+  project    Project? @relation(fields: [projectId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@index([clientId, occurredAt])
+  @@index([projectId, occurredAt])
 }
