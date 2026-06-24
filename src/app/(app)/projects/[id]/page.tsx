@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
+import ApplyTemplateCard from "./ApplyTemplateCard";
 import { prisma } from "@/lib/prisma";
 import { createDailyLog } from "@/lib/services/dailyLogService";
 import { updateMilestoneStatus } from "@/lib/services/milestoneService";
@@ -214,6 +215,16 @@ export default async function ProjectDetail({
     await updateMilestoneStatus(id, status);
     revalidatePath(`/projects/${projectId}`);
   }
+
+
+  // Templates matching this project's job type
+  const matchingTemplates = project.jobType
+    ? await prisma.jobTemplate.findMany({
+        where: { jobType: project.jobType },
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+      })
+    : [];
 
   return (
     <>
@@ -546,7 +557,12 @@ export default async function ProjectDetail({
           />
         )}
       </div>
-    </>
+      <ApplyTemplateCard
+        projectId={project.id}
+        jobType={project.jobType ?? null}
+        templates={matchingTemplates}
+      />
+        </>
   );
 }
 

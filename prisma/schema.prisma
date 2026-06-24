@@ -144,15 +144,16 @@ model Selection {
 }
 
 model BudgetItem {
-  id           String   @id @default(cuid())
-  projectId    String
-  project      Project  @relation(fields: [projectId], references: [id])
-  category     String   // Demo, Framing, Plumbing, etc.
-  description  String
-  estimateCents Int     @default(0)
-  actualCents   Int     @default(0)
-  vendor       String?
-  createdAt    DateTime @default(now())
+  id               String   @id @default(cuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id])
+  category         String   // Demo, Framing, Plumbing, etc.
+  description      String
+  estimateCents    Int      @default(0)
+  actualCents      Int      @default(0)
+  vendor           String?
+  sourceTemplateId String?  // set when created from a template (idempotency)
+  createdAt        DateTime @default(now())
 }
 
 model DailyLog {
@@ -412,6 +413,7 @@ model ScheduleTask {
   dependsOn         ScheduleTask?  @relation("TaskDependency", fields: [dependsOnId], references: [id])
   dependents        ScheduleTask[] @relation("TaskDependency")
   order             Int            @default(0)
+  sourceTemplateId  String?        // set when created from a template (idempotency)
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
 }
@@ -456,4 +458,36 @@ model ApiCallLog {
 
   @@index([apiKeyId, ts])
   @@index([ts])
+}
+
+// ─── Job Templates ────────────────────────────────────────────────────────────
+// Hub-side template: pre-loads schedule skeleton + budget skeleton for a job type.
+// Tasks are NOT created here — they stay in Henley Tasks via Door 1.
+
+model JobTemplate {
+  id            String                 @id @default(cuid())
+  name          String
+  jobType       String                 // validated against JOB_TYPE in src/lib/taxonomy.ts
+  scheduleItems TemplateScheduleItem[]
+  budgetItems   TemplateBudgetItem[]
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+}
+
+model TemplateScheduleItem {
+  id              String      @id @default(cuid())
+  templateId      String
+  template        JobTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  name            String
+  offsetStartDays Int         @default(0)  // days from project.startDate
+  durationDays    Int         @default(1)
+  order           Int         @default(0)
+}
+
+model TemplateBudgetItem {
+  id          String      @id @default(cuid())
+  templateId  String
+  template    JobTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  category    String
+  budgetCents Int         @default(0)
 }
