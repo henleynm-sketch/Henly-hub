@@ -22,6 +22,7 @@ import { revalidatePath } from "next/cache";
 import DailyLogForm from "@/components/DailyLogForm";
 import TimeClockTab from "@/components/TimeClockTab";
 import TimeReviewTab from "@/components/TimeReviewTab";
+import SendToTasksButton from "./SendToTasksButton";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
@@ -260,6 +261,7 @@ export default async function ProjectDetail({
         actions={
           <>
             <Link href={`/inbox?clientId=${project.clientId}`} className="btn-secondary">Open inbox</Link>
+            {isInternal(role) && <SendToTasksButton projectName={project.name} />}
             {showFinancials && (
               <Link href={`/estimates/new?clientId=${project.clientId}&projectId=${project.id}`} className="btn-secondary">
                 New estimate

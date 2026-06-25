@@ -9,6 +9,7 @@ import PageHeader from "@/components/PageHeader";
 import M365Card, { type M365CardData } from "@/components/M365Card";
 import { SharePointCard } from "@/components/settings/SharePointCard";
 import QuoCard, { type QuoCardData } from "@/components/QuoCard";
+import HenleyTasksCard, { type HenleyTasksCardData } from "@/components/HenleyTasksCard";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
 import { SCOPE_GROUPS } from "@/lib/api/scopes";
 import { formatRelative } from "@/lib/utils";
@@ -97,7 +98,7 @@ export default async function SettingsPage({
     prisma.qBOToken.findUnique({ where: { id: "global" } }).catch(() => null),
   ]);
 
-  const [orgName, orgAddress, orgTz, orgFiscal, hubKey, m365Row] =
+  const [orgName, orgAddress, orgTz, orgFiscal, hubKey, m365Row, henleyTasksRow] =
     await Promise.all([
       getSetting("org.name"),
       getSetting("org.address"),
@@ -105,6 +106,7 @@ export default async function SettingsPage({
       getSetting("org.fiscalYearStart"),
       getSetting("HUB_TASKS_API_KEY"),
       prisma.m365Config.findUnique({ where: { id: "singleton" } }).catch(() => null),
+      prisma.henleyTasksConfig.findUnique({ where: { id: "singleton" } }).catch(() => null),
     ]);
   let quoRow: Awaited<ReturnType<typeof prisma.quoConfig.findUnique>> = null;
   try {
@@ -201,6 +203,19 @@ export default async function SettingsPage({
     lastSyncAt: quoRow?.lastSyncAt ? quoRow.lastSyncAt.toISOString() : null,
     lastSyncOk: quoRow?.lastSyncOk ?? null,
     lastSyncMsg: quoRow?.lastSyncMsg ?? null,
+  };
+
+  const htConfigured = Boolean(henleyTasksRow?.apiKey);
+  const henleyTasksData: HenleyTasksCardData = {
+    configured: htConfigured,
+    connected: htConfigured && henleyTasksRow?.lastTestOk === true,
+    apiKeyMasked: henleyTasksRow?.apiKey
+      ? `${henleyTasksRow.apiKey.slice(0, 6)}••••••`
+      : null,
+    apiBaseUrl: henleyTasksRow?.apiBaseUrl ?? null,
+    lastTestAt: henleyTasksRow?.lastTestAt ? henleyTasksRow.lastTestAt.toISOString() : null,
+    lastTestOk: henleyTasksRow?.lastTestOk ?? null,
+    lastTestResult: henleyTasksRow?.lastTestResult ?? null,
   };
 
   const myPrefs = await prisma.userNotificationPref
@@ -604,23 +619,11 @@ export default async function SettingsPage({
               <QuoCard data={quoData} isCeo={isCeo} canTest={role === "CEO" || role === "OFFICE"} />
               <SharePointCard initialSiteUrl={m365Row?.sharePointSiteUrl ?? ""} initialSiteId={m365Row?.sharePointSiteId ?? ""} />
 
-              <div className="hh-row hh-row--flat flex-col !items-start !gap-2">
-                <div className="flex items-center justify-between w-full">
-                  <span className="hh-primary">Henley Tasks</span>
-                  {activeHubKey ? (
-                    <span className="hh-badge hh-badge--success">key configured</span>
-                  ) : (
-                    <span className="hh-badge hh-badge--warning">key missing</span>
-                  )}
-                </div>
-                <span className="hh-secondary">
-                  HUB_TASKS_API_KEY configured: {activeHubKey ? "yes" : "no"} · <code className="hh-chip">{maskKey(activeHubKey)}</code>
-                </span>
-                <span className="hh-secondary">
-                  Henley Tasks reads from <code className="hh-chip">GET /api/external/projects</code> using a Bearer
-                  token. This is a one-way feed — the Hub does not read from Henley Tasks.
-                </span>
-              </div>
+              <HenleyTasksCard
+                data={henleyTasksData}
+                isCeo={isCeo}
+                canTest={role === "CEO" || role === "OFFICE"}
+              />
             </section>
 
             {/* 5 — API keys */}

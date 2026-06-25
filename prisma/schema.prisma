@@ -405,6 +405,17 @@ model QuoConfig {
   updatedAt        DateTime  @updatedAt
 }
 
+model HenleyTasksConfig {
+  id             String    @id @default("singleton")
+  apiBaseUrl     String    @default("https://tasks.henleycontracting.com/api")
+  apiKey         String?
+  lastTestAt     DateTime?
+  lastTestOk     Boolean?
+  lastTestResult String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
 // --- External v1 API: per-consumer keys, audit trail, and call log -------
 // These power the /api/v1 surface. The full key is never stored â€” only its
 // sha256 hash (unique) plus the first 8 chars for masked display.
