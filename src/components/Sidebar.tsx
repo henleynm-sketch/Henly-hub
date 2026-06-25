@@ -20,6 +20,7 @@ import {
   BookOpen,
   LayoutTemplate,
   HardHat,
+  ListChecks,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
@@ -34,6 +35,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/clients", label: "Clients", icon: Users },
     { href: "/crm", label: "CRM", icon: Hammer },
     { href: "/projects", label: "Projects", icon: Briefcase },
+    { href: "/tasks", label: "Tasks", icon: ListChecks },
     { href: "/schedule", label: "Schedule", icon: CalendarDays },
     { href: "/estimates", label: "Estimates", icon: FileText },
     { href: "/contracts", label: "Contracts", icon: ClipboardList },
@@ -51,6 +53,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/clients", label: "Clients", icon: Users },
     { href: "/crm", label: "CRM", icon: Hammer },
     { href: "/projects", label: "Projects", icon: Briefcase },
+    { href: "/tasks", label: "Tasks", icon: ListChecks },
     { href: "/schedule", label: "Schedule", icon: CalendarDays },
     { href: "/estimates", label: "Estimates", icon: FileText },
     { href: "/contracts", label: "Contracts", icon: ClipboardList },
@@ -64,6 +67,7 @@ const navByRole: Record<Role, Item[]> = {
   FIELD: [
     { href: "/dashboard", label: "Today", icon: LayoutDashboard },
     { href: "/projects", label: "My Jobs", icon: Hammer },
+    { href: "/tasks", label: "Tasks", icon: ListChecks },
     { href: "/schedule", label: "Schedule", icon: CalendarDays },
     { href: "/inbox", label: "Messages", icon: Inbox },
     { href: "/files", label: "Files", icon: Folder },
