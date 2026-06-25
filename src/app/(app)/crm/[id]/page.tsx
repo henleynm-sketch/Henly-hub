@@ -7,6 +7,7 @@ import PageHeader from "@/components/PageHeader";
 import { formatMoney, formatRelative } from "@/lib/utils";
 import ActivityLogger from "./ActivityLogger";
 import StageSelector from "./StageSelector";
+import LeadSourceSelector from "./LeadSourceSelector";
 
 export default async function DealDetailPage({
   params,
@@ -31,7 +32,7 @@ export default async function DealDetailPage({
   });
   if (!project) notFound();
 
-  // Also pull client-level activities not tied to a specific project
+  // Client-level activities not tied to a specific project
   const clientActivities = await prisma.crmActivity.findMany({
     where: { clientId: project.clientId, projectId: null },
     orderBy: { occurredAt: "desc" },
@@ -39,13 +40,13 @@ export default async function DealDetailPage({
   });
 
   // Merge & sort newest-first
-  const timeline = [
-    ...project.crmActivities,
-    ...clientActivities,
-  ].sort(
+  const timeline = [...project.crmActivities, ...clientActivities].sort(
     (a, b) =>
       new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime()
   );
+
+  const leadSource =
+    project.client.leadSource ?? project.client.source ?? null;
 
   return (
     <>
@@ -54,6 +55,9 @@ export default async function DealDetailPage({
         subtitle={project.client.name}
         actions={
           <>
+            <Link href={`/crm`} className="btn-secondary">
+              ← Pipeline
+            </Link>
             <Link
               href={`/clients/${project.clientId}`}
               className="btn-secondary"
@@ -116,6 +120,7 @@ export default async function DealDetailPage({
 
         {/* ── Right: deal properties + contact ── */}
         <div className="space-y-6">
+          {/* Deal properties */}
           <section className="hh-panel p-6 space-y-4">
             <h2 className="hh-label">Deal</h2>
             <dl className="space-y-3.5 text-sm">
@@ -142,10 +147,10 @@ export default async function DealDetailPage({
                   )
                 }
               />
-
             </dl>
           </section>
 
+          {/* Contact */}
           <section className="hh-panel p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="hh-label">Contact</h2>
@@ -162,7 +167,16 @@ export default async function DealDetailPage({
               <DField k="Phone" v={project.client.primaryPhone ?? "—"} />
               <DField
                 k="Lead source"
-                v={project.client.leadSource ?? project.client.source ?? "—"}
+                v={
+                  canEdit ? (
+                    <LeadSourceSelector
+                      clientId={project.clientId}
+                      current={leadSource}
+                    />
+                  ) : (
+                    <span>{leadSource ?? "—"}</span>
+                  )
+                }
               />
               <DField
                 k="City"
@@ -180,17 +194,11 @@ export default async function DealDetailPage({
   );
 }
 
-function DField({
-  k,
-  v,
-}: {
-  k: string;
-  v: ReactNode;
-}) {
+function DField({ k, v }: { k: string; v: ReactNode }) {
   return (
     <div className="flex justify-between gap-3">
       <dt className="hh-secondary shrink-0">{k}</dt>
-      <dd className="text-right">{v}</dd>
+      <dd className="text-right min-w-0">{v}</dd>
     </div>
   );
 }

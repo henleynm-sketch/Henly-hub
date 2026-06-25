@@ -1,9 +1,9 @@
 "use client";
 
-import { useOptimistic, useTransition, useState } from "react";
-import Link from "next/link";
+import { useOptimistic, useTransition, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { PIPELINE_STAGE, LEAD_SOURCE, JOB_STATUS } from "@/lib/taxonomy";
-import { setPipelineStage, setLeadSource } from "./actions";
+import { setPipelineStage } from "./actions";
 
 type ProjectData = {
   id: string;
@@ -15,15 +15,30 @@ type ProjectData = {
   client: { id: string; name: string; leadSource: string | null };
 };
 
-type OptAction =
-  | { type: "stage"; projectId: string; stage: string }
-  | { type: "source"; projectId: string; source: string };
+type OptAction = { type: "stage"; projectId: string; stage: string };
 
 function fmtCents(cents: number): string {
   return cents > 0
     ? "$" + Math.round(cents / 100).toLocaleString("en-CA")
-    : "—";
+    : "";
 }
+
+// Per-stage badge colors expressed as inline-style rgba+var pairs.
+// Using inline styles (not Tailwind arbitrary values) avoids PostCSS comma issues.
+const STAGE_BADGE: Record<string, { bg: string; color: string }> = {
+  "New Lead":                    { bg: "rgba(92,124,250,0.14)",  color: "var(--hh-accent)" },
+  "Contacted":                   { bg: "rgba(92,124,250,0.10)",  color: "var(--hh-accent)" },
+  "Consultation Booked":         { bg: "rgba(52,199,89,0.14)",   color: "var(--hh-dot-green)" },
+  "Onsite Consultation Complete":{ bg: "rgba(52,199,89,0.12)",   color: "var(--hh-dot-green)" },
+  "Design Proposal Sent":        { bg: "rgba(255,159,10,0.14)",  color: "var(--hh-dot-orange)" },
+  "Design Proposal Signed":      { bg: "rgba(255,159,10,0.20)",  color: "var(--hh-dot-orange)" },
+  "Onsite Kickoff":              { bg: "rgba(255,159,10,0.20)",  color: "var(--hh-dot-orange)" },
+  "Budget & Drawings Underway":  { bg: "rgba(255,159,10,0.20)",  color: "var(--hh-dot-orange)" },
+  "Construction Proposal Sent":  { bg: "rgba(191,90,242,0.14)",  color: "var(--hh-dot-purple)" },
+  "Negotiation":                 { bg: "rgba(191,90,242,0.20)",  color: "var(--hh-dot-purple)" },
+  "Closed Won":                  { bg: "rgba(52,199,89,0.22)",   color: "var(--hh-dot-green)" },
+  "Closed Lost":                 { bg: "rgba(255,92,92,0.14)",   color: "var(--hh-dot-red)" },
+};
 
 export default function PipelineBoard({
   projects: initial,
@@ -32,6 +47,8 @@ export default function PipelineBoard({
   projects: ProjectData[];
   canEdit: boolean;
 }) {
+  const router = useRouter();
+
   const [filterStatuses, setFilterStatuses] = useState<string[]>([
     "PRESALE",
     "OPEN",
@@ -41,20 +58,16 @@ export default function PipelineBoard({
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  // Track whether the pointer actually moved during a drag so we can
+  // distinguish a genuine click from the mouseup at the end of a drag.
+  const dragMovedRef = useRef(false);
+
   const [projects, updateOpt] = useOptimistic(
     initial,
-    (state, action: OptAction) => {
-      if (action.type === "stage") {
-        return state.map((p) =>
-          p.id === action.projectId ? { ...p, pipelineStage: action.stage } : p
-        );
-      }
-      return state.map((p) =>
-        p.id === action.projectId
-          ? { ...p, client: { ...p.client, leadSource: action.source } }
-          : p
-      );
-    }
+    (state, action: OptAction) =>
+      state.map((p) =>
+        p.id === action.projectId ? { ...p, pipelineStage: action.stage } : p
+      )
   );
 
   const visible = projects.filter((p) => {
@@ -70,14 +83,25 @@ export default function PipelineBoard({
     return acc;
   }, {});
 
-  function handleDragStart(e: React.DragEvent<HTMLDivElement>, projectId: string) {
+  // ── Drag handlers ──────────────────────────────────────────────────────────
+
+  function handleDragStart(
+    e: React.DragEvent<HTMLDivElement>,
+    projectId: string
+  ) {
     if (!canEdit) {
       e.preventDefault();
       return;
     }
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", projectId);
+    dragMovedRef.current = false;
     setDraggingId(projectId);
+  }
+
+  function handleDrag() {
+    // Any drag event means the card actually moved
+    dragMovedRef.current = true;
   }
 
   function handleDragOver(e: React.DragEvent<HTMLDivElement>, stage: string) {
@@ -109,24 +133,16 @@ export default function PipelineBoard({
     setDropTarget(null);
   }
 
-  function handleStageSelect(projectId: string, stage: string) {
-    if (!stage) return;
-    startTransition(async () => {
-      updateOpt({ type: "stage", projectId, stage });
-      await setPipelineStage(projectId, stage);
-    });
+  // ── Card click → deal record ───────────────────────────────────────────────
+
+  function handleCardClick(projectId: string) {
+    // dragMovedRef is true when the mouse actually moved in a drag sequence —
+    // skip navigation so releasing a drop doesn't also navigate.
+    if (dragMovedRef.current) return;
+    router.push(`/crm/${projectId}`);
   }
 
-  function handleSourceSelect(projectId: string, source: string) {
-    if (!source) return;
-    const clientId =
-      projects.find((p) => p.id === projectId)?.client.id ?? "";
-    if (!clientId) return;
-    startTransition(async () => {
-      updateOpt({ type: "source", projectId, source });
-      await setLeadSource(clientId, source);
-    });
-  }
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="flex flex-col gap-4 flex-1 min-h-0">
@@ -161,7 +177,7 @@ export default function PipelineBoard({
           </div>
         </div>
 
-        {/* Lead source dropdown filter */}
+        {/* Lead source filter — .input gets color-scheme from globals.css */}
         <div className="flex items-center gap-2">
           <span className="label shrink-0">Source</span>
           <select
@@ -180,7 +196,7 @@ export default function PipelineBoard({
         </div>
 
         <span className="ml-auto text-xs text-[var(--hh-muted)]">
-          {visible.length} project{visible.length !== 1 ? "s" : ""}
+          {visible.length} deal{visible.length !== 1 ? "s" : ""}
           {isPending && (
             <span className="ml-2 text-[var(--hh-accent)]">· Saving…</span>
           )}
@@ -188,14 +204,21 @@ export default function PipelineBoard({
       </div>
 
       {/* ── Kanban board ─────────────────────────────────────────────── */}
-      <div className="relative px-6">
-        {/* Right-edge scroll fade */}
+      {/*
+        overflow-x:clip clips the X overflow without creating a scroll
+        container (unlike overflow-x:hidden), so position:sticky on column
+        headers still works relative to the page. The inner overflow-x-auto
+        div provides the actual bounded horizontal scroll.
+      */}
+      <div className="relative px-6" style={{ overflowX: "clip" }}>
+        {/* Right-edge fade hint */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute right-6 top-0 bottom-0 w-12 z-20 bg-gradient-to-r from-transparent to-[var(--glass-bg)]"
         />
+
         <div
-          className="flex gap-3 overflow-x-auto pb-4 items-start"
+          className="flex gap-3 overflow-x-auto pb-4 items-start w-full scroll-smooth"
           aria-label="Sales pipeline board"
         >
           {PIPELINE_STAGE.map((stage) => {
@@ -207,17 +230,20 @@ export default function PipelineBoard({
             return (
               <div
                 key={stage}
-                className="flex-shrink-0 w-[280px] flex flex-col"
+                className="flex-shrink-0 w-52 flex flex-col"
               >
-                {/* Sticky column header */}
-                <div className="sticky top-0 z-10 bg-[var(--glass-bg)] flex items-center justify-between px-1 py-1.5 mb-1">
+                {/* Column header — sticky so it stays visible on page scroll */}
+                <div
+                  className="sticky top-0 z-10 flex items-center justify-between px-1 py-2 mb-1"
+                  style={{ background: "var(--hh-canvas)" }}
+                >
                   <span
-                    className="text-xs font-semibold uppercase tracking-wide text-[var(--hh-muted)] truncate pr-1 leading-tight"
+                    className="text-[11px] font-semibold uppercase tracking-wide text-[var(--hh-muted)] truncate pr-1 leading-tight"
                     title={stage}
                   >
                     {stage}
                   </span>
-                  <span className="text-xs font-mono text-[var(--hh-muted)] bg-[var(--hh-surface-alt)] rounded px-1.5 py-0.5 shrink-0">
+                  <span className="text-[11px] font-mono text-[var(--hh-muted)] bg-[var(--hh-surface-alt)] rounded px-1.5 py-0.5 shrink-0">
                     {cards.length}
                   </span>
                 </div>
@@ -225,7 +251,7 @@ export default function PipelineBoard({
                 {/* Drop zone */}
                 <div
                   className={[
-                    "flex flex-col gap-2 min-h-20 rounded-lg p-1.5 transition-all border-2",
+                    "flex flex-col gap-2 rounded-lg p-1.5 transition-all border-2",
                     isTarget
                       ? "border-[var(--hh-accent)] border-dashed"
                       : "border-transparent bg-[var(--hh-surface-alt)]",
@@ -234,99 +260,113 @@ export default function PipelineBoard({
                   onDragOver={(e) => handleDragOver(e, stage)}
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, stage)}
-                  aria-label={`${stage} — ${cards.length} card${cards.length !== 1 ? "s" : ""}`}
+                  aria-label={`${stage} — ${cards.length} card${
+                    cards.length !== 1 ? "s" : ""
+                  }`}
                 >
                   {cards.length === 0 && (
                     <p className="text-xs text-[var(--hh-muted)] text-center py-6 opacity-40 select-none">
-                      {isTarget ? "Drop here" : "No projects"}
+                      {isTarget ? "Drop here" : "No deals"}
                     </p>
                   )}
 
-                  {cards.map((p) => (
-                    <div
-                      key={p.id}
-                      draggable={canEdit}
-                      onDragStart={(e) => handleDragStart(e, p.id)}
-                      onDragEnd={handleDragEnd}
-                      role="article"
-                      aria-label={`${p.name}, ${p.client.name}`}
-                      className={[
-                        "card p-3 select-none transition-all rounded-lg",
-                        canEdit ? "cursor-grab active:cursor-grabbing" : "",
-                        draggingId === p.id
-                          ? "opacity-40 scale-95 shadow-lg"
-                          : "hover:shadow-md hover:-translate-y-0.5",
-                      ].join(" ")}
-                    >
-                      {/* Client name */}
-                      <p className="text-xs text-[var(--hh-muted)] truncate font-medium">
-                        {p.client.name}
-                      </p>
+                  {cards.map((p) => {
+                    const isDragging = draggingId === p.id;
+                    // Only show client name separately when it differs from the
+                    // deal name (HubSpot imports often set both to the same string)
+                    const showClient = p.client.name !== p.name;
+                    const stageBadge =
+                      STAGE_BADGE[p.pipelineStage ?? "New Lead"];
+                    const value = fmtCents(p.contractCents);
 
-                      {/* Project name → opens deal detail */}
-                      <Link
-                        href={`/crm/${p.id}`}
-                        className="text-sm font-semibold truncate mt-0.5 hover:text-[var(--hh-accent)] transition-colors block"
-                        tabIndex={draggingId ? -1 : 0}
+                    return (
+                      <div
+                        key={p.id}
+                        draggable={canEdit}
+                        onDragStart={(e) => handleDragStart(e, p.id)}
+                        onDrag={handleDrag}
+                        onDragEnd={handleDragEnd}
+                        onClick={() => handleCardClick(p.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            router.push(`/crm/${p.id}`);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={isDragging ? -1 : 0}
+                        aria-label={`${p.name}${
+                          showClient ? ` · ${p.client.name}` : ""
+                        } — open deal record`}
+                        className={[
+                          "card p-3 select-none rounded-lg outline-none",
+                          "focus-visible:ring-2 focus-visible:ring-[var(--hh-accent)]",
+                          canEdit
+                            ? "cursor-grab active:cursor-grabbing"
+                            : "cursor-pointer",
+                          isDragging
+                            ? "opacity-40 scale-95 shadow-lg"
+                            : "hover:shadow-md hover:-translate-y-px",
+                        ].join(" ")}
                       >
-                        {p.name}
-                      </Link>
-
-                      {/* Value + job type */}
-                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                        <span className="text-xs font-mono tabular-nums font-semibold text-[var(--hh-accent)]">
-                          {fmtCents(p.contractCents)}
-                        </span>
-                        {p.jobType && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--hh-surface-alt)] text-[var(--hh-muted)] max-w-[90px] truncate">
-                            {p.jobType}
-                          </span>
+                        {/* Client name — only when different from deal name */}
+                        {showClient && (
+                          <p className="text-[10px] text-[var(--hh-muted)] truncate leading-tight mb-0.5">
+                            {p.client.name}
+                          </p>
                         )}
-                      </div>
 
-                      {/* Office/CEO controls */}
-                      {canEdit && (
-                        <div className="mt-2 space-y-1">
-                          <select
-                            className="w-full text-xs input py-0.5"
-                            value={p.pipelineStage ?? ""}
-                            onChange={(e) =>
-                              handleStageSelect(p.id, e.target.value)
-                            }
-                            onClick={(e) => e.stopPropagation()}
-                            aria-label={`Pipeline stage for ${p.name}`}
-                          >
-                            <option value="" disabled>
-                              — stage —
-                            </option>
-                            {PIPELINE_STAGE.map((s) => (
-                              <option key={s} value={s}>
-                                {s}
-                              </option>
-                            ))}
-                          </select>
-                          <select
-                            className="w-full text-xs input py-0.5"
-                            value={p.client.leadSource ?? ""}
-                            onChange={(e) =>
-                              handleSourceSelect(p.id, e.target.value)
-                            }
-                            onClick={(e) => e.stopPropagation()}
-                            aria-label={`Lead source for ${p.client.name}`}
-                          >
-                            <option value="" disabled>
-                              — lead source —
-                            </option>
-                            {LEAD_SOURCE.map((s) => (
-                              <option key={s} value={s}>
-                                {s}
-                              </option>
-                            ))}
-                          </select>
+                        {/* Deal name — primary identifier */}
+                        <p className="text-sm font-semibold leading-snug truncate text-[var(--hh-text)]">
+                          {p.name}
+                        </p>
+
+                        {/* Value */}
+                        {value && (
+                          <p className="text-xs font-mono tabular-nums font-semibold text-[var(--hh-accent)] mt-1 leading-tight">
+                            {value}
+                          </p>
+                        )}
+
+                        {/* Metadata badges */}
+                        <div className="flex items-center gap-1 mt-2 flex-wrap">
+                          {p.jobType && (
+                            <span
+                              className="text-[10px] px-1.5 py-0.5 rounded truncate max-w-[72px]"
+                              style={{
+                                background: "var(--hh-surface-alt)",
+                                color: "var(--hh-muted)",
+                              }}
+                            >
+                              {p.jobType}
+                            </span>
+                          )}
+                          {p.client.leadSource && (
+                            <span
+                              className="text-[10px] px-1.5 py-0.5 rounded truncate max-w-[80px]"
+                              style={{
+                                background: "var(--hh-surface-alt)",
+                                color: "var(--hh-muted)",
+                              }}
+                            >
+                              {p.client.leadSource}
+                            </span>
+                          )}
+                          {stageBadge && (
+                            <span
+                              className="text-[10px] px-1.5 py-0.5 rounded truncate max-w-[90px] ml-auto"
+                              style={{
+                                backgroundColor: stageBadge.bg,
+                                color: stageBadge.color,
+                              }}
+                            >
+                              {p.pipelineStage}
+                            </span>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -366,7 +406,7 @@ export default function PipelineBoard({
             })}
             {LEAD_SOURCE.every((s) => (sourceCounts[s] ?? 0) === 0) && (
               <span className="text-xs text-[var(--hh-muted)]">
-                No lead sources recorded yet — set them via the cards above
+                No lead sources recorded yet — set them on the deal record
               </span>
             )}
           </div>

@@ -913,3 +913,37 @@ html:not(.light) .border-slate-100,
   scrollbar-width: none;
 }
 .touch-scroll::-webkit-scrollbar { display: none; }
+
+/* ============================================================
+   CRM — missing token aliases + native select dark-mode fix
+   ============================================================ */
+
+/* Alias tokens used in CRM components but absent from the base token block */
+:root, .dark, html.dark, [data-theme="dark"] {
+  --hh-muted:       var(--hh-text-3);
+  --hh-surface-alt: var(--hh-row);
+  --hh-dot-yellow:  #F5A623;
+}
+.light, html.light, [data-theme="light"] {
+  --hh-muted:       var(--hh-text-3);
+  --hh-surface-alt: var(--hh-row);
+  --hh-dot-yellow:  #D97706;
+}
+
+/* Force native <select> option pop-ups to use the correct OS color-scheme.
+   Without this Chrome renders options with a white/light UA background even
+   when the app is dark → white text on white background = invisible. */
+.input {
+  color-scheme: dark;
+}
+.light .input {
+  color-scheme: light;
+}
+
+/* Reduced-motion: prevent .card lift transform */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover {
+    transform: none;
+  }
+}
