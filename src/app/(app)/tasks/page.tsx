@@ -18,6 +18,7 @@ export default async function TasksPage({
     q?: string;
     offset?: string;
     limit?: string;
+    view?: string;
   }>;
 }) {
   const session = await auth();
@@ -27,9 +28,12 @@ export default async function TasksPage({
   const canCreate = role === "CEO" || role === "OFFICE";
 
   const sp = await searchParams;
+  const view = sp.view === "board" ? "board" : "list";
   const limit = Math.min(Number(sp.limit) || 50, 200);
   const offset = Math.max(Number(sp.offset) || 0, 0);
 
+  // The board shows all matching tasks (one fetch, max page size); the list
+  // paginates. Either way nothing is stored — this is a live read.
   const result = await listTasks({
     status: sp.status || undefined,
     priority: sp.priority || undefined,
@@ -37,15 +41,15 @@ export default async function TasksPage({
     due_before: sp.due_before || undefined,
     due_after: sp.due_after || undefined,
     q: sp.q || undefined,
-    limit,
-    offset,
+    limit: view === "board" ? 200 : limit,
+    offset: view === "board" ? 0 : offset,
   });
 
   // Pass a filterKey so TaskView remounts its filter inputs when URL changes
   const filterKey = [
     sp.status, sp.priority, sp.assignee,
     sp.due_before, sp.due_after, sp.q,
-    sp.offset, sp.limit,
+    sp.offset, sp.limit, view,
   ].join("|");
 
   return (
@@ -67,6 +71,7 @@ export default async function TasksPage({
         }}
         limit={limit}
         offset={offset}
+        view={view}
         canCreate={canCreate}
         writeBackEnabled={TASKS_WRITE_BACK_ENABLED}
       />

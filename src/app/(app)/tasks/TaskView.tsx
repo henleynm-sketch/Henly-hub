@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback, useTransition } from "react";
+import { useState, useCallback, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Pencil, Check, Trash2 } from "lucide-react";
+import { Plus, Pencil, Check, Trash2, RefreshCw } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import type { ListTasksResult, HenleyTask } from "@/lib/henleyTasks";
 import { createTaskAction, updateTaskAction, deleteTaskAction, type TaskPatch } from "./taskActions";
+import TaskBoard from "./TaskBoard";
 
 // Status display mapping
 const STATUS_LABEL: Record<string, string> = {
@@ -41,6 +42,7 @@ export default function TaskView({
   filters,
   limit,
   offset,
+  view,
   canCreate,
   writeBackEnabled,
 }: {
@@ -48,11 +50,14 @@ export default function TaskView({
   filters: ActiveFilters;
   limit: number;
   offset: number;
+  view: "list" | "board";
   canCreate: boolean;
   writeBackEnabled: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [syncing, startSync] = useTransition();
+  const justSynced = useRef(false);
 
   // Local state for text/date inputs — initialised from props (component remounts on key change)
   const [assignee, setAssignee] = useState(filters.assignee ?? "");
@@ -63,7 +68,7 @@ export default function TaskView({
   const [createError, setCreateError] = useState<string | null>(null);
   const [creating, startCreate] = useTransition();
   const [drawerTask, setDrawerTask] = useState<HenleyTask | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
   // Write-back (edit/status/delete) state
   const [acting, startAct] = useTransition();
@@ -79,28 +84,45 @@ export default function TaskView({
   const [drawerError, setDrawerError] = useState<string | null>(null);
   const canWrite = canCreate && writeBackEnabled;
 
-  function flash(msg: string) {
-    setToast(msg);
+  function flash(msg: string, ok = true) {
+    setToast({ msg, ok });
     setTimeout(() => setToast(null), 5000);
   }
 
+  // Sync re-pulls the current view live (respects filters + page); shows a brief
+  // "Updated" once the server re-render settles. No caching to the DB.
+  function sync() {
+    justSynced.current = true;
+    startSync(() => {
+      router.refresh();
+    });
+  }
+  useEffect(() => {
+    if (!syncing && justSynced.current) {
+      justSynced.current = false;
+      flash("Updated");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncing]);
+
   const pushFilters = useCallback(
-    (patch: Partial<ActiveFilters & { offset: number }>) => {
+    (patch: Partial<ActiveFilters & { offset: number; limit: number; view: "list" | "board" }>) => {
       const merged: Record<string, string> = {};
-      const next = { ...filters, assignee, q, offset: 0, ...patch };
+      const next = { ...filters, assignee, q, offset: 0, limit, view, ...patch };
       for (const [k, v] of Object.entries(next)) {
-        if (v !== undefined && v !== "" && String(v) !== "0") {
-          merged[k] = String(v);
-        }
+        if (v === undefined || v === "" || String(v) === "0") continue;
+        if (k === "view" && v === "list") continue; // list is the default
+        if (k === "limit" && Number(v) === 50) continue; // 50 is the default
+        merged[k] = String(v);
       }
-      // Always preserve limit if non-default
-      if (limit !== 50) merged.limit = String(limit);
       startTransition(() => {
         router.push(`/tasks?${new URLSearchParams(merged).toString()}`);
       });
     },
-    [filters, assignee, q, limit, router],
+    [filters, assignee, q, limit, view, router],
   );
+
+  const setView = (v: "list" | "board") => pushFilters({ view: v, offset: 0 });
 
   function onCreate(formData: FormData) {
     setCreateError(null);
@@ -197,6 +219,19 @@ export default function TaskView({
     });
   }
 
+  // Board drag-drop: move a card to a new status column -> PATCH, then re-fetch.
+  function moveTask(id: string, status: "open" | "in_progress" | "done") {
+    startAct(async () => {
+      const r = await updateTaskAction(id, { status });
+      if (!r.ok) {
+        flash(r.error ?? "Could not move task", false);
+        return;
+      }
+      flash(status === "done" ? "Marked done" : "Moved");
+      router.refresh();
+    });
+  }
+
   const hasFilters = !!(
     filters.status ||
     filters.priority ||
@@ -215,12 +250,37 @@ export default function TaskView({
   return (
     <div className="p-6 flex flex-col gap-4">
       {/* ── Action bar: toast + New task ───────────────────────────────── */}
-      <div className="flex items-center justify-between gap-3 min-h-[2rem]">
-        <div>
+      <div className="flex items-center justify-between gap-3 flex-wrap min-h-[2rem]">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="inline-flex rounded-lg border border-glass-border overflow-hidden">
+            <button
+              type="button"
+              className={`px-3 py-1 text-sm ${view === "list" ? "bg-accent/10 text-accent font-semibold" : "text-ink-soft hover:bg-row-hover"}`}
+              onClick={() => setView("list")}
+            >
+              List
+            </button>
+            <button
+              type="button"
+              className={`px-3 py-1 text-sm border-l border-glass-border ${view === "board" ? "bg-accent/10 text-accent font-semibold" : "text-ink-soft hover:bg-row-hover"}`}
+              onClick={() => setView("board")}
+            >
+              Board
+            </button>
+          </div>
+          <button
+            type="button"
+            className="btn-secondary text-sm inline-flex items-center gap-1.5"
+            onClick={sync}
+            disabled={syncing}
+          >
+            <RefreshCw size={14} className={syncing ? "animate-spin" : ""} />
+            {syncing ? "Syncing…" : "Sync"}
+          </button>
           {toast && (
             <span className="inline-flex items-center gap-2">
-              <span className="hh-dot hh-dot--green" />
-              <span className="hh-secondary">{toast}</span>
+              <span className={`hh-dot ${toast.ok ? "hh-dot--green" : "hh-dot--red"}`} />
+              <span className="hh-secondary">{toast.msg}</span>
             </span>
           )}
         </div>
@@ -321,7 +381,7 @@ export default function TaskView({
           <button
             type="button"
             className="btn-ghost text-xs self-end"
-            onClick={() => router.push("/tasks")}
+            onClick={() => router.push(view === "board" ? "/tasks?view=board" : "/tasks")}
           >
             Clear filters
           </button>
@@ -344,8 +404,32 @@ export default function TaskView({
         </div>
       )}
 
-      {/* ── Task table ─────────────────────────────────────────────────── */}
-      {result.ok && (
+      {/* ── Board view ─────────────────────────────────────────────────── */}
+      {result.ok && view === "board" && (
+        <div
+          className={`transition-opacity ${isPending || acting ? "opacity-60" : ""}`}
+          aria-busy={isPending || acting}
+        >
+          {tasks.length === 0 ? (
+            <div className="card p-12 text-center">
+              <p className="hh-secondary">
+                {hasFilters ? "No tasks match the current filters." : "No tasks in Henley Tasks yet."}
+              </p>
+            </div>
+          ) : (
+            <TaskBoard
+              tasks={tasks}
+              canWrite={canWrite}
+              busy={acting}
+              onMove={moveTask}
+              onOpen={openDrawer}
+            />
+          )}
+        </div>
+      )}
+
+      {/* ── Task table (list view) ─────────────────────────────────────── */}
+      {result.ok && view === "list" && (
         <>
           <div
             className={`card overflow-x-auto transition-opacity ${isPending ? "opacity-60" : ""}`}
