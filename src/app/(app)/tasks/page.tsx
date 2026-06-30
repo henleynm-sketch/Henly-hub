@@ -32,8 +32,7 @@ export default async function TasksPage({
   const limit = Math.min(Number(sp.limit) || 50, 200);
   const offset = Math.max(Number(sp.offset) || 0, 0);
 
-  // The board shows all matching tasks (one fetch, max page size); the list
-  // paginates. Either way nothing is stored — this is a live read.
+  // Both views paginate over the same live read; the Hub stores nothing.
   const result = await listTasks({
     status: sp.status || undefined,
     priority: sp.priority || undefined,
@@ -41,8 +40,8 @@ export default async function TasksPage({
     due_before: sp.due_before || undefined,
     due_after: sp.due_after || undefined,
     q: sp.q || undefined,
-    limit: view === "board" ? 200 : limit,
-    offset: view === "board" ? 0 : offset,
+    limit,
+    offset,
   });
 
   // Pass a filterKey so TaskView remounts its filter inputs when URL changes

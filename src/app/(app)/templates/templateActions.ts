@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import type { Role } from "@/lib/roles";
-import { isValidJobType } from "@/lib/taxonomy";
+import { isValidJobType, type JobType } from "@/lib/taxonomy";
 
 export type TemplateResult = { ok: boolean; error?: string };
 
@@ -257,4 +257,60 @@ export async function applyTemplate(
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/schedule");
   return { ok: true };
+}
+
+// ─── Seed standard Henley templates ─────────────────────────────────────────
+// The 9 standard job templates, each seeded with Henley's real 6-phase
+// construction skeleton as ordered schedule items. Idempotent: matched by name,
+// so re-running creates no duplicates. No budget lines or per-task detail are
+// fabricated (schedule items use their schema defaults for offset/duration).
+
+const HENLEY_TEMPLATES: { name: string; jobType: JobType }[] = [
+  { name: "Addition", jobType: "Addition" },
+  { name: "Bathroom Reno", jobType: "Bathroom" },
+  { name: "Custom Home", jobType: "Custom New Home" },
+  { name: "Detached Garage/Boathouse", jobType: "Addition" },
+  { name: "Full Home Reno", jobType: "Whole Home Remodel" },
+  { name: "Kitchen w/Flooring Reno", jobType: "Kitchen" },
+  { name: "Kitchen w/o Flooring Reno", jobType: "Kitchen" },
+  { name: "Partially Finished Basement Reno", jobType: "Basement" },
+  { name: "Unfinished Basement Reno", jobType: "Basement" },
+];
+
+const CONSTRUCTION_PHASES = [
+  "Pre-Construction",
+  "Site Prep & Foundations",
+  "Rough Structure & Exterior",
+  "Interior Finishing",
+  "Cleanup Landscaping & Handoff",
+  "Complete",
+];
+
+export type SeedResult = { ok: boolean; created?: number; skipped?: number; error?: string };
+
+export async function seedHenleyTemplates(): Promise<SeedResult> {
+  const me = await getMe();
+  if (!me || (me.role as Role) !== "CEO") return { ok: false, error: "Not authorized" };
+
+  let created = 0;
+  let skipped = 0;
+  for (const t of HENLEY_TEMPLATES) {
+    const existing = await prisma.jobTemplate.findFirst({ where: { name: t.name } });
+    if (existing) {
+      skipped += 1;
+      continue;
+    }
+    await prisma.jobTemplate.create({
+      data: {
+        name: t.name,
+        jobType: t.jobType,
+        scheduleItems: {
+          create: CONSTRUCTION_PHASES.map((name, i) => ({ name, order: i })),
+        },
+      },
+    });
+    created += 1;
+  }
+  revalidatePath("/templates");
+  return { ok: true, created, skipped };
 }

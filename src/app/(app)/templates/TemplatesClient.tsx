@@ -4,12 +4,13 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Plus, Trash2, Pencil, CalendarDays, DollarSign,
-  ChevronDown, ChevronRight, Check, X,
+  ChevronDown, ChevronRight, Check, X, Sparkles,
 } from "lucide-react";
 import {
   createTemplate, updateTemplate, deleteTemplate,
   addScheduleItem, updateScheduleItem, deleteScheduleItem,
   addBudgetItem, updateBudgetItem, deleteBudgetItem,
+  seedHenleyTemplates,
 } from "./templateActions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -82,9 +83,11 @@ function Toast({
 export default function TemplatesClient({
   templates: initial,
   jobTypes,
+  isCeo,
 }: {
   templates: Template[];
   jobTypes: string[];
+  isCeo: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -106,6 +109,23 @@ export default function TemplatesClient({
   }
 
   const selected = initial.find((t) => t.id === selectedId) ?? null;
+
+  // Idempotent seed of the 9 standard Henley templates (CEO only).
+  function handleSeed() {
+    start(async () => {
+      const r = await seedHenleyTemplates();
+      if (r.ok) {
+        const made = r.created ?? 0;
+        flash(
+          true,
+          `Seeded ${made} template${made === 1 ? "" : "s"}${r.skipped ? ` · ${r.skipped} already existed` : ""}`,
+        );
+        router.refresh();
+      } else {
+        flash(false, r.error ?? "Seed failed");
+      }
+    });
+  }
 
   // ── New / edit template header ─────────────────────────────────────────────
 
@@ -247,8 +267,21 @@ export default function TemplatesClient({
           <Plus size={14} /> New template
         </button>
 
+        {isCeo && (
+          <button
+            onClick={handleSeed}
+            className="btn-secondary flex items-center gap-1.5 text-sm justify-center"
+            disabled={pending}
+            title="Create the 9 standard Henley templates (idempotent)"
+          >
+            <Sparkles size={14} /> Seed Henley templates
+          </button>
+        )}
+
         {initial.length === 0 && (
-          <p className="text-xs text-ink-muted mt-4 text-center">No templates yet</p>
+          <p className="text-xs text-ink-muted mt-4 text-center">
+            {isCeo ? "No templates yet — click “Seed Henley templates”." : "No templates yet."}
+          </p>
         )}
 
         {/* Group by jobType */}
@@ -282,7 +315,8 @@ export default function TemplatesClient({
                 >
                   {t.name}
                   <span className="block text-[10px] text-ink-muted font-normal">
-                    {t.scheduleItems.length} tasks · {t.budgetItems.length} budget lines
+                    {t.scheduleItems.length} phase{t.scheduleItems.length === 1 ? "" : "s"}
+                    {t.budgetItems.length > 0 ? ` · ${t.budgetItems.length} budget lines` : ""}
                   </span>
                 </button>
               ))}

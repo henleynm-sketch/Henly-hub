@@ -247,6 +247,49 @@ export default function TaskView({
   const hasPrev = offset > 0;
   const hasNext = end < total;
 
+  // Shared pagination bar — rendered under both the list and the board so
+  // both views page through the same live offset/limit/total.
+  const paginationBar = (
+    <div className="flex items-center justify-between gap-3 flex-wrap">
+      <span className="hh-secondary text-sm">
+        {isPending
+          ? "Loading…"
+          : total === 0
+          ? "No tasks"
+          : `Showing ${offset + 1}–${end} of ${total}`}
+      </span>
+      <div className="flex items-center gap-2">
+        <label className="hh-caption hidden sm:inline">Per page</label>
+        <select
+          className="input text-sm py-1"
+          value={String(limit)}
+          onChange={(e) => pushFilters({ limit: Number(e.target.value), offset: 0 })}
+          disabled={isPending}
+        >
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="200">200</option>
+        </select>
+        <button
+          type="button"
+          className="btn-secondary text-xs"
+          disabled={!hasPrev || isPending}
+          onClick={() => pushFilters({ offset: offset - limit })}
+        >
+          ← Prev
+        </button>
+        <button
+          type="button"
+          className="btn-secondary text-xs"
+          disabled={!hasNext || isPending}
+          onClick={() => pushFilters({ offset: offset + limit })}
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="p-6 flex flex-col gap-4">
       {/* ── Action bar: toast + New task ───────────────────────────────── */}
@@ -500,36 +543,11 @@ export default function TaskView({
             )}
           </div>
 
-          {/* ── Pagination ─────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between">
-            <span className="hh-secondary text-sm">
-              {isPending
-                ? "Loading…"
-                : total === 0
-                ? "No tasks"
-                : `Showing ${offset + 1}–${end} of ${total}`}
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                className="btn-secondary text-xs"
-                disabled={!hasPrev || isPending}
-                onClick={() => pushFilters({ offset: offset - limit })}
-              >
-                ← Prev
-              </button>
-              <button
-                type="button"
-                className="btn-secondary text-xs"
-                disabled={!hasNext || isPending}
-                onClick={() => pushFilters({ offset: offset + limit })}
-              >
-                Next →
-              </button>
-            </div>
-          </div>
         </>
       )}
+
+      {/* ── Pagination (shared by List + Board) ────────────────────────── */}
+      {result.ok && paginationBar}
 
       {/* ── Create task modal ──────────────────────────────────────────── */}
       {createOpen && (

@@ -48,7 +48,7 @@ export default async function TemplatesPage() {
         subtitle="Pre-load schedule and budget skeletons when starting a new job"
       />
       <div className="p-6">
-        <TemplatesClient templates={serialised} jobTypes={[...JOB_TYPE]} />
+        <TemplatesClient templates={serialised} jobTypes={[...JOB_TYPE]} isCeo={role === "CEO"} />
       </div>
     </>
   );
