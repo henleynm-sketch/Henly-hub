@@ -5,6 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
 import { formatDate, formatMoney, formatRelative } from "@/lib/utils";
 import ClientActivityLogger from "./ClientActivityLogger";
+import ProjectCodeEditor from "@/components/ProjectCodeEditor";
 
 export default async function ClientDetailPage({
   params,
@@ -122,6 +123,15 @@ export default async function ClientDetailPage({
                     </Link>
                     <div className="hh-secondary mt-0.5">
                       {p.address ?? "—"} · Target {formatDate(p.targetEnd)}
+                    </div>
+                    <div className="mt-1.5">
+                      <ProjectCodeEditor
+                        projectId={p.id}
+                        code={p.code}
+                        proposeFrom={client.name}
+                        canEdit={canEdit}
+                        compact
+                      />
                     </div>
                   </div>
                   <div className="text-right">

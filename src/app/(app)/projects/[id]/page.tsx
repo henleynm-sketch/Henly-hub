@@ -23,6 +23,7 @@ import DailyLogForm from "@/components/DailyLogForm";
 import TimeClockTab from "@/components/TimeClockTab";
 import TimeReviewTab from "@/components/TimeReviewTab";
 import SendToTasksButton from "./SendToTasksButton";
+import ProjectCodeEditor from "@/components/ProjectCodeEditor";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
@@ -270,6 +271,16 @@ export default async function ProjectDetail({
           </>
         }
       />
+
+      <div className="px-6 pt-4 flex flex-wrap items-center gap-2">
+        <span className="hh-caption uppercase tracking-wider">Project code</span>
+        <ProjectCodeEditor
+          projectId={project.id}
+          code={project.code}
+          proposeFrom={project.client.name}
+          canEdit={role === "CEO" || role === "OFFICE"}
+        />
+      </div>
 
       {(project.currentPhase || project.nextStep) && (
         <div className="px-6 pt-6">
