@@ -168,3 +168,66 @@ export async function publishBaseline(projectId: string): Promise<ScheduleResult
   revalidatePath("/schedule");
   return { ok: true };
 }
+
+// ─── Apply a job template to the schedule ─────────────────────────────────────
+// Lays the template's phase skeleton onto the project as ScheduleTask rows,
+// sequentially from the chosen start date with an EDITABLE placeholder duration
+// per phase (the user drags/edits afterward — not a committed estimate).
+// Guard: if the job already has schedule items, return existed=true so the UI
+// can confirm before replacing.
+
+const DEFAULT_PHASE_DAYS = 14;
+
+export type ApplyTemplateResult = { ok: boolean; error?: string; existed?: boolean };
+
+export async function applyTemplateToSchedule(
+  projectId: string,
+  templateId: string,
+  startDate: string,
+  overwrite = false,
+): Promise<ApplyTemplateResult> {
+  const me = await getMe();
+  if (!me || !isManager(me.role as Role)) return { ok: false, error: "Not authorized" };
+  if (!projectId || !templateId || !startDate) {
+    return { ok: false, error: "Project, template, and start date are required" };
+  }
+  const start = new Date(startDate);
+  if (isNaN(start.getTime())) return { ok: false, error: "Invalid start date" };
+
+  const template = await prisma.jobTemplate.findUnique({
+    where: { id: templateId },
+    include: { scheduleItems: { orderBy: { order: "asc" } } },
+  });
+  if (!template) return { ok: false, error: "Template not found" };
+  if (!template.scheduleItems.length) return { ok: false, error: "That template has no phases" };
+
+  const existing = await prisma.scheduleTask.count({ where: { projectId } });
+  if (existing > 0 && !overwrite) {
+    return { ok: false, existed: true, error: `This job already has ${existing} schedule item(s).` };
+  }
+  if (existing > 0 && overwrite) {
+    // Clear dependency refs first to avoid FK violations, then replace.
+    await prisma.scheduleTask.updateMany({ where: { projectId }, data: { dependsOnId: null } });
+    await prisma.scheduleTask.deleteMany({ where: { projectId } });
+  }
+
+  let cursor = new Date(start);
+  const rows = template.scheduleItems.map((item, idx) => {
+    const s = new Date(cursor);
+    const e = new Date(s);
+    e.setDate(e.getDate() + DEFAULT_PHASE_DAYS);
+    cursor = new Date(e);
+    return {
+      projectId,
+      name: item.name,
+      startDate: s,
+      endDate: e,
+      order: idx,
+      sourceTemplateId: templateId,
+    };
+  });
+  await Promise.all(rows.map((data) => prisma.scheduleTask.create({ data })));
+
+  revalidatePath("/schedule");
+  return { ok: true };
+}

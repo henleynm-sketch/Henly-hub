@@ -3,10 +3,11 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Plus, X, Flag, CalendarDays, AlertTriangle, ChevronDown,
+  Plus, X, Flag, CalendarDays, AlertTriangle, ChevronDown, LayoutTemplate,
 } from "lucide-react";
 import {
   createTask, updateTask, deleteTask, publishBaseline, updateProgress,
+  applyTemplateToSchedule,
 } from "./scheduleActions";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -29,6 +30,7 @@ export type GanttTask = {
 
 type GanttProject = { id: string; name: string; client: { name: string } };
 type TeamMember   = { id: string; name: string; role: string };
+type TemplateOption = { id: string; name: string; jobType: string; phaseCount: number };
 
 type TaskFormState = {
   name: string;
@@ -112,6 +114,7 @@ export default function GanttClient({
   selectedProjectId,
   tasks,
   teamMembers,
+  templates,
   role,
   userId,
 }: {
@@ -119,16 +122,19 @@ export default function GanttClient({
   selectedProjectId: string | null;
   tasks: GanttTask[];
   teamMembers: TeamMember[];
+  templates: TemplateOption[];
   role: string;
   userId: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
 
-  const [modal,   setModal]   = useState<"create" | "edit" | "progress" | "baseline" | null>(null);
+  const [modal,   setModal]   = useState<"create" | "edit" | "progress" | "baseline" | "apply" | null>(null);
   const [active,  setActive]  = useState<GanttTask | null>(null);
   const [form,    setForm]    = useState<TaskFormState>(EMPTY_FORM);
   const [toast,   setToast]   = useState<{ ok: boolean; msg: string } | null>(null);
+  const [applyForm, setApplyForm] = useState<{ templateId: string; startDate: string }>({ templateId: "", startDate: "" });
+  const [needsOverwrite, setNeedsOverwrite] = useState(false);
 
   const isManager = role === "CEO" || role === "OFFICE";
   const isField   = role === "FIELD" || role === "SUB";
@@ -138,7 +144,37 @@ export default function GanttClient({
     setTimeout(() => setToast(null), 4000);
   }
 
-  function closeModal() { setModal(null); setActive(null); }
+  function closeModal() { setModal(null); setActive(null); setNeedsOverwrite(false); }
+
+  function openApply() {
+    setApplyForm({
+      templateId: templates[0]?.id ?? "",
+      startDate: new Date().toISOString().slice(0, 10),
+    });
+    setNeedsOverwrite(false);
+    setModal("apply");
+  }
+
+  function handleApply(overwrite: boolean) {
+    if (!selectedProjectId || !applyForm.templateId || !applyForm.startDate) return;
+    start(async () => {
+      const r = await applyTemplateToSchedule(
+        selectedProjectId,
+        applyForm.templateId,
+        applyForm.startDate,
+        overwrite,
+      );
+      if (r.ok) {
+        closeModal();
+        flash(true, "Template applied");
+        router.refresh();
+      } else if (r.existed) {
+        setNeedsOverwrite(true);
+      } else {
+        flash(false, r.error ?? "Failed");
+      }
+    });
+  }
 
   function openCreate() {
     setForm(EMPTY_FORM);
@@ -271,6 +307,15 @@ export default function GanttClient({
 
         {isManager && selectedProjectId && (
           <>
+            {templates.length > 0 && (
+              <button
+                className="btn-secondary text-xs flex items-center gap-1.5"
+                onClick={openApply}
+              >
+                <LayoutTemplate className="w-3.5 h-3.5" />
+                Apply template
+              </button>
+            )}
             <button
               className="btn-secondary text-xs flex items-center gap-1.5"
               onClick={() => setModal("baseline")}
@@ -302,20 +347,40 @@ export default function GanttClient({
         </p>
       )}
 
-      {/* Empty state */}
+      {/* Empty state — a call to action, not a dead end */}
       {!tasks.length && (
         <div className="hh-panel p-16 flex flex-col items-center gap-3 text-center">
           <CalendarDays className="w-10 h-10 text-ink-muted" />
           <p className="hh-primary">
-            {!selectedProjectId ? "Select a project" : "No schedule tasks yet"}
+            {!selectedProjectId ? "Select a project" : "No schedule yet"}
           </p>
           <p className="hh-secondary">
             {!selectedProjectId
               ? "Choose a project above to see its timeline."
               : isManager
-              ? 'Click "Add task" to build the project timeline.'
+              ? "Start from a standard template, or add phases yourself."
               : "Tasks assigned to you will appear here once added."}
           </p>
+          {selectedProjectId && isManager && (
+            <div className="flex flex-wrap gap-2 justify-center mt-1">
+              {templates.length > 0 && (
+                <button
+                  className="btn-primary text-sm flex items-center gap-1.5"
+                  onClick={openApply}
+                >
+                  <LayoutTemplate className="w-4 h-4" />
+                  Apply a template
+                </button>
+              )}
+              <button
+                className="btn-secondary text-sm flex items-center gap-1.5"
+                onClick={openCreate}
+              >
+                <Plus className="w-4 h-4" />
+                Add your first phase
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -593,6 +658,77 @@ export default function GanttClient({
               </button>
             </div>
           </div>
+        </Overlay>
+      )}
+
+      {/* Apply template */}
+      {modal === "apply" && (
+        <Overlay title="Apply a template" onClose={closeModal}>
+          {needsOverwrite ? (
+            <div className="space-y-4">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                <p className="hh-secondary">
+                  This job already has a schedule. Applying a template will replace all
+                  existing schedule items — this cannot be undone.
+                </p>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  className="btn-primary text-sm flex-1"
+                  onClick={() => handleApply(true)}
+                  disabled={pending}
+                >
+                  Replace schedule
+                </button>
+                <button className="btn-secondary text-sm" onClick={closeModal}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <label className="hh-caption uppercase tracking-wider block mb-1">Template</label>
+                <select
+                  className="input w-full"
+                  value={applyForm.templateId}
+                  onChange={(e) => setApplyForm((f) => ({ ...f, templateId: e.target.value }))}
+                >
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} ({t.phaseCount} phase{t.phaseCount === 1 ? "" : "s"})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="hh-caption uppercase tracking-wider block mb-1">Project start date</label>
+                <input
+                  type="date"
+                  className="input w-full"
+                  value={applyForm.startDate}
+                  onChange={(e) => setApplyForm((f) => ({ ...f, startDate: e.target.value }))}
+                />
+              </div>
+              <p className="hh-caption">
+                Phases lay out sequentially from the start date with placeholder durations —
+                drag or edit each bar afterward to set real dates.
+              </p>
+              <div className="flex gap-2 pt-1">
+                <button
+                  className="btn-primary text-sm flex-1"
+                  onClick={() => handleApply(false)}
+                  disabled={pending || !applyForm.templateId || !applyForm.startDate}
+                >
+                  Apply template
+                </button>
+                <button className="btn-secondary text-sm" onClick={closeModal}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         </Overlay>
       )}
     </div>

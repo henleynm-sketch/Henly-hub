@@ -54,6 +54,21 @@ export default async function SchedulePage({
         })
       : [];
 
+  // Job templates available to apply (managers only — apply is manager-gated)
+  const templateRows =
+    role === "CEO" || role === "OFFICE"
+      ? await prisma.jobTemplate.findMany({
+          select: { id: true, name: true, jobType: true, _count: { select: { scheduleItems: true } } },
+          orderBy: [{ jobType: "asc" }, { name: "asc" }],
+        })
+      : [];
+  const templates = templateRows.map((t) => ({
+    id: t.id,
+    name: t.name,
+    jobType: t.jobType,
+    phaseCount: t._count.scheduleItems,
+  }));
+
   const selectedProject = projects.find((p) => p.id === projectId) ?? null;
 
   const serialisedTasks = tasks.map((t) => ({
@@ -88,6 +103,7 @@ export default async function SchedulePage({
           selectedProjectId={projectId}
           tasks={serialisedTasks}
           teamMembers={teamMembers}
+          templates={templates}
           role={role}
           userId={userId}
         />
