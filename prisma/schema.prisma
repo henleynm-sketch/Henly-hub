@@ -72,6 +72,7 @@ model Project {
   clientId     String
   client       Client    @relation(fields: [clientId], references: [id])
   name         String
+  code         String?   @unique  // short join key (e.g. "SMTH") for per-project Tasks; unique among non-null
   address      String?
   city         String?
   projectType  String?   // Custom Home | Addition | Renovation | Kitchen | Garage | ADU | Misc Small Jobs | Handyman Services | Warranty
@@ -210,6 +211,7 @@ model Thread {
   channel    String    // EMAIL | SMS | IN_APP | CALL_NOTE
   lastAt     DateTime  @default(now())
   unread     Int       @default(0)
+  dismissedAt DateTime? // hub-side soft-dismiss; hides from inbox without deleting from Quo/M365
   graphConversationId String? @unique
   quoConversationId String? @unique
   messages   Message[]

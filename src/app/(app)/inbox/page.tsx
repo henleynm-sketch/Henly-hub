@@ -7,6 +7,7 @@ import type { Role } from "@/lib/roles";
 import { MessageSquare, Mail, MessageCircle, Phone } from "lucide-react";
 import type { ElementType } from "react";
 import ReplyBar from "./ReplyBar";
+import DismissButton from "./DismissButton";
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ export default async function InboxPage({
   const role = session.user.role as Role;
   const userId = session.user.id;
   const myClientId = session.user.clientId;
+  const isManager = role === "CEO" || role === "OFFICE";
 
   // Active tab — default to SMS (first channel with live data).
   // Falls back to SMS for unrecognised or missing ?channel= values (e.g. old "ALL" bookmarks).
@@ -77,14 +79,16 @@ export default async function InboxPage({
   // Builds a Prisma ThreadWhereInput scoped by role + a specific channel.
   // Defined here (not inside each query) to keep the role logic in one place.
   function buildWhere(channel: TabChannel) {
+    // dismissedAt: null — hide hub-side-dismissed threads from every view.
+    const base = { dismissedAt: null };
     if (role === "CLIENT" && myClientId) {
-      return { clientId: myClientId, channel };
+      return { ...base, clientId: myClientId, channel };
     }
     if (role === "SUB" || role === "FIELD") {
-      return { project: { assignments: { some: { userId } } }, channel };
+      return { ...base, project: { assignments: { some: { userId } } }, channel };
     }
     // CEO / OFFICE — optional clientId scoping from query string
-    return { ...(sp.clientId ? { clientId: sp.clientId } : {}), channel };
+    return { ...base, ...(sp.clientId ? { clientId: sp.clientId } : {}), channel };
   }
 
   // ── Per-channel counts for tab badges ────────────────────────────────────────
@@ -273,9 +277,14 @@ export default async function InboxPage({
                       {activeThread.project && ` · ${activeThread.project.name}`}
                     </div>
                   </div>
-                  <span className="hh-badge shrink-0">
-                    {activeThread.channel.replace("_", " ")}
-                  </span>
+                  <div className="ml-auto flex items-center gap-2 shrink-0">
+                    <span className="hh-badge">
+                      {activeThread.channel.replace("_", " ")}
+                    </span>
+                    {isManager && (
+                      <DismissButton threadId={activeThread.id} channel={activeChannel} />
+                    )}
+                  </div>
                 </div>
 
                 {/* Messages Stream */}

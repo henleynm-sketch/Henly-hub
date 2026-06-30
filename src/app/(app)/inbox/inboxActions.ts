@@ -69,3 +69,21 @@ export async function replyToThread(
   revalidatePath("/inbox");
   return { ok: true };
 }
+
+// ─── Hub-side dismiss (non-destructive) ───────────────────────────────────────
+// Sets dismissedAt so the thread hides from the inbox. Does NOT delete the
+// underlying message in Quo or the M365 mailbox. Re-sync upserts by conversation
+// id and only touches lastAt/unread, so a dismissed thread is never resurrected.
+export async function dismissThread(threadId: string): Promise<ReplyResult> {
+  const me = await auth();
+  const role = me?.user?.role as Role | undefined;
+  if (!role || (role !== "CEO" && role !== "OFFICE")) {
+    return { ok: false, error: "Not authorized" };
+  }
+  const thread = await prisma.thread.findUnique({ where: { id: threadId } });
+  if (!thread) return { ok: false, error: "Thread not found" };
+
+  await prisma.thread.update({ where: { id: threadId }, data: { dismissedAt: new Date() } });
+  revalidatePath("/inbox");
+  return { ok: true };
+}
