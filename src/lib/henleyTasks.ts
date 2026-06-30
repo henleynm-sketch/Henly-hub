@@ -54,8 +54,21 @@ export type TaskFilters = {
 };
 
 export type ListTasksResult =
-  | { ok: true; tasks: HenleyTask[]; total: number }
+  | { ok: true; tasks: HenleyTask[]; total: number; limit: number; offset: number }
   | { ok: false; error: string };
+
+// The list endpoint nests pagination metadata under `pagination`. We read from
+// there first and fall back to root-level fields for safety, and accept the
+// task array under tasks/data/items (confirmed: `tasks`).
+type TasksListBody = {
+  tasks?: HenleyTask[];
+  data?: HenleyTask[];
+  items?: HenleyTask[];
+  total?: number;
+  limit?: number;
+  offset?: number;
+  pagination?: { total?: number; limit?: number; offset?: number };
+};
 
 export type GetTaskResult =
   | { ok: true; task: HenleyTask }
@@ -138,9 +151,11 @@ export async function testConnection(): Promise<TestResult> {
       await recordTest(false, msg);
       return { ok: false, error: msg };
     }
-    // A healthy list response carries a numeric total.
-    const body = (await res.json().catch(() => null)) as { total?: unknown } | null;
-    if (!body || typeof body.total !== "number") {
+    // A healthy list response carries a numeric total nested under `pagination`
+    // (with a root-level fallback for safety).
+    const body = (await res.json().catch(() => null)) as TasksListBody | null;
+    const total = body?.pagination?.total ?? body?.total;
+    if (typeof total !== "number") {
       const msg = "Unexpected response (no numeric `total`)";
       await recordTest(false, msg);
       return { ok: false, error: msg };
@@ -171,8 +186,13 @@ export async function listTasks(filters: TaskFilters = {}): Promise<ListTasksRes
   try {
     const res = await tasksFetch(creds, `/tasks?${params.toString()}`);
     if (!res.ok) return { ok: false, error: await errorFrom(res) };
-    const body = (await res.json()) as { tasks?: HenleyTask[]; total?: number };
-    return { ok: true, tasks: body.tasks ?? [], total: body.total ?? 0 };
+    const body = (await res.json()) as TasksListBody;
+    const tasks = body.tasks ?? body.data ?? body.items ?? [];
+    const pg = body.pagination ?? {};
+    const total = pg.total ?? body.total ?? 0;
+    const limit = pg.limit ?? body.limit ?? Math.min(filters.limit ?? 50, 200);
+    const offset = pg.offset ?? body.offset ?? filters.offset ?? 0;
+    return { ok: true, tasks, total, limit, offset };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Network error" };
   }
