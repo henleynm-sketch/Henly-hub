@@ -2,10 +2,10 @@
 
 import { useState, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, Pencil, Check, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import type { ListTasksResult, HenleyTask } from "@/lib/henleyTasks";
-import { createTaskAction } from "./taskActions";
+import { createTaskAction, updateTaskAction, deleteTaskAction, type TaskPatch } from "./taskActions";
 
 // Status display mapping
 const STATUS_LABEL: Record<string, string> = {
@@ -65,6 +65,20 @@ export default function TaskView({
   const [drawerTask, setDrawerTask] = useState<HenleyTask | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
+  // Write-back (edit/status/delete) state
+  const [acting, startAct] = useTransition();
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    description: "",
+    priority: "medium" as "low" | "medium" | "high",
+    dueDate: "",
+    assignee: "",
+  });
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [drawerError, setDrawerError] = useState<string | null>(null);
+  const canWrite = canCreate && writeBackEnabled;
+
   function flash(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 5000);
@@ -99,6 +113,87 @@ export default function TaskView({
       setCreateOpen(false);
       flash("Sent to Tasks Inbox");
       router.refresh();
+    });
+  }
+
+  function openDrawer(t: HenleyTask) {
+    setDrawerError(null);
+    setConfirmDelete(false);
+    setEditing(false);
+    setDrawerTask(t);
+  }
+
+  function startEdit() {
+    if (!drawerTask) return;
+    setDrawerError(null);
+    setEditForm({
+      title: drawerTask.title,
+      description: drawerTask.description ?? "",
+      priority: drawerTask.priority,
+      dueDate: (drawerTask.due_date ?? "").slice(0, 10),
+      assignee: drawerTask.assignee ?? "",
+    });
+    setEditing(true);
+  }
+
+  function afterMutation(msg: string) {
+    flash(msg);
+    setDrawerTask(null);
+    setEditing(false);
+    setConfirmDelete(false);
+    router.refresh();
+  }
+
+  function saveEdits() {
+    const orig = drawerTask;
+    if (!orig) return;
+    const patch: TaskPatch = {};
+    const t = editForm.title.trim();
+    if (t && t !== orig.title) patch.title = t;
+    if (editForm.description !== (orig.description ?? "")) patch.description = editForm.description;
+    if (editForm.priority !== orig.priority) patch.priority = editForm.priority;
+    if (editForm.dueDate !== (orig.due_date ?? "").slice(0, 10)) patch.due_date = editForm.dueDate;
+    if (editForm.assignee !== (orig.assignee ?? "")) patch.assignee = editForm.assignee;
+    if (Object.keys(patch).length === 0) {
+      setEditing(false);
+      return;
+    }
+    setDrawerError(null);
+    startAct(async () => {
+      const r = await updateTaskAction(orig.id, patch);
+      if (!r.ok) {
+        setDrawerError(r.error ?? "Could not save changes");
+        return;
+      }
+      afterMutation("Task updated");
+    });
+  }
+
+  function applyStatus(status: "open" | "in_progress" | "done") {
+    const task = drawerTask;
+    if (!task || status === task.status) return;
+    setDrawerError(null);
+    startAct(async () => {
+      const r = await updateTaskAction(task.id, { status });
+      if (!r.ok) {
+        setDrawerError(r.error ?? "Could not update status");
+        return;
+      }
+      afterMutation(status === "done" ? "Marked done" : "Status updated");
+    });
+  }
+
+  function doDelete() {
+    const task = drawerTask;
+    if (!task) return;
+    setDrawerError(null);
+    startAct(async () => {
+      const r = await deleteTaskAction(task.id);
+      if (!r.ok) {
+        setDrawerError(r.error ?? "Could not delete task");
+        return;
+      }
+      afterMutation("Task deleted");
     });
   }
 
@@ -281,7 +376,7 @@ export default function TaskView({
                     <tr
                       key={t.id}
                       className="hh-row--flat cursor-pointer"
-                      onClick={() => setDrawerTask(t)}
+                      onClick={() => openDrawer(t)}
                     >
                       <td className="px-4 py-3 max-w-xs">
                         <span className="hh-primary font-medium truncate block">{t.title}</span>
@@ -444,63 +539,227 @@ export default function TaskView({
               {drawerTask.type && <span className="hh-chip text-xs">{drawerTask.type}</span>}
             </div>
 
-            <dl className="mt-5 flex flex-col gap-3">
-              <div>
-                <dt className="hh-label">Assignee</dt>
-                <dd className="hh-secondary mt-0.5">{drawerTask.assignee ?? "—"}</dd>
-              </div>
-              <div>
-                <dt className="hh-label">Due date</dt>
-                <dd className="hh-secondary mt-0.5">
-                  {drawerTask.due_date ? formatDate(new Date(drawerTask.due_date)) : "—"}
-                </dd>
-              </div>
-              {drawerTask.tags && drawerTask.tags.length > 0 && (
+            {canWrite && editing ? (
+              <div className="mt-5 flex flex-col gap-3">
                 <div>
-                  <dt className="hh-label">Tags</dt>
-                  <dd className="mt-1 flex flex-wrap gap-1">
-                    {drawerTask.tags.map((tag) => (
-                      <span key={tag} className="hh-chip text-xs">
-                        {tag}
-                      </span>
-                    ))}
-                  </dd>
+                  <label className="hh-label block mb-1.5">Title</label>
+                  <input
+                    className="input w-full"
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  />
                 </div>
-              )}
-              {drawerTask.description && (
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex-1 min-w-[8rem]">
+                    <label className="hh-label block mb-1.5">Priority</label>
+                    <select
+                      className="input w-full"
+                      value={editForm.priority}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, priority: e.target.value as "low" | "medium" | "high" })
+                      }
+                    >
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                  </div>
+                  <div className="flex-1 min-w-[8rem]">
+                    <label className="hh-label block mb-1.5">Due date</label>
+                    <input
+                      type="date"
+                      className="input w-full"
+                      value={editForm.dueDate}
+                      onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
+                    />
+                  </div>
+                </div>
                 <div>
-                  <dt className="hh-label">Description</dt>
-                  <dd className="hh-secondary mt-0.5 whitespace-pre-wrap">{drawerTask.description}</dd>
+                  <label className="hh-label block mb-1.5">Assignee</label>
+                  <input
+                    className="input w-full"
+                    placeholder="Name or email"
+                    value={editForm.assignee}
+                    onChange={(e) => setEditForm({ ...editForm, assignee: e.target.value })}
+                  />
                 </div>
-              )}
-              <div className="flex gap-6">
                 <div>
-                  <dt className="hh-label">Created</dt>
-                  <dd className="hh-secondary mt-0.5">{formatDate(new Date(drawerTask.created_at))}</dd>
+                  <label className="hh-label block mb-1.5">Description</label>
+                  <textarea
+                    className="input w-full"
+                    rows={4}
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  />
                 </div>
-                <div>
-                  <dt className="hh-label">Updated</dt>
-                  <dd className="hh-secondary mt-0.5">{formatDate(new Date(drawerTask.updated_at))}</dd>
+                {drawerError && (
+                  <div className="flex items-start gap-2">
+                    <span className="hh-dot hh-dot--red mt-1 shrink-0" />
+                    <span className="hh-secondary font-mono text-xs">{drawerError}</span>
+                  </div>
+                )}
+                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end mt-1">
+                  <button
+                    type="button"
+                    className="btn-secondary w-full sm:w-auto"
+                    onClick={() => {
+                      setEditing(false);
+                      setDrawerError(null);
+                    }}
+                    disabled={acting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-primary w-full sm:w-auto"
+                    onClick={saveEdits}
+                    disabled={acting}
+                  >
+                    {acting ? "Saving…" : "Save changes"}
+                  </button>
                 </div>
-              </div>
-            </dl>
-
-            {/* Edit/delete only when write-back is confirmed + enabled. Off for now. */}
-            {writeBackEnabled ? (
-              <div className="flex gap-2 mt-6">
-                <button type="button" className="btn-secondary text-sm">
-                  Edit
-                </button>
-                <button type="button" className="btn-destructive text-sm">
-                  Delete
-                </button>
               </div>
             ) : (
-              <p className="hh-caption mt-6">
-                Editing and deleting are managed in Henley Tasks. This view is read-only.
-              </p>
+              <>
+                <dl className="mt-5 flex flex-col gap-3">
+                  <div>
+                    <dt className="hh-label">Assignee</dt>
+                    <dd className="hh-secondary mt-0.5">{drawerTask.assignee ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="hh-label">Due date</dt>
+                    <dd className="hh-secondary mt-0.5">
+                      {drawerTask.due_date ? formatDate(new Date(drawerTask.due_date)) : "—"}
+                    </dd>
+                  </div>
+                  {drawerTask.tags && drawerTask.tags.length > 0 && (
+                    <div>
+                      <dt className="hh-label">Tags</dt>
+                      <dd className="mt-1 flex flex-wrap gap-1">
+                        {drawerTask.tags.map((tag) => (
+                          <span key={tag} className="hh-chip text-xs">
+                            {tag}
+                          </span>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+                  {drawerTask.description && (
+                    <div>
+                      <dt className="hh-label">Description</dt>
+                      <dd className="hh-secondary mt-0.5 whitespace-pre-wrap">{drawerTask.description}</dd>
+                    </div>
+                  )}
+                  <div className="flex gap-6">
+                    <div>
+                      <dt className="hh-label">Created</dt>
+                      <dd className="hh-secondary mt-0.5">{formatDate(new Date(drawerTask.created_at))}</dd>
+                    </div>
+                    <div>
+                      <dt className="hh-label">Updated</dt>
+                      <dd className="hh-secondary mt-0.5">{formatDate(new Date(drawerTask.updated_at))}</dd>
+                    </div>
+                  </div>
+                </dl>
+
+                {drawerError && (
+                  <div className="flex items-start gap-2 mt-4">
+                    <span className="hh-dot hh-dot--red mt-1 shrink-0" />
+                    <span className="hh-secondary font-mono text-xs">{drawerError}</span>
+                  </div>
+                )}
+
+                {canWrite ? (
+                  <div className="mt-6 flex flex-col gap-3">
+                    <div className="flex items-end gap-2 flex-wrap">
+                      <div>
+                        <label className="hh-label block mb-1">Status</label>
+                        <select
+                          className="input text-sm py-1"
+                          value={drawerTask.status}
+                          onChange={(e) => applyStatus(e.target.value as "open" | "in_progress" | "done")}
+                          disabled={acting}
+                        >
+                          <option value="open">To do</option>
+                          <option value="in_progress">In progress</option>
+                          <option value="done">Done</option>
+                        </select>
+                      </div>
+                      {drawerTask.status !== "done" && (
+                        <button
+                          type="button"
+                          className="btn-secondary text-sm inline-flex items-center gap-1.5"
+                          onClick={() => applyStatus("done")}
+                          disabled={acting}
+                        >
+                          <Check size={14} /> Mark done
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        className="btn-secondary text-sm inline-flex items-center gap-1.5"
+                        onClick={startEdit}
+                        disabled={acting}
+                      >
+                        <Pencil size={14} /> Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-destructive text-sm inline-flex items-center gap-1.5"
+                        onClick={() => setConfirmDelete(true)}
+                        disabled={acting}
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="hh-caption mt-6">
+                    Editing and deleting are managed in Henley Tasks. This view is read-only.
+                  </p>
+                )}
+              </>
             )}
           </div>
+
+          {confirmDelete && (
+            <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/55" onClick={() => setConfirmDelete(false)} />
+              <div className="hh-panel relative w-full max-w-sm">
+                <h3 className="hh-label">Delete this task?</h3>
+                <p className="hh-secondary mt-2">
+                  It will be removed from Henley Tasks (recoverable there). The Hub keeps no copy.
+                </p>
+                {drawerError && (
+                  <div className="flex items-start gap-2 mt-2">
+                    <span className="hh-dot hh-dot--red mt-1 shrink-0" />
+                    <span className="hh-secondary font-mono text-xs">{drawerError}</span>
+                  </div>
+                )}
+                <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end mt-4">
+                  <button
+                    type="button"
+                    className="btn-secondary w-full sm:w-auto"
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={acting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-destructive w-full sm:w-auto"
+                    onClick={doDelete}
+                    disabled={acting}
+                  >
+                    {acting ? "Deleting…" : "Delete"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

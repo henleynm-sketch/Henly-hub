@@ -8,11 +8,11 @@ import { prisma } from "./prisma";
 
 const DEFAULT_BASE = "https://tasks.henleycontracting.com/api";
 
-// Update/delete are NOT in the documented API yet (only GET + POST are). They
-// are wired here behind a single flag and named method/path constants so they
-// activate with a one-line change once Antu confirms — until then they are
-// inert and no edit/delete UI is surfaced. DO NOT flip without confirmation.
-export const TASKS_WRITE_BACK_ENABLED = false;
+// Write-back confirmed live by Antu (Henley Tasks): PATCH for partial updates
+// (send only changed fields; complete = {"status":"done"}), DELETE for soft
+// delete (drops out of all GET reads, recoverable server-side). Use PATCH, not
+// PUT. The pretty-URL/v1.php fallback in tasksFetch applies to these too.
+export const TASKS_WRITE_BACK_ENABLED = true;
 const TASKS_UPDATE_METHOD = "PATCH";
 const TASKS_UPDATE_PATH = (id: string) => `/tasks/${encodeURIComponent(id)}`;
 const TASKS_DELETE_METHOD = "DELETE";
