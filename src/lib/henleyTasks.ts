@@ -1,7 +1,22 @@
 import "server-only";
 import { prisma } from "./prisma";
 
+// Henley Tasks (https://tasks.henleycontracting.com/api) is the system of record
+// for tasks. The Hub is a live control surface over its REST API and stores NO
+// task data locally. Base URL + auth + the pretty-URL/v1.php fallback are all
+// centralized in this one module.
+
 const DEFAULT_BASE = "https://tasks.henleycontracting.com/api";
+
+// Update/delete are NOT in the documented API yet (only GET + POST are). They
+// are wired here behind a single flag and named method/path constants so they
+// activate with a one-line change once Antu confirms — until then they are
+// inert and no edit/delete UI is surfaced. DO NOT flip without confirmation.
+export const TASKS_WRITE_BACK_ENABLED = false;
+const TASKS_UPDATE_METHOD = "PATCH";
+const TASKS_UPDATE_PATH = (id: string) => `/tasks/${encodeURIComponent(id)}`;
+const TASKS_DELETE_METHOD = "DELETE";
+const TASKS_DELETE_PATH = (id: string) => `/tasks/${encodeURIComponent(id)}`;
 
 async function getCredentials(): Promise<{ apiBaseUrl: string; apiKey: string } | null> {
   const row = await prisma.henleyTasksConfig.findUnique({ where: { id: "singleton" } }).catch(() => null);
@@ -50,12 +65,64 @@ export type TaskPayload = {
   title: string;
   priority?: "low" | "medium" | "high";
   dueDate?: string; // ISO date string, e.g. "2026-07-01"
+  assignee?: string;
   note?: string;
   projectName?: string;
 };
 
 export type TestResult = { ok: true } | { ok: false; error: string };
 export type CreateResult = { ok: true; taskId?: string } | { ok: false; error: string };
+export type WriteResult = { ok: true } | { ok: false; error: string };
+
+// ── Centralized request + pretty-URL/v1.php fallback ───────────────────────
+// Pretty URLs (/api/tasks) may be disabled on the server, in which case the
+// same resource lives at /api/v1.php/tasks. We discover which prefix works on
+// the first request and reuse it; a real 404 (e.g. an unknown task id) is left
+// as a genuine 404 once the prefix is locked in.
+type Prefix = "" | "/v1.php";
+let resolvedPrefix: Prefix | null = null;
+
+async function tasksFetch(
+  creds: { apiBaseUrl: string; apiKey: string },
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${creds.apiKey}`,
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  const attempt = (prefix: Prefix) =>
+    fetch(`${creds.apiBaseUrl}${prefix}${path}`, { ...init, headers, cache: "no-store" });
+
+  if (resolvedPrefix !== null) {
+    return attempt(resolvedPrefix);
+  }
+
+  // First call for this process: try pretty URL, fall back to /v1.php on 404.
+  const primary = await attempt("");
+  if (primary.status !== 404) {
+    resolvedPrefix = "";
+    return primary;
+  }
+  const fallback = await attempt("/v1.php");
+  if (fallback.status !== 404) {
+    resolvedPrefix = "/v1.php";
+    return fallback;
+  }
+  // Both 404 — leave prefix undiscovered and surface the original response.
+  return primary;
+}
+
+// Verbatim status + body — never swallow or rewrite the server's message.
+async function errorFrom(res: Response): Promise<string> {
+  let body = "";
+  try {
+    body = (await res.text()).trim();
+  } catch {
+    // no body
+  }
+  return body ? `HTTP ${res.status}: ${body}` : `HTTP ${res.status}`;
+}
 
 export async function testConnection(): Promise<TestResult> {
   const creds = await getCredentials();
@@ -65,85 +132,25 @@ export async function testConnection(): Promise<TestResult> {
   }
 
   try {
-    const res = await fetch(`${creds.apiBaseUrl}/tasks?limit=1`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${creds.apiKey}` },
-      cache: "no-store",
-    });
-
+    const res = await tasksFetch(creds, "/tasks?limit=1");
     if (!res.ok) {
-      let msg = `HTTP ${res.status}`;
-      try {
-        const body = await res.json() as Record<string, unknown>;
-        const err = body.error as Record<string, unknown> | undefined;
-        msg = (err?.message ?? body.message ?? msg) as string;
-      } catch {
-        // leave msg as HTTP status
-      }
+      const msg = await errorFrom(res);
       await recordTest(false, msg);
       return { ok: false, error: msg };
     }
-
-    // Confirm the response has the expected shape (tasks API returns { tasks, total })
-    try {
-      const body = await res.json() as Record<string, unknown>;
-      if (typeof body.total !== "number") {
-        const msg = "Unexpected response — connected but body missing 'total'";
-        await recordTest(false, msg);
-        return { ok: false, error: msg };
-      }
-    } catch {
-      // Body unreadable — still treat as connected (2xx is sufficient)
+    // A healthy list response carries a numeric total.
+    const body = (await res.json().catch(() => null)) as { total?: unknown } | null;
+    if (!body || typeof body.total !== "number") {
+      const msg = "Unexpected response (no numeric `total`)";
+      await recordTest(false, msg);
+      return { ok: false, error: msg };
     }
-
     await recordTest(true, "OK");
     return { ok: true };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Network error";
     await recordTest(false, msg);
     return { ok: false, error: msg };
-  }
-}
-
-export async function createTask(payload: TaskPayload): Promise<CreateResult> {
-  const creds = await getCredentials();
-  if (!creds) {
-    return { ok: false, error: "API key not configured — set it in Settings → Integrations" };
-  }
-
-  try {
-    const res = await fetch(`${creds.apiBaseUrl}/tasks`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${creds.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      let msg = `HTTP ${res.status}`;
-      try {
-        const body = await res.json() as Record<string, unknown>;
-        const err = body.error as Record<string, unknown> | undefined;
-        msg = (err?.message ?? body.message ?? msg) as string;
-      } catch {
-        // leave msg as HTTP status
-      }
-      return { ok: false, error: msg };
-    }
-
-    let taskId: string | undefined;
-    try {
-      const body = await res.json() as Record<string, unknown>;
-      taskId = (body.id ?? body.taskId) as string | undefined;
-    } catch {
-      // response body not required for success
-    }
-    return { ok: true, taskId };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : "Network error" };
   }
 }
 
@@ -162,25 +169,9 @@ export async function listTasks(filters: TaskFilters = {}): Promise<ListTasksRes
   params.set("offset", String(filters.offset ?? 0));
 
   try {
-    const res = await fetch(`${creds.apiBaseUrl}/tasks?${params.toString()}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${creds.apiKey}` },
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      let msg = `HTTP ${res.status}`;
-      try {
-        const body = await res.json() as Record<string, unknown>;
-        const err = body.error as Record<string, unknown> | undefined;
-        msg = (err?.message ?? body.message ?? msg) as string;
-      } catch {
-        // leave msg as HTTP status
-      }
-      return { ok: false, error: msg };
-    }
-
-    const body = await res.json() as { tasks: HenleyTask[]; total: number };
+    const res = await tasksFetch(creds, `/tasks?${params.toString()}`);
+    if (!res.ok) return { ok: false, error: await errorFrom(res) };
+    const body = (await res.json()) as { tasks?: HenleyTask[]; total?: number };
     return { ok: true, tasks: body.tasks ?? [], total: body.total ?? 0 };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Network error" };
@@ -192,26 +183,82 @@ export async function getTask(id: string): Promise<GetTaskResult> {
   if (!creds) return { ok: false, error: "API key not configured" };
 
   try {
-    const res = await fetch(`${creds.apiBaseUrl}/tasks/${encodeURIComponent(id)}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${creds.apiKey}` },
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      let msg = `HTTP ${res.status}`;
-      try {
-        const body = await res.json() as Record<string, unknown>;
-        const err = body.error as Record<string, unknown> | undefined;
-        msg = (err?.message ?? body.message ?? msg) as string;
-      } catch {
-        // leave msg as HTTP status
-      }
-      return { ok: false, error: msg };
-    }
-
-    const task = await res.json() as HenleyTask;
+    const res = await tasksFetch(creds, `/tasks/${encodeURIComponent(id)}`);
+    if (!res.ok) return { ok: false, error: await errorFrom(res) };
+    const task = (await res.json()) as HenleyTask;
     return { ok: true, task };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
+
+export async function createTask(payload: TaskPayload): Promise<CreateResult> {
+  const creds = await getCredentials();
+  if (!creds) {
+    return { ok: false, error: "API key not configured — set it in Settings → Integrations" };
+  }
+
+  // Map the Hub's form fields onto the documented Task object shape.
+  const descriptionParts = [payload.note?.trim(), payload.projectName ? `Project: ${payload.projectName}` : ""]
+    .filter(Boolean);
+  const body: Record<string, unknown> = { title: payload.title };
+  if (payload.priority) body.priority = payload.priority;
+  if (payload.dueDate) body.due_date = payload.dueDate;
+  if (payload.assignee?.trim()) body.assignee = payload.assignee.trim();
+  if (descriptionParts.length) body.description = descriptionParts.join("\n");
+
+  try {
+    const res = await tasksFetch(creds, "/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return { ok: false, error: await errorFrom(res) };
+
+    let taskId: string | undefined;
+    try {
+      const resBody = (await res.json()) as Record<string, unknown>;
+      taskId = (resBody.id ?? resBody.taskId) as string | undefined;
+    } catch {
+      // response body not required for success
+    }
+    return { ok: true, taskId };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
+
+// ── Write-back (gated; inert until Antu confirms PATCH/DELETE) ──────────────
+
+export async function updateTask(id: string, patch: Partial<HenleyTask>): Promise<WriteResult> {
+  if (!TASKS_WRITE_BACK_ENABLED) {
+    return { ok: false, error: "Task write-back is disabled (pending API confirmation)" };
+  }
+  const creds = await getCredentials();
+  if (!creds) return { ok: false, error: "API key not configured" };
+  try {
+    const res = await tasksFetch(creds, TASKS_UPDATE_PATH(id), {
+      method: TASKS_UPDATE_METHOD,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
+    });
+    if (!res.ok) return { ok: false, error: await errorFrom(res) };
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
+
+export async function deleteTask(id: string): Promise<WriteResult> {
+  if (!TASKS_WRITE_BACK_ENABLED) {
+    return { ok: false, error: "Task write-back is disabled (pending API confirmation)" };
+  }
+  const creds = await getCredentials();
+  if (!creds) return { ok: false, error: "API key not configured" };
+  try {
+    const res = await tasksFetch(creds, TASKS_DELETE_PATH(id), { method: TASKS_DELETE_METHOD });
+    if (!res.ok) return { ok: false, error: await errorFrom(res) };
+    return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Network error" };
   }

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import type { ListTasksResult } from "@/lib/henleyTasks";
+import type { ListTasksResult, HenleyTask } from "@/lib/henleyTasks";
+import { createTaskAction } from "./taskActions";
 
 // Status display mapping
 const STATUS_LABEL: Record<string, string> = {
@@ -39,17 +41,34 @@ export default function TaskView({
   filters,
   limit,
   offset,
+  canCreate,
+  writeBackEnabled,
 }: {
   result: ListTasksResult;
   filters: ActiveFilters;
   limit: number;
   offset: number;
+  canCreate: boolean;
+  writeBackEnabled: boolean;
 }) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   // Local state for text/date inputs — initialised from props (component remounts on key change)
   const [assignee, setAssignee] = useState(filters.assignee ?? "");
   const [q, setQ] = useState(filters.q ?? "");
+
+  // Create modal + detail drawer + toast
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [creating, startCreate] = useTransition();
+  const [drawerTask, setDrawerTask] = useState<HenleyTask | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  function flash(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 5000);
+  }
 
   const pushFilters = useCallback(
     (patch: Partial<ActiveFilters & { offset: number }>) => {
@@ -62,10 +81,26 @@ export default function TaskView({
       }
       // Always preserve limit if non-default
       if (limit !== 50) merged.limit = String(limit);
-      router.push(`/tasks?${new URLSearchParams(merged).toString()}`);
+      startTransition(() => {
+        router.push(`/tasks?${new URLSearchParams(merged).toString()}`);
+      });
     },
     [filters, assignee, q, limit, router],
   );
+
+  function onCreate(formData: FormData) {
+    setCreateError(null);
+    startCreate(async () => {
+      const r = await createTaskAction(formData);
+      if (!r.ok) {
+        setCreateError(r.error ?? "Could not create task");
+        return;
+      }
+      setCreateOpen(false);
+      flash("Sent to Tasks Inbox");
+      router.refresh();
+    });
+  }
 
   const hasFilters = !!(
     filters.status ||
@@ -84,9 +119,33 @@ export default function TaskView({
 
   return (
     <div className="p-6 flex flex-col gap-4">
+      {/* ── Action bar: toast + New task ───────────────────────────────── */}
+      <div className="flex items-center justify-between gap-3 min-h-[2rem]">
+        <div>
+          {toast && (
+            <span className="inline-flex items-center gap-2">
+              <span className="hh-dot hh-dot--green" />
+              <span className="hh-secondary">{toast}</span>
+            </span>
+          )}
+        </div>
+        {canCreate && (
+          <button
+            type="button"
+            className="btn-primary text-sm inline-flex items-center gap-1.5"
+            onClick={() => {
+              setCreateError(null);
+              setCreateOpen(true);
+            }}
+          >
+            <Plus size={16} />
+            New task
+          </button>
+        )}
+      </div>
+
       {/* ── Filter bar ─────────────────────────────────────────────────── */}
       <div className="card p-4 flex flex-wrap gap-3 items-end">
-        {/* Status — controlled select, themed via .input color-scheme */}
         <div>
           <label className="hh-label block mb-1">Status</label>
           <select
@@ -101,7 +160,6 @@ export default function TaskView({
           </select>
         </div>
 
-        {/* Priority — controlled select */}
         <div>
           <label className="hh-label block mb-1">Priority</label>
           <select
@@ -116,7 +174,6 @@ export default function TaskView({
           </select>
         </div>
 
-        {/* Assignee — local state, commit on blur or Enter */}
         <div>
           <label className="hh-label block mb-1">Assignee</label>
           <input
@@ -131,7 +188,6 @@ export default function TaskView({
           />
         </div>
 
-        {/* Due before */}
         <div>
           <label className="hh-label block mb-1">Due before</label>
           <input
@@ -142,7 +198,6 @@ export default function TaskView({
           />
         </div>
 
-        {/* Due after */}
         <div>
           <label className="hh-label block mb-1">Due after</label>
           <input
@@ -153,7 +208,6 @@ export default function TaskView({
           />
         </div>
 
-        {/* Search */}
         <div className="flex-1 min-w-[12rem]">
           <label className="hh-label block mb-1">Search</label>
           <input
@@ -198,7 +252,10 @@ export default function TaskView({
       {/* ── Task table ─────────────────────────────────────────────────── */}
       {result.ok && (
         <>
-          <div className="card overflow-x-auto">
+          <div
+            className={`card overflow-x-auto transition-opacity ${isPending ? "opacity-60" : ""}`}
+            aria-busy={isPending}
+          >
             {tasks.length === 0 ? (
               <div className="p-12 text-center">
                 <p className="hh-secondary">
@@ -221,7 +278,11 @@ export default function TaskView({
                 </thead>
                 <tbody className="divide-y divide-glass-border">
                   {tasks.map((t) => (
-                    <tr key={t.id} className="hh-row--flat">
+                    <tr
+                      key={t.id}
+                      className="hh-row--flat cursor-pointer"
+                      onClick={() => setDrawerTask(t)}
+                    >
                       <td className="px-4 py-3 max-w-xs">
                         <span className="hh-primary font-medium truncate block">{t.title}</span>
                         {t.description && (
@@ -263,7 +324,9 @@ export default function TaskView({
           {/* ── Pagination ─────────────────────────────────────────────── */}
           <div className="flex items-center justify-between">
             <span className="hh-secondary text-sm">
-              {total === 0
+              {isPending
+                ? "Loading…"
+                : total === 0
                 ? "No tasks"
                 : `Showing ${offset + 1}–${end} of ${total}`}
             </span>
@@ -271,7 +334,7 @@ export default function TaskView({
               <button
                 type="button"
                 className="btn-secondary text-xs"
-                disabled={!hasPrev}
+                disabled={!hasPrev || isPending}
                 onClick={() => pushFilters({ offset: offset - limit })}
               >
                 ← Prev
@@ -279,7 +342,7 @@ export default function TaskView({
               <button
                 type="button"
                 className="btn-secondary text-xs"
-                disabled={!hasNext}
+                disabled={!hasNext || isPending}
                 onClick={() => pushFilters({ offset: offset + limit })}
               >
                 Next →
@@ -287,6 +350,158 @@ export default function TaskView({
             </div>
           </div>
         </>
+      )}
+
+      {/* ── Create task modal ──────────────────────────────────────────── */}
+      {createOpen && (
+        <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-black/55" onClick={() => setCreateOpen(false)} />
+          <div className="hh-panel relative w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-[20px]">
+            <div className="flex items-center justify-between">
+              <h3 className="hh-label">New task</h3>
+              <button className="hh-close" onClick={() => setCreateOpen(false)} aria-label="Close">
+                ×
+              </button>
+            </div>
+            <p className="hh-caption mt-2">
+              Sent straight to the Henley Tasks Inbox. The Hub stores no copy.
+            </p>
+            <form action={onCreate} className="mt-4 flex flex-col gap-3">
+              <div>
+                <label className="hh-label block mb-1.5">Title</label>
+                <input name="title" className="input w-full" placeholder="What needs doing?" required />
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <div className="flex-1 min-w-[8rem]">
+                  <label className="hh-label block mb-1.5">Priority</label>
+                  <select name="priority" className="input w-full" defaultValue="">
+                    <option value="">None</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+                <div className="flex-1 min-w-[8rem]">
+                  <label className="hh-label block mb-1.5">Due date</label>
+                  <input name="dueDate" type="date" className="input w-full" />
+                </div>
+              </div>
+              <div>
+                <label className="hh-label block mb-1.5">Assignee</label>
+                <input name="assignee" className="input w-full" placeholder="Name or email (optional)" />
+              </div>
+              <div>
+                <label className="hh-label block mb-1.5">Note</label>
+                <textarea
+                  name="note"
+                  className="input w-full"
+                  rows={3}
+                  placeholder="Details for the Tasks Inbox (optional)"
+                />
+              </div>
+              {createError && (
+                <div className="flex items-start gap-2">
+                  <span className="hh-dot hh-dot--red mt-1 shrink-0" />
+                  <span className="hh-secondary font-mono text-xs">{createError}</span>
+                </div>
+              )}
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end mt-1">
+                <button
+                  type="button"
+                  className="btn-secondary w-full sm:w-auto"
+                  onClick={() => setCreateOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary w-full sm:w-auto" disabled={creating}>
+                  {creating ? "Sending…" : "Create task"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Detail drawer (read-only; edit/delete gated) ───────────────── */}
+      {drawerTask && (
+        <div className="fixed inset-0 z-[80] flex justify-end">
+          <div className="absolute inset-0 bg-black/55" onClick={() => setDrawerTask(null)} />
+          <div className="hh-panel relative w-full sm:max-w-md h-full overflow-y-auto rounded-none">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="hh-primary font-semibold pr-6">{drawerTask.title}</h3>
+              <button className="hh-close" onClick={() => setDrawerTask(null)} aria-label="Close">
+                ×
+              </button>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-3">
+              <span className={`${STATUS_BADGE[drawerTask.status] ?? "hh-badge"} !ml-0`}>
+                {STATUS_LABEL[drawerTask.status] ?? drawerTask.status}
+              </span>
+              <span className={`${PRIORITY_BADGE[drawerTask.priority] ?? "hh-badge"} !ml-0 capitalize`}>
+                {drawerTask.priority}
+              </span>
+              {drawerTask.type && <span className="hh-chip text-xs">{drawerTask.type}</span>}
+            </div>
+
+            <dl className="mt-5 flex flex-col gap-3">
+              <div>
+                <dt className="hh-label">Assignee</dt>
+                <dd className="hh-secondary mt-0.5">{drawerTask.assignee ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="hh-label">Due date</dt>
+                <dd className="hh-secondary mt-0.5">
+                  {drawerTask.due_date ? formatDate(new Date(drawerTask.due_date)) : "—"}
+                </dd>
+              </div>
+              {drawerTask.tags && drawerTask.tags.length > 0 && (
+                <div>
+                  <dt className="hh-label">Tags</dt>
+                  <dd className="mt-1 flex flex-wrap gap-1">
+                    {drawerTask.tags.map((tag) => (
+                      <span key={tag} className="hh-chip text-xs">
+                        {tag}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+              )}
+              {drawerTask.description && (
+                <div>
+                  <dt className="hh-label">Description</dt>
+                  <dd className="hh-secondary mt-0.5 whitespace-pre-wrap">{drawerTask.description}</dd>
+                </div>
+              )}
+              <div className="flex gap-6">
+                <div>
+                  <dt className="hh-label">Created</dt>
+                  <dd className="hh-secondary mt-0.5">{formatDate(new Date(drawerTask.created_at))}</dd>
+                </div>
+                <div>
+                  <dt className="hh-label">Updated</dt>
+                  <dd className="hh-secondary mt-0.5">{formatDate(new Date(drawerTask.updated_at))}</dd>
+                </div>
+              </div>
+            </dl>
+
+            {/* Edit/delete only when write-back is confirmed + enabled. Off for now. */}
+            {writeBackEnabled ? (
+              <div className="flex gap-2 mt-6">
+                <button type="button" className="btn-secondary text-sm">
+                  Edit
+                </button>
+                <button type="button" className="btn-destructive text-sm">
+                  Delete
+                </button>
+              </div>
+            ) : (
+              <p className="hh-caption mt-6">
+                Editing and deleting are managed in Henley Tasks. This view is read-only.
+              </p>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

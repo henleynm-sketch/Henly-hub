@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { isInternal } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
 import PageHeader from "@/components/PageHeader";
-import { listTasks } from "@/lib/henleyTasks";
+import { listTasks, TASKS_WRITE_BACK_ENABLED } from "@/lib/henleyTasks";
 import TaskView from "./TaskView";
 
 export default async function TasksPage({
@@ -22,7 +22,9 @@ export default async function TasksPage({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
-  if (!isInternal(session.user.role as Role)) redirect("/dashboard");
+  const role = session.user.role as Role;
+  if (!isInternal(role)) redirect("/dashboard");
+  const canCreate = role === "CEO" || role === "OFFICE";
 
   const sp = await searchParams;
   const limit = Math.min(Number(sp.limit) || 50, 200);
@@ -65,6 +67,8 @@ export default async function TasksPage({
         }}
         limit={limit}
         offset={offset}
+        canCreate={canCreate}
+        writeBackEnabled={TASKS_WRITE_BACK_ENABLED}
       />
     </>
   );
