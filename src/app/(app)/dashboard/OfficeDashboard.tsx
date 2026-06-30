@@ -38,8 +38,8 @@ function addDays(d: Date, n: number) {
   return copy;
 }
 
-function sameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+function fmtDay(d: Date) {
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export default async function OfficeDashboard({
@@ -64,6 +64,7 @@ export default async function OfficeDashboard({
     recentEstimates,
     recentSelections,
     weekMilestones,
+    weekScheduleTasks,
     unreadAgg,
     timePending,
     selectionsPending,
@@ -105,6 +106,17 @@ export default async function OfficeDashboard({
       where: { dueDate: { gte: weekStart, lt: addDays(weekStart, 7) } },
       orderBy: { dueDate: "asc" },
       include: { project: true },
+    }),
+    // Real schedule phases (e.g. seeded from templates) overlapping this week.
+    prisma.scheduleTask.findMany({
+      where: {
+        startDate: { lt: addDays(weekStart, 7) },
+        endDate: { gte: weekStart },
+        project: { archivedAt: null },
+      },
+      orderBy: { startDate: "asc" },
+      include: { project: { select: { id: true, name: true } } },
+      take: 25,
     }),
     prisma.thread.aggregate({ _sum: { unread: true } }),
     prisma.timeEntry.count({ where: { approved: false, clockOut: { not: null } } }),
@@ -157,7 +169,7 @@ export default async function OfficeDashboard({
     .sort((a, b) => b.ts.getTime() - a.ts.getTime())
     .slice(0, 25);
 
-  const agendaDays = [0, 1, 2, 3, 4, 5, 6].map((i) => addDays(weekStart, i));
+  const hasAgenda = weekScheduleTasks.length > 0 || weekMilestones.length > 0;
   const unreadTotal = unreadAgg._sum.unread ?? 0;
 
   return (
@@ -204,7 +216,14 @@ export default async function OfficeDashboard({
             </div>
           </div>
           <ul className="space-y-1">
-            {feed.length === 0 && <li className="py-2 hh-secondary">Quiet two weeks — nothing logged.</li>}
+            {feed.length === 0 && (
+              <li className="py-2 flex flex-col gap-1">
+                <span className="hh-secondary">Quiet two weeks — nothing logged.</span>
+                <Link href="/projects" className="hh-caption text-accent hover:underline">
+                  Log activity from a project →
+                </Link>
+              </li>
+            )}
             {feed.map((e) => (
               <li key={e.id}>
                 <Link href={e.href} className="hh-row hh-row--flat !gap-3">
@@ -223,30 +242,43 @@ export default async function OfficeDashboard({
         <div className="grid gap-6 lg:grid-cols-2 items-start">
           <section className="hh-panel p-6 flex flex-col gap-3">
             <h2 className="hh-label">This week&apos;s agenda</h2>
-            <ul className="space-y-1">
-              {agendaDays.map((day) => {
-                const items = weekMilestones.filter((m) => m.dueDate && sameDay(m.dueDate, day));
-                const isToday = sameDay(day, now);
-                const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                return (
-                  <li key={day.toISOString()} className="hh-row hh-row--flat flex-col !items-start !gap-1">
-                    <span className={isToday ? "hh-label text-accent" : "hh-label"}>
-                      {day.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
-                      {isToday ? " · today" : ""}
-                    </span>
-                    {items.length === 0 ? (
-                      <span className="hh-caption">{isWeekend ? "Non-workday" : "—"}</span>
-                    ) : (
-                      items.map((m) => (
-                        <Link key={m.id} href={`/projects/${m.projectId}`} className="hh-secondary">
-                          <span className="hh-primary">{m.project.name}</span> · {m.title}
-                        </Link>
-                      ))
-                    )}
+            {!hasAgenda ? (
+              <div className="flex flex-col gap-1 py-2">
+                <span className="hh-secondary">Nothing scheduled this week.</span>
+                <Link href="/schedule" className="hh-caption text-accent hover:underline">
+                  Apply a template on a job to build the schedule →
+                </Link>
+              </div>
+            ) : (
+              <ul className="space-y-1">
+                {weekScheduleTasks.map((t) => (
+                  <li key={`st-${t.id}`}>
+                    <Link href={`/schedule?projectId=${t.projectId}`} className="hh-row hh-row--flat !gap-3">
+                      <span className="hh-dot hh-dot--blue" />
+                      <span className="hh-secondary flex-1 min-w-0 truncate">
+                        <span className="hh-primary">{t.project.name}</span> · {t.name}
+                      </span>
+                      <span className="hh-caption whitespace-nowrap">
+                        {fmtDay(t.startDate)} – {fmtDay(t.endDate)}
+                      </span>
+                    </Link>
                   </li>
-                );
-              })}
-            </ul>
+                ))}
+                {weekMilestones.map((m) => (
+                  <li key={`ms-${m.id}`}>
+                    <Link href={`/projects/${m.projectId}`} className="hh-row hh-row--flat !gap-3">
+                      <span className="hh-dot hh-dot--purple" />
+                      <span className="hh-secondary flex-1 min-w-0 truncate">
+                        <span className="hh-primary">{m.project.name}</span> · {m.title}
+                      </span>
+                      <span className="hh-caption whitespace-nowrap">
+                        {m.dueDate ? fmtDay(m.dueDate) : ""}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
 
           <section className="hh-panel p-6 flex flex-col gap-3">
