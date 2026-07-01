@@ -577,3 +577,13 @@ model CrmActivity {
   @@index([clientId, occurredAt])
   @@index([projectId, occurredAt])
 }
+
+model BrandingConfig {
+  id                String   @id @default("singleton")
+  backgroundEnabled Boolean  @default(true)
+  backgroundData    String?  // base64, no data: prefix. null = bundled sample
+  backgroundMime    String?  // image/jpeg | image/png | image/webp
+  scrim             Int      @default(40)      // 0-70 overlay darkness %
+  mode              String   @default("light") // light | dark | both
+  updatedAt         DateTime @updatedAt
+}

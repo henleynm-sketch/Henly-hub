@@ -203,6 +203,30 @@ body {
 }
 .light .hh-app-bg__forms { display: block; }
 
+/* CEO-managed background image — drives the light photo-glass look; scrim keeps text readable. */
+.hh-app-bg__image {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+  background-image: var(--hh-bg-image, none);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+.hh-app-bg__image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 12, 20, var(--hh-bg-scrim, 0.40));
+}
+.hh-app-bg__image[data-bg-enabled="0"] { display: none !important; }
+.light .hh-app-bg__image[data-bg-mode="light"],
+.light .hh-app-bg__image[data-bg-mode="both"] { display: block; }
+html:not(.light) .hh-app-bg__image[data-bg-mode="dark"],
+html:not(.light) .hh-app-bg__image[data-bg-mode="both"] { display: block; }
+
 /* Big Henley logo watermark bleeding through the app background (bold, theme-tinted). */
 .hh-brandmark {
   position: fixed;
