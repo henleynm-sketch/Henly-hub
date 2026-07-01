@@ -250,6 +250,12 @@ body {
   white-space: nowrap;
 }
 
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-ghost:hover,
+.btn-destructive:hover { transform: translateY(-1.5px); }
+
 .btn:focus-visible,
 .btn-primary:focus-visible,
 .btn-secondary:focus-visible,
@@ -837,7 +843,7 @@ html:not(.light) .border-slate-100,
   --hh-row-hover:       rgba(30,45,80,0.07);
   --hh-text:            #14171B;
   --hh-text-2:          #565D69;
-  --hh-text-3:          #858B96;
+  --hh-text-3:          #6E747F;
   --hh-border:          rgba(30,45,80,0.09);
   --hh-divider:         rgba(30,45,80,0.10);
   --hh-accent:          #4C7DFF;
@@ -928,6 +934,9 @@ html:not(.light) .border-slate-100,
   color: var(--hh-text-3);
 }
 
+.hh-badge { transition: transform .16s cubic-bezier(.2,.8,.2,1), color .16s cubic-bezier(.2,.8,.2,1), background .16s cubic-bezier(.2,.8,.2,1); }
+.hh-badge:hover { transform: translateY(-1.5px); }
+
 .hh-row {
   display: flex;
   align-items: center;
@@ -938,12 +947,12 @@ html:not(.light) .border-slate-100,
   transition: background 140ms cubic-bezier(.2,.8,.2,1), transform 140ms cubic-bezier(.2,.8,.2,1);
   cursor: pointer;
 }
-.hh-row:hover { background: var(--hh-row-hover); transform: translateY(-1px); }
+.hh-row:hover { background: var(--hh-row-hover); transform: translateX(3px); }
 .hh-row + .hh-row { margin-top: 8px; }
 .hh-row--flat { background: transparent; }
 .hh-row--flat:hover, .hh-row--active { background: var(--hh-row); }
 /* Integration containers are not click targets — suppress lift and hover-fill */
-.hh-row.hh-row--flat:hover { transform: none; background: transparent; }
+.hh-row.hh-row--flat:hover { transform: translateX(3px); background: var(--hh-row-hover); }
 
 .hh-primary {
   font-size: 14px;
@@ -1085,6 +1094,15 @@ html:not(.light) .border-slate-100,
 }
 .hh-tile-btn:hover { color: var(--hh-text); transform: rotate(-18deg) scale(1.06); }
 @media (prefers-reduced-motion: reduce) { .hh-tile-btn:hover { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-ghost:hover,
+  .btn-destructive:hover,
+  .hh-badge:hover { transform: none; }
+}
 
 /* Horizontal filter rows on touch screens */
 .touch-scroll {
