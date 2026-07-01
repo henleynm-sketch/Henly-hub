@@ -225,6 +225,13 @@ body {
   background-color: var(--hh-logo-ink);
 }
 
+/* Light photo-glass audit: KPI tones + dark-text utilities must read on navy glass (light only) */
+.light .hh-kpi-num[data-tone="good"] { color: var(--hh-dot-green) !important; }
+.light .hh-kpi-num[data-tone="warn"] { color: var(--hh-dot-orange) !important; }
+.light .text-slate-900,
+.light .text-slate-800,
+.light .text-black { color: var(--hh-text); }
+
 /* Custom premium scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

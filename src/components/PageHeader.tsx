@@ -40,7 +40,7 @@ export function StatCard({
   return (
     <div className="hh-panel">
       <div className="hh-label">{label}</div>
-      <div className={`hh-display mt-1 text-3xl font-semibold tracking-tight tabular-nums ${tones[tone]}`}>
+      <div data-tone={tone} className={`hh-kpi-num hh-display mt-1 text-3xl font-semibold tracking-tight tabular-nums ${tones[tone]}`}>
         <CountUp value={value} />
       </div>
       {hint && <div className="mt-1 hh-caption">{hint}</div>}
