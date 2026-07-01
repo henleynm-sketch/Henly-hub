@@ -603,8 +603,8 @@ body {
     --white: #0A0A0B;
     --glass-border:        rgba(0,0,0,.06);
     --glass-border-strong: rgba(0,0,0,.24);
-    --glass-glow:          rgba(59,110,245,.45);
-    --glass-glow-soft:     rgba(59,110,245,.18);
+    --glass-glow:          rgba(0,0,0,.06);
+    --glass-glow-soft:     rgba(0,0,0,.045);
     --glass-lift-shadow:   0 12px 32px rgba(0,0,0,.16);
   }
 }
@@ -626,8 +626,8 @@ body {
   --white: #0A0A0B;
   --glass-border:        rgba(0,0,0,.06);
   --glass-border-strong: rgba(0,0,0,.24);
-  --glass-glow:          rgba(59,110,245,.45);
-  --glass-glow-soft:     rgba(59,110,245,.18);
+  --glass-glow:          rgba(0,0,0,.06);
+  --glass-glow-soft:     rgba(0,0,0,.045);
   --glass-lift-shadow:   0 12px 32px rgba(0,0,0,.16);
 }
 
@@ -795,7 +795,7 @@ html:not(.light) .border-slate-100,
   --hh-row-hover:     #E9ECEF;
   --hh-text:          #141417;
   --hh-text-2:        #6B7078;
-  --hh-text-3:        #8A8F98;
+  --hh-text-3:        #6E727A;
   --hh-border:        rgba(0,0,0,0.06);
   --hh-divider:       rgba(0,0,0,0.06);
   --hh-accent:        #3B6EF5;
@@ -893,6 +893,12 @@ html:not(.light) .border-slate-100,
 .hh-badge--success { color: var(--hh-dot-green);  border-color: color-mix(in srgb, var(--hh-dot-green) 24%, transparent);  background: color-mix(in srgb, var(--hh-dot-green) 13%, transparent); }
 .hh-badge--warning { color: var(--hh-dot-orange); border-color: color-mix(in srgb, var(--hh-dot-orange) 26%, transparent); background: color-mix(in srgb, var(--hh-dot-orange) 14%, transparent); }
 .hh-badge--danger  { color: var(--hh-dot-red);    border-color: color-mix(in srgb, var(--hh-dot-red) 24%, transparent);    background: color-mix(in srgb, var(--hh-dot-red) 13%, transparent); }
+
+/* Light mode: darken pill text for WCAG AA on the pale tinted fills */
+.light .hh-badge          { color: color-mix(in srgb, var(--hh-accent) 72%, black); }
+.light .hh-badge--success { color: color-mix(in srgb, var(--hh-dot-green) 72%, black); }
+.light .hh-badge--warning { color: color-mix(in srgb, var(--hh-dot-orange) 72%, black); }
+.light .hh-badge--danger  { color: color-mix(in srgb, var(--hh-dot-red) 72%, black); }
 
 .hh-divider { border: 0; border-top: 1px solid var(--hh-divider); margin: 14px 0 12px; }
 .hh-caption { font-size: 12px; color: var(--hh-text-3); }
