@@ -78,7 +78,7 @@
 .light {
   color-scheme: light;
   
-  --color-canvas: #EBE3D2;
+  --color-canvas: #E2D6BC;
   --color-surface: #FBF7EE;
   --color-surface-raised: #FDFBF5;
   --color-border: rgba(96,76,44,0.12);
@@ -116,12 +116,12 @@
   --input-focus-bg: rgba(255, 255, 255, 0.9);
 
   /* New Reference Standard Tokens - Light Mode */
-  --panel-bg: rgba(251, 247, 238, 0.58);
+  --panel-bg: rgba(252, 248, 240, 0.64);
   --panel-bg-solid: #FBF7EE;
   --panel-highlight: rgba(255, 255, 255, 0.92);
   --panel-border: rgba(96, 76, 44, 0.12);
   --panel-border-hover: rgba(96, 76, 44, 0.16);
-  --panel-shadow: 0 20px 46px rgba(60, 46, 26, 0.22);
+  --panel-shadow: 0 22px 50px rgba(48, 36, 18, 0.28);
   --panel-radius: 20px;
   
   --row-bg: rgba(0, 0, 0, 0.02);
@@ -851,14 +851,14 @@ html:not(.light) .border-slate-100,
 }
 
 .light, html.light, [data-theme="light"] {
-  --hh-canvas:          #EBE3D2;
+  --hh-canvas:          #E2D6BC;
   --hh-panel:           #FBF7EE;
-  --hh-panel-glass:     linear-gradient(155deg, rgba(252,249,242,0.60) 0%, rgba(250,246,236,0.46) 55%, rgba(248,243,231,0.38) 100%);
+  --hh-panel-glass:     linear-gradient(155deg, rgba(253,250,244,0.66) 0%, rgba(251,247,238,0.54) 55%, rgba(249,245,234,0.46) 100%);
   --hh-panel-highlight: rgba(255,255,255,0.92);
   --hh-sheen:           rgba(255,255,255,0.55);
   --hh-edge-top:        rgba(255,255,255,0.95);
   --hh-edge-side:       rgba(255,253,247,0.70);
-  --hh-edge-base:       rgba(84,62,32,0.18);
+  --hh-edge-base:       rgba(70,50,24,0.24);
   --hh-tile:            linear-gradient(160deg, #FFFDF7, #F1E9D9);
   --hh-tile-edge:       rgba(84,62,32,0.14);
   --hh-tile-hi:         rgba(255,255,255,0.95);
@@ -879,9 +879,9 @@ html:not(.light) .border-slate-100,
   --hh-dot-purple:      #A855F7;
   --hh-chip-bg:         rgba(84,62,32,0.08);
   --hh-chip-text:       #5C574A;
-  --hh-shadow:          0 20px 46px rgba(60,46,26,0.22);
-  --hh-lift-shadow:     0 30px 64px rgba(60,46,26,0.28);
-  --hh-grid-line:       rgba(96,76,44,0.06);
+  --hh-shadow:          0 22px 50px rgba(48,36,18,0.28);
+  --hh-lift-shadow:     0 32px 68px rgba(48,36,18,0.34);
+  --hh-grid-line:       rgba(90,70,38,0.075);
   --hh-amb-warm:        radial-gradient(900px 640px at 62% 116%, rgba(224,178,110,0.40), transparent 60%);
   --hh-amb-warm2:       radial-gradient(560px 420px at 90% 96%, rgba(214,166,104,0.30), transparent 62%);
   --hh-amb-cool:        radial-gradient(820px 520px at 10% -10%, rgba(150,160,210,0.16), transparent 60%);
