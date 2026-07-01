@@ -78,12 +78,12 @@
 .light {
   color-scheme: light;
   
-  --color-canvas: #E7EAEF;
-  --color-surface: #FFFFFF;
-  --color-surface-raised: #FBFCFD;
-  --color-border: rgba(30,45,80,0.09);
-  --color-text-primary: #14171B;
-  --color-text-secondary: #565D69;
+  --color-canvas: #EBE3D2;
+  --color-surface: #FBF7EE;
+  --color-surface-raised: #FDFBF5;
+  --color-border: rgba(96,76,44,0.12);
+  --color-text-primary: #1E1B14;
+  --color-text-secondary: #5C574A;
   --color-accent: #4C7DFF;
   --color-accent-hover: #3A6BF0;
   --btn-primary-text: #FFFFFF;
@@ -116,12 +116,12 @@
   --input-focus-bg: rgba(255, 255, 255, 0.9);
 
   /* New Reference Standard Tokens - Light Mode */
-  --panel-bg: rgba(255, 255, 255, 0.80);
-  --panel-bg-solid: #FFFFFF;
-  --panel-highlight: rgba(255, 255, 255, 0.90);
-  --panel-border: rgba(30, 45, 80, 0.09);
-  --panel-border-hover: rgba(30, 45, 80, 0.14);
-  --panel-shadow: 0 18px 42px rgba(30, 40, 65, 0.15);
+  --panel-bg: rgba(251, 247, 238, 0.82);
+  --panel-bg-solid: #FBF7EE;
+  --panel-highlight: rgba(255, 255, 255, 0.92);
+  --panel-border: rgba(96, 76, 44, 0.12);
+  --panel-border-hover: rgba(96, 76, 44, 0.16);
+  --panel-shadow: 0 18px 42px rgba(60, 46, 26, 0.16);
   --panel-radius: 20px;
   
   --row-bg: rgba(0, 0, 0, 0.02);
@@ -851,25 +851,25 @@ html:not(.light) .border-slate-100,
 }
 
 .light, html.light, [data-theme="light"] {
-  --hh-canvas:          #E7EAEF;
-  --hh-panel:           #FFFFFF;
-  --hh-panel-glass:     linear-gradient(155deg, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.70) 55%, rgba(255,255,255,0.60) 100%);
-  --hh-panel-highlight: rgba(255,255,255,0.90);
-  --hh-sheen:           rgba(255,255,255,0.50);
+  --hh-canvas:          #EBE3D2;
+  --hh-panel:           #FBF7EE;
+  --hh-panel-glass:     linear-gradient(155deg, rgba(253,250,243,0.92) 0%, rgba(251,247,238,0.76) 55%, rgba(249,244,232,0.66) 100%);
+  --hh-panel-highlight: rgba(255,255,255,0.92);
+  --hh-sheen:           rgba(255,255,255,0.55);
   --hh-edge-top:        rgba(255,255,255,0.95);
-  --hh-edge-side:       rgba(255,255,255,0.50);
-  --hh-edge-base:       rgba(40,55,85,0.16);
-  --hh-tile:            linear-gradient(160deg, #ffffff, #eef1f6);
-  --hh-tile-edge:       rgba(40,55,85,0.12);
+  --hh-edge-side:       rgba(255,253,247,0.55);
+  --hh-edge-base:       rgba(84,62,32,0.18);
+  --hh-tile:            linear-gradient(160deg, #FFFDF7, #F1E9D9);
+  --hh-tile-edge:       rgba(84,62,32,0.14);
   --hh-tile-hi:         rgba(255,255,255,0.95);
-  --hh-tile-shadow:     0 2px 5px rgba(30,45,80,0.10);
-  --hh-row:             rgba(30,45,80,0.035);
-  --hh-row-hover:       rgba(30,45,80,0.07);
-  --hh-text:            #14171B;
-  --hh-text-2:          #565D69;
-  --hh-text-3:          #6E747F;
-  --hh-border:          rgba(30,45,80,0.09);
-  --hh-divider:         rgba(30,45,80,0.10);
+  --hh-tile-shadow:     0 2px 5px rgba(70,52,26,0.12);
+  --hh-row:             rgba(84,62,32,0.05);
+  --hh-row-hover:       rgba(84,62,32,0.09);
+  --hh-text:            #1E1B14;
+  --hh-text-2:          #5C574A;
+  --hh-text-3:          #736C5A;
+  --hh-border:          rgba(96,76,44,0.12);
+  --hh-divider:         rgba(96,76,44,0.12);
   --hh-accent:          #4C7DFF;
   --hh-accent-glow:     rgba(76,125,255,0.42);
   --hh-dot-red:         #E5484D;
@@ -877,17 +877,17 @@ html:not(.light) .border-slate-100,
   --hh-dot-green:       #3DDC84;
   --hh-dot-orange:      #FFB020;
   --hh-dot-purple:      #A855F7;
-  --hh-chip-bg:         rgba(30,45,80,0.06);
-  --hh-chip-text:       #565D69;
-  --hh-shadow:          0 18px 42px rgba(30,40,65,0.15);
-  --hh-lift-shadow:     0 28px 58px rgba(30,40,65,0.22);
-  --hh-grid-line:       rgba(40,60,100,0.05);
-  --hh-amb-warm:        radial-gradient(900px 640px at 62% 116%, rgba(255,190,120,0.32), transparent 60%);
-  --hh-amb-warm2:       radial-gradient(560px 420px at 90% 96%, rgba(255,175,110,0.24), transparent 62%);
-  --hh-amb-cool:        radial-gradient(820px 520px at 10% -10%, rgba(120,150,255,0.22), transparent 60%);
-  --hh-vignette:        radial-gradient(140% 120% at 50% 40%, transparent 60%, rgba(90,100,120,0.10) 100%);
-  --hh-logo-ink:        #1B2432;
-  --hh-watermark-op:    0.10;
+  --hh-chip-bg:         rgba(84,62,32,0.08);
+  --hh-chip-text:       #5C574A;
+  --hh-shadow:          0 18px 42px rgba(60,46,26,0.16);
+  --hh-lift-shadow:     0 28px 58px rgba(60,46,26,0.22);
+  --hh-grid-line:       rgba(96,76,44,0.06);
+  --hh-amb-warm:        radial-gradient(900px 640px at 62% 116%, rgba(224,178,110,0.40), transparent 60%);
+  --hh-amb-warm2:       radial-gradient(560px 420px at 90% 96%, rgba(214,166,104,0.30), transparent 62%);
+  --hh-amb-cool:        radial-gradient(820px 520px at 10% -10%, rgba(150,160,210,0.16), transparent 60%);
+  --hh-vignette:        radial-gradient(140% 120% at 50% 40%, transparent 58%, rgba(74,58,30,0.10) 100%);
+  --hh-logo-ink:        #3A3123;
+  --hh-watermark-op:    0.16;
 }
 
 .hh-panel {
