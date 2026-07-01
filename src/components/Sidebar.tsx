@@ -129,20 +129,13 @@ export default function Sidebar({
               <li key={it.href}>
                 <Link
                   href={it.href}
-                  className={cn(
-                    "flex items-center gap-2 rounded-md px-3 py-3 md:py-2 text-sm transition-all duration-200 border transform active:scale-98",
-                    active
-                      ? "bg-accent border-transparent text-white font-semibold"
-                      : "text-ink-soft border-transparent hover:bg-row-hover hover:text-ink"
-                  )}
+                  className={cn("hh-nav-item", active && "active")}
                 >
-                  <Icon size={16} className={active ? "text-white" : "text-ink-soft"} />
+                  <span className="hh-nav-ic">
+                    <Icon size={17} />
+                  </span>
                   <span className="flex-1">{it.label}</span>
-                  {it.badge && (
-                    <span className="rounded-full bg-glass-bg border border-glass-border px-2 py-0.5 text-[9px] font-bold uppercase text-ink-soft">
-                      {it.badge}
-                    </span>
-                  )}
+                  {it.badge && <span className="hh-nav-badge">{it.badge}</span>}
                 </Link>
               </li>
             );

@@ -39,6 +39,8 @@
   /* Radius */
   --radius-sm: 6px;
   --radius-md: 12px;
+  --radius-pill: 12px;
+  --radius-tile: 10px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   
@@ -269,23 +271,16 @@ body {
 }
 
 .btn-secondary {
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
+  background: var(--hh-tile);
+  border: 1px solid transparent;
+  color: var(--hh-text);
+  box-shadow: inset 0 1px 0 var(--hh-tile-hi), inset 0 0 0 0.5px var(--hh-tile-edge), var(--hh-tile-shadow);
 }
 .btn-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--hh-text);
 }
 
-.light .btn-secondary {
-  background-color: rgba(0, 0, 0, 0.02);
-  border-color: rgba(0, 0, 0, 0.08);
-}
-.light .btn-secondary:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.15);
-}
+/* .btn-secondary uses --hh-tile which is theme-aware; no light override needed. */
 
 .btn-ghost {
   color: var(--text-secondary);
@@ -431,10 +426,61 @@ body {
 }
 
 .glass-sidebar {
-  background: rgba(14, 14, 16, 0.50);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--hh-panel-glass);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(140%);
+  border-right: 1px solid var(--hh-divider);
+}
+
+/* ===== iOS squircle nav icon tiles ===== */
+.hh-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 6px 10px 6px 6px;
+  border-radius: var(--radius-pill);
+  color: var(--hh-text-2);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .16s cubic-bezier(.2,.8,.2,1), color .16s cubic-bezier(.2,.8,.2,1);
+}
+.hh-nav-ic {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-tile, 10px);
+  display: grid;
+  place-items: center;
+  color: var(--hh-text-2);
+  background: var(--hh-tile);
+  box-shadow: inset 0 1px 0 var(--hh-tile-hi), inset 0 0 0 0.5px var(--hh-tile-edge), var(--hh-tile-shadow);
+  transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s cubic-bezier(.2,.8,.2,1);
+}
+.hh-nav-ic svg { width: 17px; height: 17px; opacity: 0.92; }
+.hh-nav-item:hover { background: var(--hh-row-hover); color: var(--hh-text); }
+.hh-nav-item:hover .hh-nav-ic { transform: scale(1.08) translateY(-1px); color: var(--hh-text); }
+.hh-nav-item.active { color: var(--hh-text); background: var(--hh-row-hover); font-weight: 600; }
+.hh-nav-item.active .hh-nav-ic {
+  color: #FFFFFF;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--hh-accent) 66%, white), var(--hh-accent));
+  box-shadow: 0 4px 12px var(--hh-accent-glow), inset 0 1px 0 rgba(255,255,255,0.45);
+}
+.hh-nav-item.active .hh-nav-ic svg { opacity: 1; }
+.hh-nav-badge {
+  margin-left: auto;
+  border-radius: 9999px;
+  background: var(--hh-chip-bg);
+  color: var(--hh-text-3);
+  padding: 2px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-nav-item:hover .hh-nav-ic { transform: none; }
 }
 
 .glass-card {
@@ -485,57 +531,7 @@ body {
   }
 }
 
-.light .glass-sidebar {
-  background: var(--glass-sidebar-bg) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-/* Enforce dark sidebar overrides to prevent dark text on dark sidebar */
-.light .glass-sidebar .text-ink,
-.light .glass-sidebar h1,
-.light .glass-sidebar h2,
-.light .glass-sidebar h3 {
-  color: var(--glass-sidebar-text) !important;
-}
-
-.light .glass-sidebar .text-ink-soft {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-.light .glass-sidebar [class*="text-slate-500"] {
-  color: rgba(255, 255, 255, 0.4) !important;
-}
-
-.light .glass-sidebar a:not(.bg-accent) {
-  color: rgba(255, 255, 255, 0.7) !important;
-  border-color: transparent !important;
-}
-
-.light .glass-sidebar a:not(.bg-accent):hover {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  color: var(--glass-sidebar-text) !important;
-}
-
-/* Active nav pill = solid blue; keep its label + icon white on the dark sidebar */
-.light .glass-sidebar a.bg-accent {
-  color: #FFFFFF !important;
-  border-color: transparent !important;
-}
-
-.light .glass-sidebar a.bg-accent svg {
-  color: #FFFFFF !important;
-}
-
-.light .glass-sidebar svg {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-.light .glass-sidebar .bg-glass-bg {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
+/* Sidebar is now theme-aware frosted glass; text uses standard --hh tokens. */
 
 .light .glass-card {
   background: var(--panel-bg-solid) !important;
@@ -1048,12 +1044,12 @@ html:not(.light) .border-slate-100,
   padding: 10px 12px;
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--hh-text-2);
   transition: background-color 140ms ease, color 140ms ease;
 }
 .sidebar-signout:hover {
-  color: rgba(255, 255, 255, 0.95);
-  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--hh-text);
+  background-color: var(--hh-row-hover);
 }
 .sidebar-signout:focus-visible {
   outline: 2px solid var(--accent);
@@ -1066,18 +1062,29 @@ html:not(.light) .border-slate-100,
   width: 100%;
   align-items: center;
   gap: 12px;
-  border-radius: var(--radius-md);
-  padding: 8px;
+  border-radius: 14px;
+  padding: 10px;
   text-align: left;
-  transition: background-color 140ms ease, border-color 140ms ease;
+  background: var(--hh-row);
+  box-shadow: inset 0 0 0 0.5px var(--hh-tile-edge), inset 0 1px 0 var(--hh-tile-hi);
+  transition: background-color 140ms ease, transform 140ms ease;
 }
 .sidebar-usercard:hover {
-  background-color: rgba(255, 255, 255, 0.08) !important;
+  background-color: var(--hh-row-hover) !important;
 }
 .sidebar-usercard:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+.hh-tile-btn {
+  background: var(--hh-tile);
+  color: var(--hh-text-2);
+  box-shadow: inset 0 1px 0 var(--hh-tile-hi), inset 0 0 0 0.5px var(--hh-tile-edge), var(--hh-tile-shadow);
+  transition: transform .2s cubic-bezier(.2,.8,.2,1), color .2s cubic-bezier(.2,.8,.2,1);
+}
+.hh-tile-btn:hover { color: var(--hh-text); transform: rotate(-18deg) scale(1.06); }
+@media (prefers-reduced-motion: reduce) { .hh-tile-btn:hover { transform: none; } }
 
 /* Horizontal filter rows on touch screens */
 .touch-scroll {

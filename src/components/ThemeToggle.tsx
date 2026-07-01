@@ -34,7 +34,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-glass-border bg-glass-bg text-ink-soft hover:text-ink hover:bg-white/5 active:scale-90 transition-all duration-200"
+      className="hh-tile-btn relative flex h-9 w-9 items-center justify-center rounded-xl active:scale-90"
       aria-label="Toggle light/dark theme"
     >
       <div className="relative h-4 w-4 transition-transform duration-500 ease-glass" style={{ transform: isLight ? 'rotate(180deg)' : 'rotate(0deg)' }}>
