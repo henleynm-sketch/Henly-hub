@@ -24,6 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="relative flex h-screen overflow-hidden bg-transparent text-ink">
       <div className="hh-app-bg" aria-hidden="true" />
+      <div className="hh-brandmark" aria-hidden="true" />
       <Sidebar {...sidebarProps} className="relative z-10" />
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <GlassTopbar className="px-3 md:px-6">

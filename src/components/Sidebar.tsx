@@ -106,18 +106,9 @@ export default function Sidebar({
 
   return (
     <GlassSidebar className={className}>
-      {/* Brand logo header */}
-      <div className="flex h-14 items-center gap-2.5 border-b border-glass-border px-4">
-        <div
-          className="grid h-7 w-7 place-items-center rounded-md bg-accent text-white"
-          style={{ boxShadow: "var(--accent-glow)" }}
-        >
-          <span className="hh-display text-sm font-extrabold tracking-tight">H</span>
-        </div>
-        <div>
-          <div className="hh-display text-sm font-bold tracking-tight text-ink leading-none">Henley Hub</div>
-          <div className="text-[9px] font-bold text-ink-muted uppercase tracking-widest mt-0.5">Contracting</div>
-        </div>
+      {/* Brand header — real Henley Contracting logo, tinted per theme via CSS mask */}
+      <div className="flex h-14 items-center border-b border-glass-border px-4">
+        <div className="hh-brand-logo" role="img" aria-label="Henley Contracting" />
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">

@@ -186,6 +186,28 @@ body {
   background: var(--hh-vignette);
 }
 
+/* Big Henley logo watermark bleeding through the app background (bold, theme-tinted). */
+.hh-brandmark {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask: url("/henley-logo.png") no-repeat center 44% / min(64vw, 940px) auto;
+  mask: url("/henley-logo.png") no-repeat center 44% / min(64vw, 940px) auto;
+  background-color: var(--hh-logo-ink);
+  opacity: var(--hh-watermark-op);
+}
+
+/* Sidebar brand: the real Henley logo, tinted per theme via mask fill. */
+.hh-brand-logo {
+  height: 30px;
+  width: 190px;
+  max-width: 100%;
+  -webkit-mask: url("/henley-logo.png") no-repeat left center / contain;
+  mask: url("/henley-logo.png") no-repeat left center / contain;
+  background-color: var(--hh-logo-ink);
+}
+
 /* Custom premium scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -824,6 +846,8 @@ html:not(.light) .border-slate-100,
   --hh-amb-warm2:       radial-gradient(560px 420px at 90% 96%, rgba(255,140,70,0.11), transparent 62%);
   --hh-amb-cool:        radial-gradient(820px 520px at 10% -10%, rgba(90,130,255,0.12), transparent 60%);
   --hh-vignette:        radial-gradient(140% 120% at 50% 40%, transparent 55%, rgba(0,0,0,0.45) 100%);
+  --hh-logo-ink:        #EDEFF2;
+  --hh-watermark-op:    0.13;
 }
 
 .light, html.light, [data-theme="light"] {
@@ -862,6 +886,8 @@ html:not(.light) .border-slate-100,
   --hh-amb-warm2:       radial-gradient(560px 420px at 90% 96%, rgba(255,175,110,0.24), transparent 62%);
   --hh-amb-cool:        radial-gradient(820px 520px at 10% -10%, rgba(120,150,255,0.22), transparent 60%);
   --hh-vignette:        radial-gradient(140% 120% at 50% 40%, transparent 60%, rgba(90,100,120,0.10) 100%);
+  --hh-logo-ink:        #1B2432;
+  --hh-watermark-op:    0.10;
 }
 
 .hh-panel {
