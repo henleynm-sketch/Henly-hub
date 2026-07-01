@@ -13,9 +13,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 active:scale-95 disabled:pointer-events-none disabled:opacity-50",
           variant === "primary" && "btn-primary",
-          variant === "secondary" && "bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/15",
-          variant === "ghost" && "text-slate-400 hover:bg-white/5 hover:text-white",
-          variant === "destructive" && "bg-destructive/20 border border-destructive/25 text-red-300 hover:bg-destructive/25 hover:border-destructive/40 hover:text-white",
+          variant === "secondary" && "btn-secondary",
+          variant === "ghost" && "btn-ghost",
+          variant === "destructive" && "btn-destructive",
           className
         )}
         {...props}

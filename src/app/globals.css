@@ -225,15 +225,24 @@ body {
   white-space: nowrap;
 }
 
+.btn:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-ghost:focus-visible,
+.btn-destructive:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-canvas), 0 0 0 4px var(--accent-focus-ring);
+}
+
 .btn-primary {
   background-color: var(--accent);
   border-color: var(--accent-hover);
   color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(92, 124, 250, 0.3);
+  box-shadow: 0 4px 14px var(--accent-focus), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 .btn-primary:hover {
   background-color: var(--accent-hover);
-  box-shadow: 0 6px 20px rgba(92, 124, 250, 0.45);
+  box-shadow: 0 6px 20px var(--accent-focus), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .btn-secondary {
@@ -552,13 +561,13 @@ body {
   background-color: var(--color-accent) !important;
   border-color: var(--color-accent-hover) !important;
   color: var(--btn-primary-text) !important;
-  box-shadow: 0 4px 14px rgba(232, 98, 26, 0.25) !important;
+  box-shadow: 0 4px 14px var(--accent-focus), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
 }
 
 .light .btn-primary:hover {
   background-color: var(--color-accent-hover) !important;
   color: var(--btn-primary-text) !important;
-  box-shadow: 0 6px 20px rgba(232, 98, 26, 0.4) !important;
+  box-shadow: 0 6px 20px var(--accent-focus), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
 }
 
 /* ============================================================
@@ -874,16 +883,16 @@ html:not(.light) .border-slate-100,
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--hh-accent);
-  border: 1px solid var(--hh-accent);
-  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--hh-accent) 22%, transparent);
+  background: color-mix(in srgb, var(--hh-accent) 12%, transparent);
   border-radius: 9999px;
   padding: 3px 10px;
   margin-left: auto;
   flex-shrink: 0;
 }
-.hh-badge--success { color: var(--hh-dot-green);  border-color: var(--hh-dot-green); }
-.hh-badge--warning { color: var(--hh-dot-orange); border-color: var(--hh-dot-orange); }
-.hh-badge--danger  { color: var(--hh-dot-red);    border-color: var(--hh-dot-red); }
+.hh-badge--success { color: var(--hh-dot-green);  border-color: color-mix(in srgb, var(--hh-dot-green) 24%, transparent);  background: color-mix(in srgb, var(--hh-dot-green) 13%, transparent); }
+.hh-badge--warning { color: var(--hh-dot-orange); border-color: color-mix(in srgb, var(--hh-dot-orange) 26%, transparent); background: color-mix(in srgb, var(--hh-dot-orange) 14%, transparent); }
+.hh-badge--danger  { color: var(--hh-dot-red);    border-color: color-mix(in srgb, var(--hh-dot-red) 24%, transparent);    background: color-mix(in srgb, var(--hh-dot-red) 13%, transparent); }
 
 .hh-divider { border: 0; border-top: 1px solid var(--hh-divider); margin: 14px 0 12px; }
 .hh-caption { font-size: 12px; color: var(--hh-text-3); }
