@@ -62,7 +62,7 @@ export default function ClientDashboard({
           <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-row-bg">
             <div
               className="h-full bg-accent rounded-full transition-all duration-500 ease-glass"
-              style={{ width: `${pct}%`, boxShadow: "0 0 8px rgba(92,124,250,0.5)" }}
+              style={{ width: `${pct}%`, boxShadow: "var(--accent-glow)" }}
             />
           </div>
         </div>

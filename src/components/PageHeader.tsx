@@ -34,13 +34,13 @@ export function StatCard({
   const tones = {
     default: "text-ink",
     good: "text-emerald-600 dark:text-emerald-400",
-    warn: "text-amber-600 dark:text-amber-450",
+    warn: "text-amber-600 dark:text-amber-400",
   };
   
   return (
     <div className="hh-panel">
       <div className="hh-label">{label}</div>
-      <div className={`mt-1 text-2xl font-bold ${tones[tone]}`}>
+      <div className={`mt-1 text-3xl font-bold tracking-tight tabular-nums ${tones[tone]}`}>
         <CountUp value={value} />
       </div>
       {hint && <div className="mt-1 hh-caption">{hint}</div>}
