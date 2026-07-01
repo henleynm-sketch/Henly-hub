@@ -8,6 +8,8 @@ import { canManageTeam, ROLE_LABELS, type Role } from "@/lib/roles";
 import PageHeader from "@/components/PageHeader";
 import M365Card, { type M365CardData } from "@/components/M365Card";
 import { SharePointCard } from "@/components/settings/SharePointCard";
+import AppearanceCard from "@/components/settings/AppearanceCard";
+import { getBrandingConfig } from "@/lib/branding";
 import QuoCard, { type QuoCardData } from "@/components/QuoCard";
 import HenleyTasksCard, { type HenleyTasksCardData } from "@/components/HenleyTasksCard";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
@@ -31,6 +33,7 @@ const SECTIONS = [
   { id: "team", label: "Team & access" },
   { id: "departments", label: "Departments" },
   { id: "integrations", label: "Integrations" },
+  { id: "appearance", label: "Appearance" },
   { id: "apikeys", label: "API keys" },
   { id: "notifications", label: "Notifications" },
   { id: "audit", label: "Audit log" },
@@ -87,6 +90,7 @@ export default async function SettingsPage({
   if (role !== "CEO" && role !== "OFFICE") redirect("/dashboard");
   const isCeo = canManageTeam(role);
   const sp = await searchParams;
+  const branding = await getBrandingConfig();
 
   const visibleSections = isCeo
     ? SECTIONS
@@ -627,6 +631,24 @@ export default async function SettingsPage({
             </section>
 
             {/* 5 — API keys */}
+            {isCeo && (
+              <section id="appearance" className="hh-panel p-6 flex flex-col gap-5 scroll-mt-24">
+                <div>
+                  <h2 className="hh-display text-lg font-bold text-ink">Appearance</h2>
+                  <p className="mt-1 hh-secondary">
+                    Set the Hub background image and the readability scrim. Light mode is designed to
+                    sit over this image with white text.
+                  </p>
+                </div>
+                <AppearanceCard
+                  initialEnabled={branding.backgroundEnabled}
+                  initialScrim={branding.scrim}
+                  initialMode={branding.mode}
+                  version={branding.updatedAt.getTime()}
+                />
+              </section>
+            )}
+
             <section id="apikeys" className="hh-panel p-6 flex flex-col gap-4 scroll-mt-24">
               <div className="flex items-center justify-between">
                 <h2 className="hh-label">API keys</h2>
