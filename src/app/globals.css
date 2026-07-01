@@ -78,12 +78,12 @@
 .light {
   color-scheme: light;
   
-  --color-canvas: #E2D6BC;
-  --color-surface: #FBF7EE;
-  --color-surface-raised: #FDFBF5;
-  --color-border: rgba(96,76,44,0.12);
-  --color-text-primary: #1E1B14;
-  --color-text-secondary: #5C574A;
+  --color-canvas: #111A28;
+  --color-surface: rgba(255,255,255,0.10);
+  --color-surface-raised: rgba(255,255,255,0.14);
+  --color-border: rgba(255,255,255,0.18);
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: rgba(255,255,255,0.88);
   --color-accent: #4C7DFF;
   --color-accent-hover: #3A6BF0;
   --btn-primary-text: #FFFFFF;
@@ -98,7 +98,7 @@
   --accent-hover: var(--color-accent-hover);
   --text-primary: var(--color-text-primary);
   --text-secondary: var(--color-text-secondary);
-  --text-muted: var(--color-text-secondary);
+  --text-muted: rgba(255,255,255,0.68);
   
   --glass-bg: var(--color-surface);
   --glass-border: var(--color-border);
@@ -116,12 +116,12 @@
   --input-focus-bg: rgba(255, 255, 255, 0.9);
 
   /* New Reference Standard Tokens - Light Mode */
-  --panel-bg: rgba(252, 248, 240, 0.64);
-  --panel-bg-solid: #FBF7EE;
-  --panel-highlight: rgba(255, 255, 255, 0.92);
-  --panel-border: rgba(96, 76, 44, 0.12);
-  --panel-border-hover: rgba(96, 76, 44, 0.16);
-  --panel-shadow: 0 22px 50px rgba(48, 36, 18, 0.28);
+  --panel-bg: rgba(255, 255, 255, 0.10);
+  --panel-bg-solid: rgba(30, 40, 60, 0.72);
+  --panel-highlight: rgba(255, 255, 255, 0.50);
+  --panel-border: rgba(255, 255, 255, 0.18);
+  --panel-border-hover: rgba(255, 255, 255, 0.28);
+  --panel-shadow: 0 20px 50px rgba(8, 12, 20, 0.35), 0 3px 10px rgba(8, 12, 20, 0.18);
   --panel-radius: 20px;
   
   --row-bg: rgba(0, 0, 0, 0.02);
@@ -156,7 +156,8 @@ body {
 }
 
 .light body {
-  background: var(--color-canvas);
+  background: linear-gradient(150deg, #141C2B 0%, #0D1420 100%);
+  background-attachment: fixed;
 }
 
 /* ===== APP BACKGROUND DEPTH LAYER (blueprint grid + warm ambient + vignette) =====
@@ -185,6 +186,22 @@ body {
   pointer-events: none;
   background: var(--hh-vignette);
 }
+
+/* Light-only soft depth forms (shown when no background image is set). */
+.hh-app-bg__forms {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+  opacity: 0.65;
+  filter: blur(22px);
+  background:
+    radial-gradient(600px 480px at 22% 30%, var(--hh-form-a), transparent 62%),
+    radial-gradient(680px 520px at 82% 70%, var(--hh-form-b), transparent 60%),
+    radial-gradient(520px 420px at 60% 6%, var(--hh-form-a), transparent 66%);
+}
+.light .hh-app-bg__forms { display: block; }
 
 /* Big Henley logo watermark bleeding through the app background (bold, theme-tinted). */
 .hh-brandmark {
@@ -546,16 +563,16 @@ body {
 
 /* Light mode overrides for Sequoia glass classes */
 .light .glass-base {
-  background: rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.10) !important;
   border: none !important;
-  border-bottom: 1px solid var(--color-border) !important;
-  box-shadow: 0 1px 2px rgba(20, 20, 23, 0.04) !important;
+  border-bottom: 1px solid var(--hh-divider) !important;
+  box-shadow: 0 1px 2px rgba(8, 12, 20, 0.25) !important;
 }
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   .light .glass-base {
-    background: rgba(255, 255, 255, 0.72) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-    backdrop-filter: blur(20px) saturate(160%) !important;
+    background: rgba(255, 255, 255, 0.10) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
   }
 }
 
@@ -851,45 +868,46 @@ html:not(.light) .border-slate-100,
 }
 
 .light, html.light, [data-theme="light"] {
-  --hh-canvas:          #E2D6BC;
-  --hh-panel:           #FBF7EE;
-  --hh-panel-glass:     linear-gradient(155deg, rgba(253,250,244,0.66) 0%, rgba(251,247,238,0.54) 55%, rgba(249,245,234,0.46) 100%);
-  --hh-panel-highlight: rgba(255,255,255,0.92);
-  --hh-sheen:           rgba(255,255,255,0.55);
-  --hh-edge-top:        rgba(255,255,255,0.95);
-  --hh-edge-side:       rgba(255,253,247,0.70);
-  --hh-edge-base:       rgba(70,50,24,0.24);
-  --hh-tile:            linear-gradient(160deg, #FFFDF7, #F1E9D9);
-  --hh-tile-edge:       rgba(84,62,32,0.14);
-  --hh-tile-hi:         rgba(255,255,255,0.95);
-  --hh-tile-shadow:     0 2px 5px rgba(70,52,26,0.12);
-  --hh-row:             rgba(84,62,32,0.05);
-  --hh-row-hover:       rgba(84,62,32,0.09);
-  --hh-text:            #1E1B14;
-  --hh-text-2:          #5C574A;
-  --hh-text-3:          #736C5A;
-  --hh-border:          rgba(96,76,44,0.12);
-  --hh-divider:         rgba(96,76,44,0.12);
+  --hh-canvas:          #111A28;
+  --hh-panel:           rgba(30,40,60,0.72);
+  --hh-panel-glass:     rgba(255,255,255,0.10);
+  --hh-panel-highlight: rgba(255,255,255,0.50);
+  --hh-sheen:           rgba(255,255,255,0.12);
+  --hh-edge-top:        rgba(255,255,255,0.75);
+  --hh-edge-side:       rgba(255,255,255,0.25);
+  --hh-edge-base:       rgba(255,255,255,0.08);
+  --hh-tile:            rgba(255,255,255,0.12);
+  --hh-tile-edge:       rgba(255,255,255,0.45);
+  --hh-tile-hi:         rgba(255,255,255,0.60);
+  --hh-tile-shadow:     0 2px 6px rgba(8,12,20,0.25);
+  --hh-row:             rgba(255,255,255,0.08);
+  --hh-row-hover:       rgba(255,255,255,0.16);
+  --hh-text:            #FFFFFF;
+  --hh-text-2:          rgba(255,255,255,0.88);
+  --hh-text-3:          rgba(255,255,255,0.68);
+  --hh-border:          rgba(255,255,255,0.18);
+  --hh-divider:         rgba(255,255,255,0.16);
   --hh-accent:          #4C7DFF;
-  --hh-accent-glow:     rgba(76,125,255,0.42);
-  --hh-dot-red:         #E5484D;
+  --hh-accent-glow:     rgba(76,125,255,0.50);
+  --hh-dot-red:         #FF6B6B;
   --hh-dot-blue:        #4C7DFF;
-  --hh-dot-green:       #3DDC84;
-  --hh-dot-orange:      #FFB020;
-  --hh-dot-purple:      #A855F7;
-  --hh-chip-bg:         rgba(84,62,32,0.08);
-  --hh-chip-text:       #5C574A;
-  --hh-shadow:          0 22px 50px rgba(48,36,18,0.28);
-  --hh-lift-shadow:     0 32px 68px rgba(48,36,18,0.34);
-  --hh-grid-line:       rgba(90,70,38,0.075);
-  --hh-amb-warm:        radial-gradient(900px 640px at 62% 116%, rgba(224,178,110,0.40), transparent 60%);
-  --hh-amb-warm2:       radial-gradient(560px 420px at 90% 96%, rgba(214,166,104,0.30), transparent 62%);
-  --hh-amb-cool:        radial-gradient(820px 520px at 10% -10%, rgba(150,160,210,0.16), transparent 60%);
-  --hh-vignette:        radial-gradient(140% 120% at 50% 40%, transparent 58%, rgba(74,58,30,0.10) 100%);
-  --hh-logo-ink:        #3A3123;
-  --hh-watermark-op:    0.16;
+  --hh-dot-green:       #5EE39A;
+  --hh-dot-orange:      #FFC559;
+  --hh-dot-purple:      #C9A3FF;
+  --hh-chip-bg:         rgba(255,255,255,0.12);
+  --hh-chip-text:       rgba(255,255,255,0.88);
+  --hh-shadow:          0 20px 50px rgba(8,12,20,0.35), 0 3px 10px rgba(8,12,20,0.18);
+  --hh-lift-shadow:     0 28px 64px rgba(8,12,20,0.42), 0 4px 12px rgba(8,12,20,0.22);
+  --hh-grid-line:       rgba(255,255,255,0.04);
+  --hh-amb-warm:        radial-gradient(900px 640px at 62% 116%, rgba(120,150,210,0.10), transparent 60%);
+  --hh-amb-warm2:       radial-gradient(560px 420px at 90% 96%, rgba(90,120,180,0.08), transparent 62%);
+  --hh-amb-cool:        radial-gradient(820px 520px at 10% -10%, rgba(120,150,255,0.12), transparent 60%);
+  --hh-vignette:        radial-gradient(140% 120% at 50% 40%, transparent 55%, rgba(4,8,16,0.45) 100%);
+  --hh-form-a:          rgba(240,246,255,0.70);
+  --hh-form-b:          rgba(150,180,220,0.30);
+  --hh-logo-ink:        #FFFFFF;
+  --hh-watermark-op:    0.14;
 }
-
 .hh-panel {
   position: relative;
   background: var(--hh-panel);
