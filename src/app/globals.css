@@ -386,11 +386,16 @@ body {
 }
 
 .glass-base {
-  background: rgba(20, 20, 23, 0.55);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(16, 17, 20, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+@supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .glass-base {
+    background: rgba(20, 20, 23, 0.55);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+  }
 }
 
 .glass-sidebar {
@@ -435,12 +440,17 @@ body {
 
 /* Light mode overrides for Sequoia glass classes */
 .light .glass-base {
-  background: var(--color-surface) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  background: rgba(255, 255, 255, 0.85) !important;
   border: none !important;
   border-bottom: 1px solid var(--color-border) !important;
-  box-shadow: none !important;
+  box-shadow: 0 1px 2px rgba(20, 20, 23, 0.04) !important;
+}
+@supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .light .glass-base {
+    background: rgba(255, 255, 255, 0.72) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+    backdrop-filter: blur(20px) saturate(160%) !important;
+  }
 }
 
 .light .glass-sidebar {
@@ -476,17 +486,14 @@ body {
   color: var(--glass-sidebar-text) !important;
 }
 
-.light .glass-sidebar a[class*="bg-accent/10"],
-.light .glass-sidebar a[class*="text-accent"],
-.light .glass-sidebar a.text-accent {
-  background-color: rgba(232, 98, 26, 0.15) !important;
-  border-color: rgba(232, 98, 26, 0.3) !important;
-  color: var(--glass-sidebar-accent) !important;
+/* Active nav pill = solid blue; keep its label + icon white on the dark sidebar */
+.light .glass-sidebar a.bg-accent {
+  color: #FFFFFF !important;
+  border-color: transparent !important;
 }
 
-.light .glass-sidebar a[class*="text-accent"] svg,
-.light .glass-sidebar a.text-accent svg {
-  color: var(--glass-sidebar-accent) !important;
+.light .glass-sidebar a.bg-accent svg {
+  color: #FFFFFF !important;
 }
 
 .light .glass-sidebar svg {

@@ -110,7 +110,7 @@ export default function Sidebar({
       <div className="flex h-14 items-center gap-2.5 border-b border-glass-border px-4">
         <div
           className="grid h-7 w-7 place-items-center rounded-md bg-accent text-white"
-          style={{ boxShadow: "0 2px 8px rgba(92,124,250,0.3)" }}
+          style={{ boxShadow: "var(--accent-glow)" }}
         >
           <span className="text-xs font-extrabold tracking-tight">H</span>
         </div>
@@ -130,13 +130,13 @@ export default function Sidebar({
                 <Link
                   href={it.href}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-3 md:py-2 text-sm transition-all duration-200 border transform active:scale-98",
+                    "flex items-center gap-2 rounded-md px-3 py-3 md:py-2 text-sm transition-all duration-200 border transform active:scale-98",
                     active
-                      ? "bg-accent/10 border-accent/20 text-accent font-semibold"
+                      ? "bg-accent border-transparent text-white font-semibold"
                       : "text-ink-soft border-transparent hover:bg-row-hover hover:text-ink"
                   )}
                 >
-                  <Icon size={16} className={active ? "text-accent animate-pulse" : "text-ink-soft"} />
+                  <Icon size={16} className={active ? "text-white" : "text-ink-soft"} />
                   <span className="flex-1">{it.label}</span>
                   {it.badge && (
                     <span className="rounded-full bg-glass-bg border border-glass-border px-2 py-0.5 text-[9px] font-bold uppercase text-ink-soft">
@@ -160,7 +160,7 @@ export default function Sidebar({
         >
           <div
             className="grid h-8 w-8 place-items-center rounded-full bg-accent text-xs font-bold text-white shrink-0"
-            style={{ boxShadow: "0 2px 6px rgba(92,124,250,0.25)" }}
+            style={{ boxShadow: "var(--accent-glow)" }}
           >
             {userName
               .split(" ")
