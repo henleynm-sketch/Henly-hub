@@ -863,26 +863,62 @@ html:not(.light) .border-slate-100,
 }
 
 .hh-panel {
-  background: var(--hh-panel);
-  border: 1px solid var(--hh-border);
-  border-radius: 14px;
-  box-shadow: var(--hh-shadow);
-  padding: 20px;
   position: relative;
+  background: var(--hh-panel);
+  border-radius: 20px;
+  box-shadow: var(--hh-shadow), inset 0 1px 0 var(--hh-panel-highlight), 0 0 0 0.5px var(--hh-border);
+  padding: 20px;
+  transition: transform .26s cubic-bezier(.2,.8,.2,1), box-shadow .26s cubic-bezier(.2,.8,.2,1);
+}
+.hh-panel:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--hh-lift-shadow), inset 0 1px 0 var(--hh-panel-highlight), 0 0 0 0.5px var(--hh-border);
 }
 
-/* Frosted-glass treatment where supported; solid --hh-panel fallback above */
+/* Frosted-glass tint where supported; solid --hh-panel fallback above */
 @supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   .hh-panel {
     background: var(--hh-panel-glass);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    backdrop-filter: blur(20px) saturate(180%);
-    box-shadow: var(--hh-shadow), inset 0 1px 0 var(--hh-panel-highlight);
+    -webkit-backdrop-filter: blur(26px) saturate(155%);
+    backdrop-filter: blur(26px) saturate(155%);
   }
-  .light .hh-panel {
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    backdrop-filter: blur(20px) saturate(160%);
-  }
+}
+
+/* Contour: full-perimeter luminous edge, brightest at top */
+.hh-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background:
+    linear-gradient(180deg, var(--hh-edge-top) 0%, var(--hh-edge-side) 30%, transparent 55%, var(--hh-edge-base) 100%),
+    linear-gradient(90deg, var(--hh-edge-side) 0%, transparent 12%, transparent 88%, var(--hh-edge-side) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 0;
+}
+.hh-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(155deg, var(--hh-sheen) 0%, transparent 32%);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 0;
+}
+.hh-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh-panel { transition: box-shadow .26s ease; }
+  .hh-panel:hover { transform: none; }
 }
 
 .hh-label {
