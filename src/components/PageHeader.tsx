@@ -12,7 +12,7 @@ export default function PageHeader({
   return (
     <div className="sticky top-0 z-50 flex flex-wrap items-start justify-between gap-3 px-6 py-5 glass-base">
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-ink">{title}</h1>
+        <h1 className="hh-display text-2xl font-bold tracking-tight text-ink">{title}</h1>
         {subtitle && <p className="mt-1 hh-secondary">{subtitle}</p>}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
@@ -40,7 +40,7 @@ export function StatCard({
   return (
     <div className="hh-panel">
       <div className="hh-label">{label}</div>
-      <div className={`mt-1 text-3xl font-bold tracking-tight tabular-nums ${tones[tone]}`}>
+      <div className={`hh-display mt-1 text-3xl font-semibold tracking-tight tabular-nums ${tones[tone]}`}>
         <CountUp value={value} />
       </div>
       {hint && <div className="mt-1 hh-caption">{hint}</div>}

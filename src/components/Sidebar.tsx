@@ -112,10 +112,10 @@ export default function Sidebar({
           className="grid h-7 w-7 place-items-center rounded-md bg-accent text-white"
           style={{ boxShadow: "var(--accent-glow)" }}
         >
-          <span className="text-xs font-extrabold tracking-tight">H</span>
+          <span className="hh-display text-sm font-extrabold tracking-tight">H</span>
         </div>
         <div>
-          <div className="text-sm font-bold tracking-tight text-ink leading-none">Henley Hub</div>
+          <div className="hh-display text-sm font-bold tracking-tight text-ink leading-none">Henley Hub</div>
           <div className="text-[9px] font-bold text-ink-muted uppercase tracking-widest mt-0.5">Contracting</div>
         </div>
       </div>
