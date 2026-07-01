@@ -22,9 +22,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-transparent text-ink">
-      <Sidebar {...sidebarProps} />
-      <div className="flex min-w-0 flex-1 flex-col">
+    <div className="relative flex h-screen overflow-hidden bg-transparent text-ink">
+      <div className="hh-app-bg" aria-hidden="true" />
+      <Sidebar {...sidebarProps} className="relative z-10" />
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <GlassTopbar className="px-3 md:px-6">
           <div className="flex items-center gap-1 min-w-0">
             <MobileNav>
@@ -44,7 +45,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <ThemeToggle />
           </div>
         </GlassTopbar>
-        <main className="flex-1 min-h-0 overflow-y-auto bg-canvas/40">{children}</main>
+        <main className="flex-1 min-h-0 overflow-y-auto">{children}</main>
       </div>
       {process.env.NODE_ENV !== "production" && (
         <DemoRoleSwitcher currentEmail={session.user.email} />

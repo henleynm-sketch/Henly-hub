@@ -5,13 +5,13 @@
 :root {
   color-scheme: dark;
   
-  --bg-canvas: #0E0F11;
-  --accent: #3B6EF5;
-  --accent-hover: #2F5BD6;
-  --accent-focus: rgba(59, 110, 245, 0.4);
-  --accent-focus-border: rgba(59, 110, 245, 0.8);
-  --accent-focus-ring: rgba(59, 110, 245, 0.4);
-  --accent-glow: 0 2px 8px rgba(59, 110, 245, 0.30);
+  --bg-canvas: #0A0B0D;
+  --accent: #4C7DFF;
+  --accent-hover: #3A6BF0;
+  --accent-focus: rgba(76, 125, 255, 0.4);
+  --accent-focus-border: rgba(76, 125, 255, 0.8);
+  --accent-focus-ring: rgba(76, 125, 255, 0.45);
+  --accent-glow: 0 4px 14px rgba(76, 125, 255, 0.45);
 
   /* Glass Surfaces (frosted charcoal) */
   --glass-bg: rgba(255, 255, 255, 0.05);
@@ -25,9 +25,9 @@
   --topbar-bg: rgba(14, 15, 17, 0.55);
 
   /* Typography */
-  --text-primary: #FFFFFF;
-  --text-secondary: #9CA1AB;
-  --text-muted: #7C818B;
+  --text-primary: #F4F5F7;
+  --text-secondary: #A7ABB4;
+  --text-muted: #71767F;
   
   /* Status Colors */
   --color-destructive: #FA5252;
@@ -38,7 +38,7 @@
 
   /* Radius */
   --radius-sm: 6px;
-  --radius-md: 10px;
+  --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   
@@ -47,17 +47,19 @@
   --transition-speed-normal: 250ms;
   --transition-speed-slow: 350ms;
   --transition-timing: cubic-bezier(0.16, 1, 0.3, 1);
+  --hh-font-body: "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --hh-font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
   
   --input-focus-bg: rgba(255, 255, 255, 0.1);
 
   /* New Reference Standard Tokens */
-  --panel-bg: rgba(22, 23, 26, 0.55);
-  --panel-bg-solid: #17181B;
-  --panel-highlight: rgba(255, 255, 255, 0.06);
-  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-bg: rgba(255, 255, 255, 0.05);
+  --panel-bg-solid: #151619;
+  --panel-highlight: rgba(255, 255, 255, 0.30);
+  --panel-border: rgba(255, 255, 255, 0.05);
   --panel-border-hover: rgba(255, 255, 255, 0.12);
-  --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
-  --panel-radius: 14px;
+  --panel-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  --panel-radius: 20px;
   
   --row-bg: rgba(255, 255, 255, 0.04);
   --row-bg-hover: rgba(255, 255, 255, 0.08);
@@ -74,16 +76,16 @@
 .light {
   color-scheme: light;
   
-  --color-canvas: #F6F7F9;
+  --color-canvas: #E7EAEF;
   --color-surface: #FFFFFF;
   --color-surface-raised: #FBFCFD;
-  --color-border: rgba(0,0,0,0.06);
-  --color-text-primary: #141417;
-  --color-text-secondary: #6B7078;
-  --color-accent: #3B6EF5;
-  --color-accent-hover: #2F5BD6;
+  --color-border: rgba(30,45,80,0.09);
+  --color-text-primary: #14171B;
+  --color-text-secondary: #565D69;
+  --color-accent: #4C7DFF;
+  --color-accent-hover: #3A6BF0;
   --btn-primary-text: #FFFFFF;
-  --accent-glow: 0 2px 8px rgba(59, 110, 245, 0.20);
+  --accent-glow: 0 4px 14px rgba(76, 125, 255, 0.35);
   --glass-sidebar-bg: #141518;
   --glass-sidebar-text: #FFFFFF;
   --glass-sidebar-accent: #3B6EF5;
@@ -112,13 +114,13 @@
   --input-focus-bg: rgba(255, 255, 255, 0.9);
 
   /* New Reference Standard Tokens - Light Mode */
-  --panel-bg: rgba(255, 255, 255, 0.72);
+  --panel-bg: rgba(255, 255, 255, 0.80);
   --panel-bg-solid: #FFFFFF;
-  --panel-highlight: transparent;
-  --panel-border: rgba(0, 0, 0, 0.06);
-  --panel-border-hover: rgba(0, 0, 0, 0.12);
-  --panel-shadow: 0 8px 24px rgba(20, 20, 23, 0.10);
-  --panel-radius: 14px;
+  --panel-highlight: rgba(255, 255, 255, 0.90);
+  --panel-border: rgba(30, 45, 80, 0.09);
+  --panel-border-hover: rgba(30, 45, 80, 0.14);
+  --panel-shadow: 0 18px 42px rgba(30, 40, 65, 0.15);
+  --panel-radius: 20px;
   
   --row-bg: rgba(0, 0, 0, 0.02);
   --row-bg-hover: rgba(0, 0, 0, 0.05);
@@ -141,11 +143,9 @@
 }
 
 body {
-  background: #0E0F11;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(59,110,245,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(59,110,245,0.05) 0%, transparent 50%);
+  background: var(--bg-canvas);
   color: var(--text-primary);
+  font-family: var(--hh-font-body);
   @apply antialiased;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   min-height: 100vh;
@@ -155,10 +155,33 @@ body {
 
 .light body {
   background: var(--color-canvas);
-  background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
+}
+
+/* ===== APP BACKGROUND DEPTH LAYER (blueprint grid + warm ambient + vignette) =====
+   Sits behind the app shell (z-0); shell content is raised to z-10 in (app)/layout. */
+.hh-app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--hh-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hh-grid-line) 1px, transparent 1px);
+  background-size: 46px 46px;
+}
+.hh-app-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: var(--hh-amb-warm), var(--hh-amb-warm2), var(--hh-amb-cool);
+}
+.hh-app-bg::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: var(--hh-vignette);
 }
 
 /* Custom premium scrollbar */
@@ -764,49 +787,79 @@ html:not(.light) .border-slate-100,
    ============================================================ */
 
 :root, .dark, html.dark, [data-theme="dark"] {
-  --hh-canvas:        #0E0F11;
-  --hh-panel:         #17181B;
-  --hh-panel-glass:   rgba(22,23,26,0.55);
-  --hh-panel-highlight: rgba(255,255,255,0.06);
-  --hh-row:           #26262A;
-  --hh-row-hover:     #2E2E33;
-  --hh-text:          #FFFFFF;
-  --hh-text-2:        #A0A4AC;
-  --hh-text-3:        #7C8088;
-  --hh-border:        rgba(255,255,255,0.08);
-  --hh-divider:       rgba(255,255,255,0.08);
-  --hh-accent:        #3B6EF5;
-  --hh-dot-red:       #FF5C5C;
-  --hh-dot-blue:      #4C8DFF;
-  --hh-dot-green:     #34C759;
-  --hh-dot-orange:    #FF9F0A;
-  --hh-dot-purple:    #BF5AF2;
-  --hh-chip-bg:       rgba(255,255,255,0.08);
-  --hh-chip-text:     #C7CBD1;
-  --hh-shadow:        0 16px 48px rgba(0,0,0,0.50);
+  --hh-canvas:          #0A0B0D;
+  --hh-panel:           #151619;
+  --hh-panel-glass:     linear-gradient(155deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.034) 55%, rgba(255,255,255,0.016) 100%);
+  --hh-panel-highlight: rgba(255,255,255,0.30);
+  --hh-sheen:           rgba(255,255,255,0.06);
+  --hh-edge-top:        rgba(255,255,255,0.40);
+  --hh-edge-side:       rgba(255,255,255,0.16);
+  --hh-edge-base:       rgba(255,255,255,0.05);
+  --hh-tile:            linear-gradient(160deg, rgba(255,255,255,0.13), rgba(255,255,255,0.045));
+  --hh-tile-edge:       rgba(255,255,255,0.18);
+  --hh-tile-hi:         rgba(255,255,255,0.28);
+  --hh-tile-shadow:     0 2px 6px rgba(0,0,0,0.25);
+  --hh-row:             rgba(255,255,255,0.045);
+  --hh-row-hover:       rgba(255,255,255,0.08);
+  --hh-text:            #F4F5F7;
+  --hh-text-2:          #A7ABB4;
+  --hh-text-3:          #71767F;
+  --hh-border:          rgba(255,255,255,0.05);
+  --hh-divider:         rgba(255,255,255,0.14);
+  --hh-accent:          #4C7DFF;
+  --hh-accent-glow:     rgba(76,125,255,0.50);
+  --hh-dot-red:         #FF5C5C;
+  --hh-dot-blue:        #4C7DFF;
+  --hh-dot-green:       #3DDC84;
+  --hh-dot-orange:      #FFB020;
+  --hh-dot-purple:      #A855F7;
+  --hh-chip-bg:         rgba(255,255,255,0.08);
+  --hh-chip-text:       #A7ABB4;
+  --hh-shadow:          0 20px 50px rgba(0,0,0,0.55);
+  --hh-lift-shadow:     0 30px 66px rgba(0,0,0,0.62);
+  --hh-grid-line:       rgba(255,255,255,0.028);
+  --hh-amb-warm:        radial-gradient(900px 640px at 62% 116%, rgba(255,168,92,0.17), transparent 60%);
+  --hh-amb-warm2:       radial-gradient(560px 420px at 90% 96%, rgba(255,140,70,0.11), transparent 62%);
+  --hh-amb-cool:        radial-gradient(820px 520px at 10% -10%, rgba(90,130,255,0.12), transparent 60%);
+  --hh-vignette:        radial-gradient(140% 120% at 50% 40%, transparent 55%, rgba(0,0,0,0.45) 100%);
 }
 
 .light, html.light, [data-theme="light"] {
-  --hh-canvas:        #F6F7F9;
-  --hh-panel:         #FFFFFF;
-  --hh-panel-glass:   rgba(255,255,255,0.72);
-  --hh-panel-highlight: transparent;
-  --hh-row:           #F1F3F5;
-  --hh-row-hover:     #E9ECEF;
-  --hh-text:          #141417;
-  --hh-text-2:        #6B7078;
-  --hh-text-3:        #6E727A;
-  --hh-border:        rgba(0,0,0,0.06);
-  --hh-divider:       rgba(0,0,0,0.06);
-  --hh-accent:        #3B6EF5;
-  --hh-dot-red:       #E5484D;
-  --hh-dot-blue:      #3B82F6;
-  --hh-dot-green:     #2DA44E;
-  --hh-dot-orange:    #E8621A;
-  --hh-dot-purple:    #9333EA;
-  --hh-chip-bg:       rgba(0,0,0,0.06);
-  --hh-chip-text:     #3A3F47;
-  --hh-shadow:        0 8px 24px rgba(20,20,23,0.10);
+  --hh-canvas:          #E7EAEF;
+  --hh-panel:           #FFFFFF;
+  --hh-panel-glass:     linear-gradient(155deg, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.70) 55%, rgba(255,255,255,0.60) 100%);
+  --hh-panel-highlight: rgba(255,255,255,0.90);
+  --hh-sheen:           rgba(255,255,255,0.50);
+  --hh-edge-top:        rgba(255,255,255,0.95);
+  --hh-edge-side:       rgba(255,255,255,0.50);
+  --hh-edge-base:       rgba(40,55,85,0.16);
+  --hh-tile:            linear-gradient(160deg, #ffffff, #eef1f6);
+  --hh-tile-edge:       rgba(40,55,85,0.12);
+  --hh-tile-hi:         rgba(255,255,255,0.95);
+  --hh-tile-shadow:     0 2px 5px rgba(30,45,80,0.10);
+  --hh-row:             rgba(30,45,80,0.035);
+  --hh-row-hover:       rgba(30,45,80,0.07);
+  --hh-text:            #14171B;
+  --hh-text-2:          #565D69;
+  --hh-text-3:          #858B96;
+  --hh-border:          rgba(30,45,80,0.09);
+  --hh-divider:         rgba(30,45,80,0.10);
+  --hh-accent:          #4C7DFF;
+  --hh-accent-glow:     rgba(76,125,255,0.42);
+  --hh-dot-red:         #E5484D;
+  --hh-dot-blue:        #4C7DFF;
+  --hh-dot-green:       #3DDC84;
+  --hh-dot-orange:      #FFB020;
+  --hh-dot-purple:      #A855F7;
+  --hh-chip-bg:         rgba(30,45,80,0.06);
+  --hh-chip-text:       #565D69;
+  --hh-shadow:          0 18px 42px rgba(30,40,65,0.15);
+  --hh-lift-shadow:     0 28px 58px rgba(30,40,65,0.22);
+  --hh-grid-line:       rgba(40,60,100,0.05);
+  --hh-amb-warm:        radial-gradient(900px 640px at 62% 116%, rgba(255,190,120,0.32), transparent 60%);
+  --hh-amb-warm2:       radial-gradient(560px 420px at 90% 96%, rgba(255,175,110,0.24), transparent 62%);
+  --hh-amb-cool:        radial-gradient(820px 520px at 10% -10%, rgba(120,150,255,0.22), transparent 60%);
+  --hh-vignette:        radial-gradient(140% 120% at 50% 40%, transparent 60%, rgba(90,100,120,0.10) 100%);
 }
 
 .hh-panel {
