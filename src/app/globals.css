@@ -1219,3 +1219,117 @@ html:not(.light) .border-slate-100,
     transform: none;
   }
 }
+
+
+/* ============================================================
+   SaaS UI SKIN — solid light (Linear/Stripe class).
+   Applied via data-ui="saas" on the app shell root. Token
+   overrides + scoped resets for values hardcoded in glass rules.
+   Glass (default) is untouched.
+   ============================================================ */
+[data-ui="saas"] {
+  color-scheme: light;
+
+  --bg-canvas: #FAFAFB;
+  --hh-canvas: #FAFAFB;
+
+  --hh-panel: #FFFFFF;
+  --hh-panel-glass: #FFFFFF;
+  --hh-panel-highlight: transparent;
+  --hh-sheen: transparent;
+  --panel-bg: #FFFFFF;
+  --panel-bg-solid: #FFFFFF;
+  --panel-highlight: transparent;
+
+  --hh-border: #E9EAEE;
+  --hh-divider: #E9EAEE;
+  --panel-border: #E9EAEE;
+  --panel-border-hover: #D8DAE0;
+  --glass-border: #E9EAEE;
+  --glass-border-hover: #D8DAE0;
+  --divider-color: #E9EAEE;
+
+  --hh-edge-top: #E9EAEE;
+  --hh-edge-side: #E9EAEE;
+  --hh-edge-base: #E9EAEE;
+
+  --hh-text: #111318;
+  --hh-text-2: #5B616E;
+  --hh-text-3: #8A8F98;
+  --text-primary: #111318;
+  --text-secondary: #5B616E;
+  --text-muted: #8A8F98;
+  --color-text-primary: #111318;
+  --color-text-secondary: #5B616E;
+
+  --hh-row: #F4F5F7;
+  --hh-row-hover: #EDEEF1;
+  --row-bg: #F4F5F7;
+  --row-bg-hover: #EDEEF1;
+  --input-focus-bg: #FFFFFF;
+
+  --hh-tile: #F4F5F7;
+  --hh-tile-edge: #E9EAEE;
+  --hh-tile-hi: transparent;
+  --hh-tile-shadow: 0 1px 2px rgba(16,17,20,0.05);
+  --hh-chip-bg: #F4F5F7;
+  --hh-chip-text: #5B616E;
+  --glass-bg: #F4F5F7;
+
+  --hh-shadow: 0 1px 2px rgba(16,17,20,0.05), 0 2px 8px rgba(16,17,20,0.07);
+  --hh-lift-shadow: 0 8px 24px rgba(16,17,20,0.10);
+  --panel-shadow: 0 1px 2px rgba(16,17,20,0.05), 0 2px 8px rgba(16,17,20,0.07);
+  --glass-shadow: 0 1px 2px rgba(16,17,20,0.05), 0 2px 8px rgba(16,17,20,0.07);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-pill: 8px;
+  --radius-tile: 6px;
+  --panel-radius: 12px;
+
+  --hh-logo-ink: #111318;
+
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+/* Glass-only background depth layers never render under SaaS */
+[data-ui="saas"] .hh-app-bg,
+[data-ui="saas"] .hh-app-bg__forms,
+[data-ui="saas"] .hh-app-bg__image,
+[data-ui="saas"] .hh-brandmark { display: none !important; }
+
+/* Zero all frost/blur under SaaS */
+[data-ui="saas"] .hh-panel,
+[data-ui="saas"] .card,
+[data-ui="saas"] .glass-card,
+[data-ui="saas"] .glass-base,
+[data-ui="saas"] .glass-sidebar,
+[data-ui="saas"] .hh-tile-btn {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Panels: solid white card, hairline border, SaaS radius; drop contour + sheen */
+[data-ui="saas"] .hh-panel {
+  background: var(--hh-panel) !important;
+  border: 1px solid var(--hh-border);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--hh-shadow);
+}
+[data-ui="saas"] .hh-panel::before,
+[data-ui="saas"] .hh-panel::after { display: none; }
+
+/* Topbar + sidebar: solid white with hairline */
+[data-ui="saas"] .glass-base {
+  background: var(--hh-panel) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--hh-border) !important;
+  box-shadow: none !important;
+}
+[data-ui="saas"] .glass-sidebar {
+  background: var(--hh-panel) !important;
+  border-right: 1px solid var(--hh-border) !important;
+}
