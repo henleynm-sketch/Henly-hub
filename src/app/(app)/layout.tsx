@@ -70,7 +70,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
           <div className="flex items-center gap-4 shrink-0">
             <span className="text-xs text-slate-500 font-mono hidden sm:inline">Henley Hub · v0.1</span>
-            {uiTheme !== "saas" && <ThemeToggle />}
+            <ThemeToggle />
           </div>
         </GlassTopbar>
         <main className="flex-1 min-h-0 overflow-y-auto">{children}</main>

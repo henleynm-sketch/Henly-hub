@@ -1351,3 +1351,69 @@ html:not(.light) .border-slate-100,
 [data-ui="saas"] .hh-badge--success { color: color-mix(in srgb, var(--hh-dot-green) 72%, black); }
 [data-ui="saas"] .hh-badge--warning { color: color-mix(in srgb, var(--hh-dot-orange) 72%, black); }
 [data-ui="saas"] .hh-badge--danger  { color: color-mix(in srgb, var(--hh-dot-red) 72%, black); }
+
+
+/* ============================================================
+   SaaS DARK variant — solid dark neutral (Linear dark class).
+   Active when the app is in dark mode (no .light) AND data-ui=saas.
+   Light SaaS (base [data-ui="saas"]) applies when .light is set.
+   ============================================================ */
+html:not(.light) [data-ui="saas"] {
+  color-scheme: dark;
+
+  --bg-canvas: #0E0F12;
+  --hh-canvas: #0E0F12;
+
+  --hh-panel: #17181B;
+  --hh-panel-glass: #17181B;
+  --panel-bg: #17181B;
+  --panel-bg-solid: #17181B;
+
+  --hh-border: rgba(255,255,255,0.09);
+  --hh-divider: rgba(255,255,255,0.09);
+  --panel-border: rgba(255,255,255,0.09);
+  --panel-border-hover: rgba(255,255,255,0.16);
+  --glass-border: rgba(255,255,255,0.09);
+  --glass-border-hover: rgba(255,255,255,0.16);
+  --divider-color: rgba(255,255,255,0.09);
+  --hh-edge-top: rgba(255,255,255,0.09);
+  --hh-edge-side: rgba(255,255,255,0.09);
+  --hh-edge-base: rgba(255,255,255,0.09);
+
+  --hh-text: #F4F5F7;
+  --hh-text-2: #A0A4AC;
+  --hh-text-3: #71767F;
+  --text-primary: #F4F5F7;
+  --text-secondary: #A0A4AC;
+  --text-muted: #71767F;
+  --color-text-primary: #F4F5F7;
+  --color-text-secondary: #A0A4AC;
+
+  --hh-row: rgba(255,255,255,0.04);
+  --hh-row-hover: rgba(255,255,255,0.08);
+  --row-bg: rgba(255,255,255,0.04);
+  --row-bg-hover: rgba(255,255,255,0.08);
+  --input-focus-bg: #202226;
+
+  --hh-tile: #202226;
+  --hh-tile-edge: rgba(255,255,255,0.10);
+  --hh-tile-hi: transparent;
+  --hh-tile-shadow: 0 1px 2px rgba(0,0,0,0.40);
+  --hh-chip-bg: rgba(255,255,255,0.08);
+  --hh-chip-text: #A0A4AC;
+  --glass-bg: #202226;
+
+  --hh-shadow: 0 1px 2px rgba(0,0,0,0.40), 0 2px 8px rgba(0,0,0,0.45);
+  --hh-lift-shadow: 0 8px 24px rgba(0,0,0,0.55);
+  --panel-shadow: 0 1px 2px rgba(0,0,0,0.40), 0 2px 8px rgba(0,0,0,0.45);
+  --glass-shadow: 0 1px 2px rgba(0,0,0,0.40), 0 2px 8px rgba(0,0,0,0.45);
+
+  --hh-table-head: #1B1C1F;
+  --hh-logo-ink: #F4F5F7;
+}
+
+/* Dark SaaS: pill text stays bright (skip the light-mode darkening) */
+html:not(.light) [data-ui="saas"] .hh-badge          { color: var(--hh-accent); }
+html:not(.light) [data-ui="saas"] .hh-badge--success { color: var(--hh-dot-green); }
+html:not(.light) [data-ui="saas"] .hh-badge--warning { color: var(--hh-dot-orange); }
+html:not(.light) [data-ui="saas"] .hh-badge--danger  { color: var(--hh-dot-red); }

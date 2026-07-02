@@ -6,7 +6,7 @@ import { setUiTheme } from "@/lib/actions/uiTheme";
 
 const OPTIONS = [
   { id: "glass", label: "Glass", desc: "Frosted, dark, photographic" },
-  { id: "saas", label: "SaaS", desc: "Clean, light, solid" },
+  { id: "saas", label: "SaaS", desc: "Clean, solid — light or dark" },
 ] as const;
 
 function Swatch({ variant }: { variant: string }) {
