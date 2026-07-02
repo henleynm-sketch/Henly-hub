@@ -13,8 +13,8 @@ import { getBrandingConfig } from "@/lib/branding";
 import UiThemeSwitch from "@/components/settings/UiThemeSwitch";
 import QuoCard, { type QuoCardData } from "@/components/QuoCard";
 import HenleyTasksCard, { type HenleyTasksCardData } from "@/components/HenleyTasksCard";
-import JobTreadCard, { type JobTreadCardData } from "@/components/settings/JobTreadCard";
-import { parseFieldMap } from "@/lib/jobtread";
+import JobTreadCard from "@/components/settings/JobTreadCard";
+import { getJobTreadCardData } from "@/lib/jobtreadCardData";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
 import { SCOPE_GROUPS } from "@/lib/api/scopes";
 import { formatRelative } from "@/lib/utils";
@@ -124,12 +124,7 @@ export default async function SettingsPage({
   } catch {
     // QuoConfig model not generated yet (run prisma generate) — treat as unconfigured.
   }
-  let jobTreadRow: Awaited<ReturnType<typeof prisma.jobTreadConfig.findUnique>> = null;
-  try {
-    jobTreadRow = await prisma.jobTreadConfig.findUnique({ where: { id: "singleton" } });
-  } catch {
-    // JobTreadConfig model not generated yet — treat as unconfigured.
-  }
+
 
   const activeHubKey = hubKey ?? process.env.HUB_TASKS_API_KEY ?? null;
 
@@ -234,26 +229,7 @@ export default async function SettingsPage({
     lastTestResult: henleyTasksRow?.lastTestResult ?? null,
   };
 
-  const jtConfigured = Boolean(jobTreadRow?.grantKey);
-  const jobTreadData: JobTreadCardData = {
-    configured: jtConfigured,
-    connected: jtConfigured && jobTreadRow?.lastTestOk === true,
-    grantKeyMasked: jobTreadRow?.grantKey ? `${jobTreadRow.grantKey.slice(0, 6)}••••••` : null,
-    hasKey: Boolean(jobTreadRow?.grantKey),
-    organizationId: jobTreadRow?.organizationId ?? "22PVYxTzwCLW",
-    fieldMap: parseFieldMap(jobTreadRow?.fieldMap),
-    lastTestAt: jobTreadRow?.lastTestAt ? jobTreadRow.lastTestAt.toISOString() : null,
-    lastTestOk: jobTreadRow?.lastTestOk ?? null,
-    lastTestResult: jobTreadRow?.lastTestResult ?? null,
-    lastSyncAt: jobTreadRow?.lastSyncAt ? jobTreadRow.lastSyncAt.toISOString() : null,
-    lastSyncSummary: (() => {
-      try {
-        return jobTreadRow?.lastSyncSummary ? JSON.parse(jobTreadRow.lastSyncSummary) : null;
-      } catch {
-        return null;
-      }
-    })(),
-  };
+  const jobTreadData = await getJobTreadCardData();
 
   const myPrefs = await prisma.userNotificationPref
     .findMany({ where: { userId: session.user.id } })
