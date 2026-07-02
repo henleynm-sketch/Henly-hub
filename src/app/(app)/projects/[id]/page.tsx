@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import ApplyTemplateCard from "./ApplyTemplateCard";
 import WarrantyPanel from "./WarrantyPanel";
+import JobTreadPanel from "@/components/jobs/JobTreadPanel";
+import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { createDailyLog } from "@/lib/services/dailyLogService";
 import { updateMilestoneStatus } from "@/lib/services/milestoneService";
@@ -414,7 +416,14 @@ export default async function ProjectDetail({
                   <li key={l.id} className="hh-row flex-col !items-start !gap-1">
                     <div className="flex items-center justify-between w-full">
                       <span className="hh-secondary">{l.author.name} · {formatRelative(l.date)}</span>
-                      {l.clientVisible && <span className="hh-badge hh-badge--success">visible to client</span>}
+                      <span className="flex items-center gap-1.5">
+                        {l.jobtreadId && (
+                          <span className="hh-badge" title="Imported by JobTread sync">
+                            Synced from JobTread · {formatDate(l.date)}
+                          </span>
+                        )}
+                        {l.clientVisible && <span className="hh-badge hh-badge--success">visible to client</span>}
+                      </span>
                     </div>
                     <div className="mt-1 hh-secondary">{l.notes}</div>
                     
@@ -449,6 +458,19 @@ export default async function ProjectDetail({
               })}
             </ul>
           </section>
+
+          {(role === "CEO" || role === "OFFICE") && project.jobtreadJobId && (
+            <Suspense
+              fallback={
+                <section className="hh-panel p-6">
+                  <h2 className="hh-label">JobTread</h2>
+                  <p className="hh-secondary mt-2">Loading live to-dos…</p>
+                </section>
+              }
+            >
+              <JobTreadPanel jobtreadJobId={project.jobtreadJobId} />
+            </Suspense>
+          )}
 
           {showFinancials && (
             <section className="hh-panel overflow-hidden flex flex-col">

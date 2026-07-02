@@ -296,3 +296,84 @@ export async function discoverFieldMap(opts?: {
   }
   return map;
 }
+
+// ── Live to-dos (display-only — never persisted; Henley Tasks is the master) ─
+
+export type JTTodo = {
+  id: string;
+  name: string;
+  description: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  progress: number | null;
+  jobId: string | null;
+  jobName: string | null;
+  typeName: string | null;
+  assignees: string[];
+};
+
+const TODO_NODE_SHAPE = {
+  id: {},
+  name: {},
+  description: {},
+  startDate: {},
+  endDate: {},
+  progress: {},
+  job: { id: {}, name: {} },
+  taskType: { name: {} },
+  taskAssignments: { nodes: { id: {}, membership: { user: { name: {} } } } },
+};
+
+type JTTaskNode = {
+  id: string;
+  name: string;
+  description?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  progress?: number | null;
+  job?: { id: string; name: string } | null;
+  taskType?: { name: string } | null;
+  taskAssignments?: { nodes?: { membership?: { user?: { name?: string } | null } | null }[] };
+};
+
+function toTodo(t: JTTaskNode): JTTodo {
+  return {
+    id: t.id,
+    name: t.name,
+    description: t.description ?? null,
+    startDate: t.startDate ?? null,
+    endDate: t.endDate ?? null,
+    progress: t.progress ?? null,
+    jobId: t.job?.id ?? null,
+    jobName: t.job?.name ?? null,
+    typeName: t.taskType?.name ?? null,
+    assignees: (t.taskAssignments?.nodes ?? [])
+      .map((a) => a.membership?.user?.name)
+      .filter((n): n is string => Boolean(n)),
+  };
+}
+
+/** All open to-dos in the org (progress incomplete), fetched live. */
+export async function fetchOpenJobTreadTodos(): Promise<JTTodo[]> {
+  const nodes = await jtOrgListAll<JTTaskNode>("tasks", TODO_NODE_SHAPE, {
+    where: ["isToDo", "=", true],
+    size: 100,
+  });
+  return nodes.map(toTodo).filter((t) => (t.progress ?? 0) < 1);
+}
+
+/** Open to-dos for one JobTread job, fetched live via the root job query. */
+export async function fetchJobTodos(jobtreadJobId: string): Promise<JTTodo[]> {
+  const data = await jtQuery<{ job?: { tasks?: { nodes?: JTTaskNode[] } } }>({
+    job: {
+      $: { id: jobtreadJobId },
+      id: {},
+      tasks: { $: { size: 100, where: ["isToDo", "=", true] }, nodes: TODO_NODE_SHAPE },
+    },
+  });
+  return (data.job?.tasks?.nodes ?? []).map(toTodo).filter((t) => (t.progress ?? 0) < 1);
+}
+
+export function jobTreadJobUrl(jobtreadJobId: string): string {
+  return `https://app.jobtread.com/jobs/${jobtreadJobId}`;
+}
