@@ -58,6 +58,7 @@ model Client {
   leadSource   String?    // see LEAD_SOURCE in src/lib/taxonomy.ts
   notes        String?
   qbCustomerId String?
+  jobtreadAccountId String? @unique
   users        User[]    @relation("ClientUsers")
   projects     Project[]
   threads      Thread[]
@@ -74,6 +75,7 @@ model Project {
   client       Client    @relation(fields: [clientId], references: [id])
   name         String
   code         String?   @unique  // short join key (e.g. "SMTH") for per-project Tasks; unique among non-null
+  jobtreadJobId String?  @unique
   address      String?
   city         String?
   projectType  String?   // Custom Home | Addition | Renovation | Kitchen | Garage | ADU | Misc Small Jobs | Handyman Services | Warranty
@@ -175,6 +177,7 @@ model DailyLog {
   notes      String
   clientVisible Boolean @default(false)
   photos     String?
+  jobtreadId String?  @unique  // set when synced from JobTread; drives provenance display
   // -- Structured fields (P7) ------------------------------------------------
   anticipatedDelays   Boolean @default(false)  // any delays expected today?
   materialDeliveries  Boolean @default(false)  // pickups/deliveries scheduled?
@@ -568,6 +571,7 @@ model Vendor {
   division     String?   // validated against DIVISION in src/lib/taxonomy.ts
   w9OnFile     Boolean   @default(false)
   coiExpiresAt DateTime?
+  jobtreadAccountId String? @unique
   notes        String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

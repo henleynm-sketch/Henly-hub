@@ -246,6 +246,13 @@ export default async function SettingsPage({
     lastTestOk: jobTreadRow?.lastTestOk ?? null,
     lastTestResult: jobTreadRow?.lastTestResult ?? null,
     lastSyncAt: jobTreadRow?.lastSyncAt ? jobTreadRow.lastSyncAt.toISOString() : null,
+    lastSyncSummary: (() => {
+      try {
+        return jobTreadRow?.lastSyncSummary ? JSON.parse(jobTreadRow.lastSyncSummary) : null;
+      } catch {
+        return null;
+      }
+    })(),
   };
 
   const myPrefs = await prisma.userNotificationPref

@@ -282,7 +282,7 @@ const CONSTRUCTION_PHASES = [
   "Site Prep & Foundations",
   "Rough Structure & Exterior",
   "Interior Finishing",
-  "Cleanup Landscaping & Handoff",
+  "Cleanup, Landscaping & Handoff",
   "Complete",
 ];
 

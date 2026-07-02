@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { Loader2 } from "lucide-react";
+import { syncAllJobTread, type JobTreadSyncSummary } from "@/lib/actions/jobtreadSync";
 import {
   saveJobTreadConfig,
   testJobTread,
@@ -31,6 +32,7 @@ export type JobTreadCardData = {
   lastTestOk: boolean | null;
   lastTestResult: string | null;
   lastSyncAt: string | null;
+  lastSyncSummary: JobTreadSyncSummary | null;
 };
 
 const AXES: { key: keyof Omit<JobTreadFieldMapView, "fields">; label: string }[] = [
@@ -49,6 +51,52 @@ function relative(iso: string | null): string {
   const hrs = Math.round(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
   return `${Math.round(hrs / 24)}d ago`;
+}
+
+function SyncSummaryView({ s }: { s: JobTreadSyncSummary }) {
+  const row = (label: string, c?: { created: number; updated: number; skipped: number; [k: string]: number }) =>
+    c ? (
+      <div className="flex items-center justify-between w-full">
+        <span className="hh-secondary">{label}</span>
+        <span className="hh-secondary tabular-nums">
+          {c.created} new · {c.updated} updated · {c.skipped} unchanged
+          {"noClient" in c && c.noClient > 0 ? ` · ${c.noClient} no client` : ""}
+          {"noProject" in c && c.noProject > 0 ? ` · ${c.noProject} no project` : ""}
+        </span>
+      </div>
+    ) : null;
+  const unmatched = s.unmatchedTaxonomy
+    ? Object.entries(s.unmatchedTaxonomy).filter(([, n]) => n > 0)
+    : [];
+  return (
+    <div className="w-full flex flex-col gap-1 mt-1">
+      <span className="hh-label">Last sync</span>
+      {row("Customers", s.customers)}
+      {row("Vendors", s.vendors)}
+      {row("Jobs", s.jobs)}
+      {row("Daily logs", s.dailyLogs)}
+      {s.todos && (
+        <div className="flex items-center justify-between w-full">
+          <span className="hh-secondary">To-dos (display-only, not stored)</span>
+          <span className="hh-secondary tabular-nums">{s.todos.count}</span>
+        </div>
+      )}
+      {unmatched.length > 0 && (
+        <div className="flex items-center justify-between w-full">
+          <span className="hh-secondary">Unmatched taxonomy values</span>
+          <span className="hh-secondary tabular-nums">
+            {unmatched.map(([k, n]) => `${k}: ${n}`).join(" · ")}
+          </span>
+        </div>
+      )}
+      {s.error && (
+        <div className="flex items-start gap-2">
+          <span className="hh-dot hh-dot--red mt-1" />
+          <span className="hh-secondary break-all">{s.error}</span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function JobTreadCard({
@@ -198,7 +246,23 @@ export default function JobTreadCard({
             </div>
           )}
 
+          {data.lastSyncSummary && <SyncSummaryView s={data.lastSyncSummary} />}
+
           <span className="flex flex-wrap gap-2 mt-1">
+            {isCeo && data.connected && (
+              <button
+                className="btn-secondary text-xs inline-flex items-center gap-1.5"
+                disabled={pending}
+                onClick={() =>
+                  run(syncAllJobTread, (r) =>
+                    flash(r.ok, r.ok ? "Sync complete — see summary below" : r.error ?? "Sync failed"),
+                  )
+                }
+              >
+                {pending && <Loader2 size={12} className="animate-spin" />}
+                Sync now
+              </button>
+            )}
             {canTest && (
               <button
                 className="btn-secondary text-xs inline-flex items-center gap-1.5"

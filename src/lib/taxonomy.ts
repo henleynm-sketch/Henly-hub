@@ -58,7 +58,7 @@ export const CONSTRUCTION_PHASE = [
   "Site Prep & Foundations",
   "Rough Structure & Exterior",
   "Interior Finishing",
-  "Cleanup Landscaping & Handoff",
+  "Cleanup, Landscaping & Handoff",
   "Complete",
 ] as const;
 export type ConstructionPhase = (typeof CONSTRUCTION_PHASE)[number];
