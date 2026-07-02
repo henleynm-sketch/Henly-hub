@@ -10,6 +10,7 @@ import M365Card, { type M365CardData } from "@/components/M365Card";
 import { SharePointCard } from "@/components/settings/SharePointCard";
 import AppearanceCard from "@/components/settings/AppearanceCard";
 import { getBrandingConfig } from "@/lib/branding";
+import UiThemeSwitch from "@/components/settings/UiThemeSwitch";
 import QuoCard, { type QuoCardData } from "@/components/QuoCard";
 import HenleyTasksCard, { type HenleyTasksCardData } from "@/components/HenleyTasksCard";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
@@ -101,6 +102,9 @@ export default async function SettingsPage({
     prisma.department.findMany({ orderBy: { name: "asc" } }).catch(() => []),
     prisma.qBOToken.findUnique({ where: { id: "global" } }).catch(() => null),
   ]);
+
+  const meUiTheme =
+    (users.find((u) => u.id === session.user.id) as { uiTheme?: string } | undefined)?.uiTheme ?? "glass";
 
   const [orgName, orgAddress, orgTz, orgFiscal, hubKey, m365Row, henleyTasksRow] =
     await Promise.all([
@@ -640,6 +644,14 @@ export default async function SettingsPage({
                     sit over this image with white text.
                   </p>
                 </div>
+                <div>
+                  <div className="hh-primary">UI style</div>
+                  <p className="hh-secondary mt-0.5 mb-3">
+                    Glass (frosted, dark) or SaaS (clean, light). Saved to your account.
+                  </p>
+                  <UiThemeSwitch initial={meUiTheme} />
+                </div>
+                <hr className="hh-divider" />
                 <AppearanceCard
                   initialEnabled={branding.backgroundEnabled}
                   initialScrim={branding.scrim}

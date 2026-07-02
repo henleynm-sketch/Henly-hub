@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import PageHeader from "@/components/PageHeader";
 import ThemeToggle from "@/components/ThemeToggle";
+import UiThemeSwitch from "@/components/settings/UiThemeSwitch";
 import { ROLE_LABELS, type Role } from "@/lib/roles";
 import { formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
@@ -135,6 +136,12 @@ export default async function ProfilePage({
 
           <section className="hh-panel p-6 flex flex-col gap-4">
             <h2 className="hh-label">Preferences</h2>
+            <div>
+              <div className="hh-primary">UI style</div>
+              <div className="hh-secondary mt-0.5 mb-3">Glass (frosted, dark) or SaaS (clean, light). Saved to your account.</div>
+              <UiThemeSwitch initial={user.uiTheme} />
+            </div>
+            <hr className="hh-divider" />
             <div className="flex items-center justify-between">
               <div>
                 <div className="hh-primary">Theme</div>
