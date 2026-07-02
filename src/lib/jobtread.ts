@@ -241,7 +241,7 @@ export async function testJobTreadConnection(opts?: {
  *   contains "construction"        → constructionPhase
  *   contains "warranty"            → warrantyPhase
  *   contains "division"            → division
- *   contains "pipeline" or "sales" → pipelineStage
+ *   contains "pipeline" (else fallback "sales") → pipelineStage
  * A field is assigned to at most one axis (most specific first). Unmatched
  * axes stay null — the Settings card offers a manual override picker.
  */
@@ -281,7 +281,10 @@ export async function discoverFieldMap(opts?: {
   assign("constructionPhase", (n) => n.includes("construction"));
   assign("warrantyPhase", (n) => n.includes("warranty"));
   assign("division", (n) => n.includes("division"));
-  assign("pipelineStage", (n) => n.includes("pipeline") || n.includes("sales"));
+  // "pipeline" first so e.g. "Sales Rep" can't shadow "Sales Pipeline";
+  // bare "sales" only as a fallback when no pipeline-named field exists.
+  assign("pipelineStage", (n) => n.includes("pipeline"));
+  if (!map.pipelineStage) assign("pipelineStage", (n) => n.includes("sales"));
 
   try {
     await prisma.jobTreadConfig.update({
