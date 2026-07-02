@@ -353,25 +353,26 @@ function toTodo(t: JTTaskNode): JTTodo {
   };
 }
 
+// Pave returns HTTP 413 for large pages of nested-connection shapes; 25 is
+// the verified safe page size for the to-do shape.
+const TODO_PAGE_SIZE = 25;
+
 /** All open to-dos in the org (progress incomplete), fetched live. */
 export async function fetchOpenJobTreadTodos(): Promise<JTTodo[]> {
   const nodes = await jtOrgListAll<JTTaskNode>("tasks", TODO_NODE_SHAPE, {
     where: ["isToDo", "=", true],
-    size: 100,
+    size: TODO_PAGE_SIZE,
   });
   return nodes.map(toTodo).filter((t) => (t.progress ?? 0) < 1);
 }
 
-/** Open to-dos for one JobTread job, fetched live via the root job query. */
+/** Open to-dos for one JobTread job, fetched live (nested where on job.id). */
 export async function fetchJobTodos(jobtreadJobId: string): Promise<JTTodo[]> {
-  const data = await jtQuery<{ job?: { tasks?: { nodes?: JTTaskNode[] } } }>({
-    job: {
-      $: { id: jobtreadJobId },
-      id: {},
-      tasks: { $: { size: 100, where: ["isToDo", "=", true] }, nodes: TODO_NODE_SHAPE },
-    },
+  const nodes = await jtOrgListAll<JTTaskNode>("tasks", TODO_NODE_SHAPE, {
+    where: { and: [["isToDo", "=", true], [["job", "id"], jobtreadJobId]] },
+    size: TODO_PAGE_SIZE,
   });
-  return (data.job?.tasks?.nodes ?? []).map(toTodo).filter((t) => (t.progress ?? 0) < 1);
+  return nodes.map(toTodo).filter((t) => (t.progress ?? 0) < 1);
 }
 
 export function jobTreadJobUrl(jobtreadJobId: string): string {

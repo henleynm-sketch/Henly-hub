@@ -179,7 +179,7 @@ async function customersSync(cf: CFLookup): Promise<EntityCounts> {
       customFieldValues: CFV_SHAPE,
       contacts: { $: { size: 5 }, nodes: { id: {}, name: {}, customFieldValues: CFV_SHAPE } },
     },
-    { where: ["type", "=", "customer"], size: 50 },
+    { where: ["type", "=", "customer"], size: 25 },
   );
 
   const counts: EntityCounts = { created: 0, updated: 0, skipped: 0 };
@@ -253,7 +253,7 @@ async function vendorsSync(cf: CFLookup): Promise<EntityCounts> {
   const accounts = await jtOrgListAll<JTAccount>(
     "accounts",
     { id: {}, name: {}, customFieldValues: CFV_SHAPE },
-    { where: ["type", "=", "vendor"], size: 100 },
+    { where: ["type", "=", "vendor"], size: 25 },
   );
 
   const counts: EntityCounts = { created: 0, updated: 0, skipped: 0 };
@@ -352,7 +352,7 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
       location: { address: {}, account: { id: {} } },
       customFieldValues: CFV_SHAPE,
     },
-    { size: 50 },
+    { size: 25 },
   );
 
   const counts: EntityCounts & { noClient: number } = { created: 0, updated: 0, skipped: 0, noClient: 0 };
@@ -450,7 +450,7 @@ async function dailyLogsSync(cf: CFLookup, syncUserId: string): Promise<EntityCo
   const logs = await jtOrgListAll<JTDailyLog>(
     "dailyLogs",
     { id: {}, date: {}, notes: {}, job: { id: {} }, customFieldValues: CFV_SHAPE },
-    { size: 100 },
+    { size: 25 },
   );
 
   const counts: EntityCounts = { created: 0, updated: 0, skipped: 0, noProject: 0 };
@@ -614,7 +614,7 @@ async function catalogSync() {
       costType: { id: {} },
       costCode: { id: {} },
     },
-    { size: 100 },
+    { size: 50 },
   );
   const itemCounts: EntityCounts = { created: 0, updated: 0, skipped: 0 };
   for (const i of items) {
