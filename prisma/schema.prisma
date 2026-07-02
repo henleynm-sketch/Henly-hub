@@ -601,6 +601,22 @@ model CrmActivity {
   @@index([projectId, occurredAt])
 }
 
+// Saved views for the generalized Jobs board. ownerId null = organization
+// view (CEO-managed); otherwise personal, CRUD by the owner. filters is a
+// JSON string, e.g. {"status":["OPEN"]}.
+model JobView {
+  id        String   @id @default(cuid())
+  name      String
+  ownerId   String?
+  groupBy   String   // pipelineStage | constructionPhase | warrantyPhase | division | status
+  filters   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId, sortOrder])
+}
+
 model BrandingConfig {
   id                String   @id @default("singleton")
   backgroundEnabled Boolean  @default(true)
