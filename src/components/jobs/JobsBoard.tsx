@@ -282,7 +282,7 @@ export default function JobsBoard({
                       dragId === j.id && "opacity-50",
                     )}
                   >
-                    <Link href={`/projects/${j.id}`} className="hh-primary hover:underline">
+                    <Link href={`/jobs/${j.id}`} className="hh-primary hover:underline">
                       {j.name}
                       {j.code ? <span className="hh-caption ml-1.5">{j.code}</span> : null}
                     </Link>

@@ -207,3 +207,27 @@ export async function setProjectGroupField(
   revalidatePath(`/projects/${projectId}`);
   return { ok: true };
 }
+
+// Free-text job meta (PM / sales rep / customer PO / type) — CEO/Office only.
+export async function setProjectMeta(
+  projectId: string,
+  input: { projectManager?: string; salesRep?: string; customerPO?: string; projectType?: string },
+): Promise<{ ok: boolean; error?: string }> {
+  const me = await auth();
+  if (!me?.user) return { ok: false, error: "Not authorized" };
+  const role = me.user.role as Role;
+  if (role !== "CEO" && role !== "OFFICE") return { ok: false, error: "Not authorized" };
+  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  if (!project) return { ok: false, error: "Project not found" };
+
+  const data: Record<string, string | null> = {};
+  for (const k of ["projectManager", "salesRep", "customerPO", "projectType"] as const) {
+    if (input[k] !== undefined) data[k] = input[k]!.trim() || null;
+  }
+  if (Object.keys(data).length === 0) return { ok: true };
+  await prisma.project.update({ where: { id: projectId }, data });
+  revalidatePath(`/jobs/${projectId}`);
+  revalidatePath("/jobs/list");
+  revalidatePath(`/projects/${projectId}`);
+  return { ok: true };
+}
