@@ -408,6 +408,24 @@ model QuoConfig {
   updatedAt        DateTime  @updatedAt
 }
 
+// JobTread Pave API connection. Grant key is pasted in Settings (never .env).
+// fieldMap stores the discovered custom-field ID mapping for the four board
+// axes (pipelineStage / constructionPhase / warrantyPhase / division) plus the
+// candidate field list for the manual override picker -- never hardcode IDs.
+model JobTreadConfig {
+  id              String    @id @default("singleton")
+  grantKey        String?   // TODO: encrypt at rest (no encryption helper in codebase)
+  organizationId  String    @default("22PVYxTzwCLW")
+  fieldMap        String?   // JSON string (SQLite; prisma 5 has no Json on sqlite): { pipelineStage|constructionPhase|warrantyPhase|division: fieldId|null, fields: [{id,name}] }
+  lastTestAt      DateTime?
+  lastTestOk      Boolean?
+  lastTestResult  String?   // raw error surfaced verbatim on failure
+  lastSyncAt      DateTime?
+  lastSyncSummary String?   // JSON string: per-entity created/updated/skipped/unmatched counts
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
 model HenleyTasksConfig {
   id             String    @id @default("singleton")
   apiBaseUrl     String    @default("https://tasks.henleycontracting.com/api")
