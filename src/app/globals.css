@@ -1290,6 +1290,7 @@ html:not(.light) .border-slate-100,
   --panel-radius: 12px;
 
   --hh-logo-ink: #111318;
+  --hh-table-head: #F9FAFB;
 
   background: var(--bg-canvas);
   color: var(--text-primary);
@@ -1333,3 +1334,20 @@ html:not(.light) .border-slate-100,
   background: var(--hh-panel) !important;
   border-right: 1px solid var(--hh-border) !important;
 }
+
+
+/* SaaS cross-surface audit — tables, inset fields, pills read on white (SaaS only) */
+[data-ui="saas"] table thead,
+[data-ui="saas"] table thead th {
+  background: var(--hh-table-head);
+}
+[data-ui="saas"] table tbody tr td { color: var(--hh-text); }
+[data-ui="saas"] table tbody tr td .muted,
+[data-ui="saas"] table tbody tr td small { color: var(--hh-text-3); }
+[data-ui="saas"] table td,
+[data-ui="saas"] table th { border-color: var(--hh-border); }
+[data-ui="saas"] .input { background-color: var(--glass-bg); }
+[data-ui="saas"] .hh-badge          { color: color-mix(in srgb, var(--hh-accent) 72%, black); }
+[data-ui="saas"] .hh-badge--success { color: color-mix(in srgb, var(--hh-dot-green) 72%, black); }
+[data-ui="saas"] .hh-badge--warning { color: color-mix(in srgb, var(--hh-dot-orange) 72%, black); }
+[data-ui="saas"] .hh-badge--danger  { color: color-mix(in srgb, var(--hh-dot-red) 72%, black); }
