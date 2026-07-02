@@ -8,6 +8,7 @@ import { canSeeFinancials } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
 import { formatMoney, formatDate } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
+import AddLineForm from "@/components/catalog/AddLineForm";
 
 export default async function EstimateDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,6 +17,19 @@ export default async function EstimateDetail({ params }: { params: Promise<{ id:
     include: { client: true, author: true, lineItems: true },
   });
   if (!e) notFound();
+
+  const session = await auth();
+  const canEditLines =
+    e.status === "DRAFT" && canSeeFinancials((session?.user?.role ?? "CLIENT") as Role);
+  const catalogItems = canEditLines
+    ? await prisma.costItem
+        .findMany({
+          where: { active: true },
+          orderBy: { name: "asc" },
+          include: { costCode: { select: { number: true } } },
+        })
+        .catch(() => [])
+    : [];
 
   async function setStatus(formData: FormData) {
     "use server";
@@ -108,6 +122,19 @@ export default async function EstimateDetail({ params }: { params: Promise<{ id:
               </tfoot>
             </table>
           </div>
+          {canEditLines && (
+            <AddLineForm
+              estimateId={e.id}
+              items={catalogItems.map((i) => ({
+                id: i.id,
+                name: i.name,
+                description: i.description,
+                unit: i.unit,
+                unitPriceCents: i.unitPriceCents,
+                codeNumber: i.costCode?.number ?? null,
+              }))}
+            />
+          )}
         </section>
 
         <aside className="space-y-6">

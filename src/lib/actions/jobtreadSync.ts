@@ -76,6 +76,7 @@ export type JobTreadSyncSummary = {
   jobs?: EntityCounts & { noClient: number };
   unmatchedTaxonomy?: Record<string, number>;
   dailyLogs?: EntityCounts;
+  catalog?: { costTypes: EntityCounts; costCodes: EntityCounts; costItems: EntityCounts };
   todos?: { count: number };
   error?: string;
 };
@@ -507,6 +508,147 @@ async function todosCount(): Promise<number> {
   return todos.length;
 }
 
+// ── Catalog: cost types / codes / items ──────────────────────────────────────
+
+export async function syncJobTreadCatalog(): Promise<SyncActionResult> {
+  const me = await ceo();
+  if (!me) return { ok: false, error: "Not authorized" };
+  try {
+    const catalog = await catalogSync();
+    return { ok: true, summary: { ranAt: new Date().toISOString(), catalog } };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Catalog sync failed" };
+  }
+}
+
+const cents = (v: unknown): number => {
+  const n = typeof v === "number" ? v : parseFloat(String(v ?? 0));
+  return isNaN(n) ? 0 : Math.round(n * 100);
+};
+
+async function catalogSync() {
+  const types = await jtOrgListAll<{ id: string; name: string; margin?: number | null; isTaxable?: boolean }>(
+    "costTypes",
+    { id: {}, name: {}, margin: {}, isTaxable: {} },
+    { size: 100 },
+  );
+  const typeCounts: EntityCounts = { created: 0, updated: 0, skipped: 0 };
+  for (const t of types) {
+    const margin = typeof t.margin === "number" ? t.margin : 0;
+    const marginBps = Math.round(margin * 10000);
+    const markupBps = margin > 0 && margin < 1 ? Math.round((margin / (1 - margin)) * 10000) : 0;
+    const data = {
+      name: t.name,
+      defaultMarginPct: marginBps,
+      defaultMarkupPct: markupBps,
+      taxable: Boolean(t.isTaxable),
+    };
+    const existing = await prisma.costType.findUnique({ where: { jobtreadId: t.id } });
+    if (existing) {
+      if (changed(existing as unknown as Record<string, unknown>, data)) {
+        await prisma.costType.update({ where: { id: existing.id }, data });
+        typeCounts.updated++;
+      } else typeCounts.skipped++;
+    } else {
+      await prisma.costType.create({ data: { ...data, jobtreadId: t.id } });
+      typeCounts.created++;
+    }
+  }
+
+  const codes = await jtOrgListAll<{
+    id: string;
+    name: string;
+    number?: string | null;
+    parentCostCode?: { id: string } | null;
+  }>("costCodes", { id: {}, name: {}, number: {}, parentCostCode: { id: {} } }, { size: 100 });
+  const codeCounts: EntityCounts = { created: 0, updated: 0, skipped: 0 };
+  // Pass 1: upsert nodes without parents.
+  for (const c of codes) {
+    const data = { name: c.name, number: str(c.number) ?? "" };
+    const existing = await prisma.costCode.findUnique({ where: { jobtreadId: c.id } });
+    if (existing) {
+      if (changed(existing as unknown as Record<string, unknown>, data)) {
+        await prisma.costCode.update({ where: { id: existing.id }, data });
+        codeCounts.updated++;
+      } else codeCounts.skipped++;
+    } else {
+      await prisma.costCode.create({ data: { ...data, jobtreadId: c.id } });
+      codeCounts.created++;
+    }
+  }
+  // Pass 2: parent links (jobtreadId → local id).
+  for (const c of codes) {
+    const self = await prisma.costCode.findUnique({ where: { jobtreadId: c.id } });
+    if (!self) continue;
+    const parent = c.parentCostCode?.id
+      ? await prisma.costCode.findUnique({ where: { jobtreadId: c.parentCostCode.id } })
+      : null;
+    const parentId = parent?.id ?? null;
+    if (self.parentId !== parentId) {
+      await prisma.costCode.update({ where: { id: self.id }, data: { parentId } });
+      if (codeCounts.skipped > 0) codeCounts.skipped--;
+      codeCounts.updated++;
+    }
+  }
+
+  const items = await jtOrgListAll<{
+    id: string;
+    name: string;
+    description?: string | null;
+    unitCost?: number | null;
+    unitPrice?: number | null;
+    isTaxable?: boolean;
+    unit?: { name?: string | null } | null;
+    costType?: { id: string } | null;
+    costCode?: { id: string } | null;
+  }>(
+    "costItems",
+    {
+      id: {},
+      name: {},
+      description: {},
+      unitCost: {},
+      unitPrice: {},
+      isTaxable: {},
+      unit: { name: {} },
+      costType: { id: {} },
+      costCode: { id: {} },
+    },
+    { size: 100 },
+  );
+  const itemCounts: EntityCounts = { created: 0, updated: 0, skipped: 0 };
+  for (const i of items) {
+    const type = i.costType?.id
+      ? await prisma.costType.findUnique({ where: { jobtreadId: i.costType.id } })
+      : null;
+    const code = i.costCode?.id
+      ? await prisma.costCode.findUnique({ where: { jobtreadId: i.costCode.id } })
+      : null;
+    const data = {
+      name: i.name,
+      description: str(i.description) ?? null,
+      unit: str(i.unit?.name) ?? null,
+      unitCostCents: cents(i.unitCost),
+      unitPriceCents: cents(i.unitPrice),
+      taxable: Boolean(i.isTaxable),
+      costTypeId: type?.id ?? null,
+      costCodeId: code?.id ?? null,
+    };
+    const existing = await prisma.costItem.findUnique({ where: { jobtreadId: i.id } });
+    if (existing) {
+      if (changed(existing as unknown as Record<string, unknown>, data)) {
+        await prisma.costItem.update({ where: { id: existing.id }, data });
+        itemCounts.updated++;
+      } else itemCounts.skipped++;
+    } else {
+      await prisma.costItem.create({ data: { ...data, jobtreadId: i.id } });
+      itemCounts.created++;
+    }
+  }
+
+  return { costTypes: typeCounts, costCodes: codeCounts, costItems: itemCounts };
+}
+
 // ── Sync all ─────────────────────────────────────────────────────────────────
 
 export async function syncAllJobTread(): Promise<SyncActionResult> {
@@ -523,6 +665,7 @@ export async function syncAllJobTread(): Promise<SyncActionResult> {
     summary.jobs = jobsRes.counts;
     summary.unmatchedTaxonomy = jobsRes.unmatched;
     summary.dailyLogs = await dailyLogsSync(cf, me.user.id);
+    summary.catalog = await catalogSync();
     summary.todos = { count: await todosCount() };
   } catch (err) {
     // Surface the raw error verbatim; partial progress above is already
@@ -544,5 +687,7 @@ export async function syncAllJobTread(): Promise<SyncActionResult> {
   revalidatePath("/settings");
   revalidatePath("/projects");
   revalidatePath("/clients");
+  revalidatePath("/jobs");
+  revalidatePath("/jobs/catalog");
   return summary.error ? { ok: false, error: summary.error, summary } : { ok: true, summary };
 }

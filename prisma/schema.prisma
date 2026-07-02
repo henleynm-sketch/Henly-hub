@@ -265,6 +265,9 @@ model EstimateLine {
   unitCents   Int      @default(0)
   totalCents  Int      @default(0)
   category    String?
+  costItemId  String?
+  costItem    CostItem? @relation(fields: [costItemId], references: [id])
+  costCodeId  String?
 }
 
 model Contract {
@@ -599,6 +602,60 @@ model CrmActivity {
 
   @@index([clientId, occurredAt])
   @@index([projectId, occurredAt])
+}
+
+// ─── Catalog (cost types / codes / items) ─────────────────────────────────────
+// Synced from JobTread (idempotent on jobtreadId) and editable in the Hub.
+// Money in integer cents; margin/markup in basis points.
+
+model CostType {
+  id               String     @id @default(cuid())
+  name             String
+  defaultMarginPct Int        @default(0) // bps, e.g. 2000 = 20%
+  defaultMarkupPct Int        @default(0) // bps, derived from margin on sync
+  taxable          Boolean    @default(false)
+  jobtreadId       String?    @unique
+  active           Boolean    @default(true)
+  costItems        CostItem[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model CostCode {
+  id         String     @id @default(cuid())
+  number     String
+  name       String
+  parentId   String?
+  parent     CostCode?  @relation("CostCodeTree", fields: [parentId], references: [id])
+  children   CostCode[] @relation("CostCodeTree")
+  jobtreadId String?    @unique
+  active     Boolean    @default(true)
+  costItems  CostItem[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([number])
+}
+
+model CostItem {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  unit          String?
+  unitCostCents Int       @default(0)
+  unitPriceCents Int      @default(0)
+  taxable       Boolean   @default(false)
+  costTypeId    String?
+  costType      CostType? @relation(fields: [costTypeId], references: [id])
+  costCodeId    String?
+  costCode      CostCode? @relation(fields: [costCodeId], references: [id])
+  jobtreadId    String?   @unique
+  active        Boolean   @default(true)
+  estimateLines EstimateLine[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([name])
 }
 
 // Saved views for the generalized Jobs board. ownerId null = organization

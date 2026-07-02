@@ -75,6 +75,13 @@ function SyncSummaryView({ s }: { s: JobTreadSyncSummary }) {
       {row("Vendors", s.vendors)}
       {row("Jobs", s.jobs)}
       {row("Daily logs", s.dailyLogs)}
+      {s.catalog && (
+        <>
+          {row("Cost types", s.catalog.costTypes)}
+          {row("Cost codes", s.catalog.costCodes)}
+          {row("Cost items", s.catalog.costItems)}
+        </>
+      )}
       {s.todos && (
         <div className="flex items-center justify-between w-full">
           <span className="hh-secondary">To-dos (display-only, not stored)</span>

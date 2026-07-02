@@ -42,7 +42,7 @@ const JOBS_GROUP: Item = {
     { href: "/jobs/board", label: "Board" },
     { href: "/jobs/daily-logs", label: "Daily Logs" },
     { href: "/jobs/todos", label: "To-Dos" },
-    { href: "/jobs/catalog", label: "Catalog", badge: "soon" },
+    { href: "/jobs/catalog", label: "Catalog" },
     { href: "/jobs/connection", label: "Connection & Sync" },
   ],
 };
