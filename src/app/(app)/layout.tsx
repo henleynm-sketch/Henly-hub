@@ -8,6 +8,8 @@ import { ROLE_LABELS, type Role } from "@/lib/roles";
 import { GlassTopbar } from "@/components/ui/GlassTopbar";
 import ThemeToggle from "@/components/ThemeToggle";
 import { getBrandingConfig } from "@/lib/branding";
+import { prisma } from "@/lib/prisma";
+import { isUiTheme, DEFAULT_UI_THEME } from "@/lib/uiTheme";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -24,8 +26,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const branding = await getBrandingConfig();
 
+  let uiTheme: string = DEFAULT_UI_THEME;
+  try {
+    const pref = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { uiTheme: true },
+    });
+    if (pref && isUiTheme(pref.uiTheme)) uiTheme = pref.uiTheme;
+  } catch {
+    // uiTheme column may not be migrated yet; fall back to default.
+  }
+
   return (
-    <div className="relative flex h-screen overflow-hidden bg-transparent text-ink">
+    <div className="relative flex h-screen overflow-hidden bg-transparent text-ink" data-ui={uiTheme}>
       <div className="hh-app-bg" aria-hidden="true" />
       <div className="hh-app-bg__forms" aria-hidden="true" />
       <div className="hh-brandmark" aria-hidden="true" />

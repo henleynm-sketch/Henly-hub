@@ -26,6 +26,7 @@ model User {
   reportsTo   User?    @relation("ReportsTo", fields: [reportsToId], references: [id])
   reports     User[]   @relation("ReportsTo")
   active      Boolean  @default(true)
+  uiTheme     String   @default("glass") // glass | saas (validated in src/lib/uiTheme.ts)
   notificationPrefs UserNotificationPref[]
   assignedProjects ProjectAssignment[]
   authoredLogs DailyLog[]
