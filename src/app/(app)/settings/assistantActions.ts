@@ -26,15 +26,25 @@ export async function saveAnthropicConfig(formData: FormData): Promise<Assistant
   const data: { model: string; apiKey?: string; enabled: boolean } = { model, enabled: true };
   if (apiKey) data.apiKey = apiKey;
 
-  await prisma.anthropicConfig.upsert({
-    where: { id: "singleton" },
-    update: data,
-    create: { id: "singleton", apiKey: apiKey || null, model, enabled: true },
-  });
+  try {
+    await prisma.anthropicConfig.upsert({
+      where: { id: "singleton" },
+      update: data,
+      create: { id: "singleton", apiKey: apiKey || null, model, enabled: true },
+    });
+  } catch (err) {
+    return {
+      ok: false,
+      error:
+        "Database is missing the assistant tables — run `npx prisma db push` then retry. " +
+        (err instanceof Error ? err.message.slice(0, 200) : ""),
+    };
+  }
   await prisma.auditLog.create({
     data: { actorId: me.user.id, action: existing?.apiKey ? "assistant.config.edit" : "assistant.config.enable", target: model },
   });
   revalidatePath("/settings");
+  revalidatePath("/", "layout"); // Ask Claude pill appears app-wide immediately
   return { ok: true };
 }
 

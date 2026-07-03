@@ -16,8 +16,17 @@ export type GrantRow = {
 export async function listMyGrants(): Promise<GrantRow[]> {
   const me = await auth();
   if (!me?.user) return [];
+  try {
+    return await listGrantsUnsafe(me.user.id);
+  } catch {
+    // OAuth tables not pushed yet — settings must render regardless.
+    return [];
+  }
+}
+
+async function listGrantsUnsafe(userId: string): Promise<GrantRow[]> {
   const rows = await prisma.oAuthToken.findMany({
-    where: { userId: me.user.id, revokedAt: null, expiresAt: { gt: new Date(0) } },
+    where: { userId, revokedAt: null, expiresAt: { gt: new Date(0) } },
     orderBy: { createdAt: "desc" },
     include: { client: { select: { name: true } } },
     take: 50,
