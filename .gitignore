@@ -11,6 +11,8 @@ out/
 coverage/
 tsconfig.tsbuildinfo
 .turbo
+**/generated/sqlite-client
+**/prisma/dev.db.backup*
 
 # Raw client data — sensitive PII, never commit.
 # Seed scripts read from /imports/ at runtime; keep your own exports there.

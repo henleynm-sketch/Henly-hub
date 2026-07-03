@@ -11,7 +11,8 @@
     "db:seed:quo": "dotenv -e ../../.env -- tsx prisma/seed-quo-messages.ts",
     "db:seed:real": "dotenv -e ../../.env -- tsx prisma/seed-real-data.ts",
     "db:seed:bt": "dotenv -e ../../.env -- tsx prisma/seed-bt.ts",
-    "db:reset": "dotenv -e ../../.env -- prisma db push --force-reset && npm run db:seed"
+    "db:reset": "dotenv -e ../../.env -- prisma db push --force-reset && npm run db:seed",
+    "migrate:pg": "prisma generate --schema prisma/schema.sqlite.prisma && dotenv -e ../../.env -- tsx scripts/migrate-sqlite-to-pg.ts"
   },
   "prisma": {
     "seed": "dotenv -e ../../.env -- tsx prisma/seed.ts"
