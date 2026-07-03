@@ -598,6 +598,7 @@ model Vendor {
   division     String?   // validated against DIVISION in src/lib/taxonomy.ts
   w9OnFile     Boolean   @default(false)
   coiExpiresAt DateTime?
+  archivedAt   DateTime? // soft-delete; JT sync must never resurrect archived vendors
   jobtreadAccountId String? @unique
   notes        String?
   createdAt    DateTime  @default(now())

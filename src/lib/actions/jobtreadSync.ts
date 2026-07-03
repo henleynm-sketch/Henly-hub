@@ -285,8 +285,15 @@ async function vendorsSync(cf: CFLookup): Promise<EntityCounts> {
     if (coi) data.coiExpiresAt = coi;
 
     let existing = await prisma.vendor.findUnique({ where: { jobtreadAccountId: a.id } });
+    if (existing?.archivedAt) {
+      // Deliberately removed in the Hub — never resurrect or update.
+      counts.skipped++;
+      continue;
+    }
     if (!existing) {
-      existing = await prisma.vendor.findFirst({ where: { name: a.name, jobtreadAccountId: null } });
+      existing = await prisma.vendor.findFirst({
+        where: { name: a.name, jobtreadAccountId: null, archivedAt: null },
+      });
     }
 
     if (existing) {

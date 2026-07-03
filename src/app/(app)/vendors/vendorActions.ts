@@ -85,7 +85,10 @@ export async function deleteVendor(vendorId: string): Promise<VendorResult> {
   const vendor = await prisma.vendor.findUnique({ where: { id: vendorId } });
   if (!vendor) return { ok: false, error: "Vendor not found" };
 
-  await prisma.vendor.delete({ where: { id: vendorId } });
+  // Soft-delete: a hard delete lets the next JobTread sync re-create the
+  // vendor (no id/name match found). Archived vendors are excluded from the
+  // page and explicitly skipped by the sync.
+  await prisma.vendor.update({ where: { id: vendorId }, data: { archivedAt: new Date() } });
   revalidatePath("/vendors");
   return { ok: true };
 }

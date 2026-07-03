@@ -18,6 +18,7 @@ export default async function VendorsPage() {
   cutoff30.setDate(now.getDate() + 30);
 
   const vendors = await prisma.vendor.findMany({
+    where: { archivedAt: null },
     orderBy: [{ name: "asc" }],
   });
 
