@@ -33,7 +33,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) return null;
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
-        return {
+        // lastLoginAt is best-effort — never blocks sign-in
+void prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } }).catch(() => {});
+return {
           id: user.id,
           email: user.email,
           name: user.name,
