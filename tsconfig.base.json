@@ -1,5 +1,0 @@
-{
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "//": "Root convenience pointer to the shared base. Real config lives in packages/typescript-config. Apps/packages should extend @repo/typescript-config/* directly.",
-  "extends": "@repo/typescript-config/base.json"
-}
