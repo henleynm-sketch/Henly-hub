@@ -104,5 +104,24 @@ export async function setEstimateStatus(id: string, status: string) {
   if (!isEstimateStatus(status)) {
     throw new ValidationError(`status must be one of ${ESTIMATE_STATUSES.join(", ")}`, { status: ["invalid"] });
   }
-  return prisma.estimate.update({ where: { id }, data: { status } });
+  const updated = await prisma.estimate.update({
+    where: { id },
+    data: { status },
+    include: { client: { select: { name: true } } },
+  });
+  const { emitNotification } = await import("@/lib/notifications/dispatch");
+  if (status === "SENT") {
+    await emitNotification({
+      eventType: "ESTIMATE_SENT",
+      clientId: updated.clientId,
+      payload: { estimateId: updated.id, number: updated.number, title: updated.title, totalCents: updated.totalCents },
+    });
+  } else if (status === "ACCEPTED") {
+    await emitNotification({
+      eventType: "ESTIMATE_ACCEPTED",
+      clientId: updated.clientId,
+      payload: { estimateId: updated.id, number: updated.number, totalCents: updated.totalCents, clientName: updated.client.name },
+    });
+  }
+  return updated;
 }

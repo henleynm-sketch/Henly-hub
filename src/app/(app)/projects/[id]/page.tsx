@@ -197,7 +197,7 @@ export default async function ProjectDetail({
       }
     }
 
-    await createDailyLog({
+    const createdLog = await createDailyLog({
       projectId,
       authorId: me.user.id,
       notes,
@@ -207,6 +207,15 @@ export default async function ProjectDetail({
       clientVisible: formData.get("clientVisible") === "on",
       photos: savedUrls,
     });
+    if (createdLog.clientVisible) {
+      const { emitNotification } = await import("@/lib/notifications/dispatch");
+      await emitNotification({
+        eventType: "DAILY_LOG_CLIENT",
+        actorId: me.user.id,
+        jobId: createdLog.projectId,
+        payload: { logId: createdLog.id, notes: createdLog.notes.slice(0, 400) },
+      });
+    }
     revalidatePath(`/projects/${projectId}`);
   }
 

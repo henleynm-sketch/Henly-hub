@@ -202,6 +202,15 @@ export async function setProjectGroupField(
   const project = await prisma.project.findUnique({ where: { id: projectId } });
   if (!project) return { ok: false, error: "Project not found" };
   await prisma.project.update({ where: { id: projectId }, data: { [axis]: value } });
+  {
+    const { emitNotification } = await import("@/lib/notifications/dispatch");
+    await emitNotification({
+      eventType: "JOB_STAGE_CHANGED",
+      actorId: me.user.id,
+      jobId: projectId,
+      payload: { axis, value },
+    });
+  }
   revalidatePath("/jobs/board");
   revalidatePath("/jobs");
   revalidatePath(`/projects/${projectId}`);

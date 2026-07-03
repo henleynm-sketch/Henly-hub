@@ -51,6 +51,14 @@ export default async function ContractDetail({ params }: { params: Promise<{ id:
     if (cur?.status !== "DRAFT") return;
     await prisma.contract.update({ where: { id }, data: { status: "SENT", sentAt: new Date() } });
     await prisma.auditLog.create({ data: { actorId: me.user.id, action: "contract.sent", target: cur.number } });
+    const { emitNotification } = await import("@/lib/notifications/dispatch");
+    await emitNotification({
+      eventType: "CONTRACT_SENT",
+      actorId: me.user.id,
+      clientId: cur.clientId,
+      jobId: cur.projectId ?? undefined,
+      payload: { contractId: cur.id, number: cur.number, title: cur.title, totalCents: cur.totalCents, depositCents: cur.depositCents },
+    });
     revalidatePath(`/contracts/${id}`);
   }
 
@@ -67,6 +75,14 @@ export default async function ContractDetail({ params }: { params: Promise<{ id:
       data: { status: "SIGNED", signedAt: new Date(), signedByName: name },
     });
     await prisma.auditLog.create({ data: { actorId: me.user.id, action: "contract.signed", target: cur.number } });
+    const { emitNotification } = await import("@/lib/notifications/dispatch");
+    await emitNotification({
+      eventType: "CONTRACT_SIGNED_CLIENT",
+      actorId: me.user.id,
+      clientId: cur.clientId,
+      jobId: cur.projectId ?? undefined,
+      payload: { contractId: cur.id, number: cur.number },
+    });
     revalidatePath(`/contracts/${id}`);
   }
 
