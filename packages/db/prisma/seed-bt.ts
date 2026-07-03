@@ -4,6 +4,15 @@ import * as XLSX from "xlsx";
 import * as fs from "fs";
 import * as path from "path";
 
+const dbUrl = process.env.DATABASE_URL ?? "";
+if (!dbUrl.startsWith("file:") && process.env.SEED_FORCE !== "1") {
+  console.error(
+    "SEED GUARD: DATABASE_URL points at a shared (non-sqlite) database. " +
+    "Seeding would pollute LIVE shared data. Set SEED_FORCE=1 only if you are certain."
+  );
+  process.exit(1);
+}
+
 const prisma = new PrismaClient();
 
 const IMPORTS_DIR = path.join(process.cwd(), "imports");

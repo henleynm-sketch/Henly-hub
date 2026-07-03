@@ -1,28 +1,12 @@
-# Dev Runbook — Turborepo layout
+# Dev Runbook — Turborepo layout · PostgreSQL (Neon)
 
-The app lives in `apps/web`; ALL database files (schema, dev.db, seeds) live in
-`packages/db`. Same URLs, same behavior — only folders moved.
+The app lives in `apps/web`; the database package is `packages/db`. The LIVE
+database is PostgreSQL on Neon — DATABASE_URL in the ROOT `.env`. Nick and
+Arnab now share ONE database: changes on either machine appear on both.
 
-## One-time cutover (dev server STOPPED, from repo root in PowerShell)
-
-```powershell
-git reset
-Move-Item .\prisma\dev.db .\packages\db\prisma\dev.db -Force
-Remove-Item prisma, node_modules, .next -Recurse -Force -ErrorAction SilentlyContinue
-npm install
-npm run db:generate
-npm run dev
-```
-
-Notes:
-- `.env` STAYS at the repo root — do NOT move it. It is now the single source
-  of truth; all scripts load it from root via dotenv-cli.
-- `DATABASE_URL="file:./dev.db"` stays EXACTLY as-is. The path is relative to
-  schema.prisma, which now sits next to dev.db in `packages/db/prisma/`.
-- The `-Force` on the dev.db move is deliberate: it overwrites a stale snapshot
-  copy with your LIVE database (it holds the QuickBooks token — never recreate it).
-- FIRST CHECK after boot: Settings → QuickBooks must still say CONNECTED.
-  If it says disconnected: STOP, do not re-auth — the dev.db move/path is wrong.
+ROLLBACK: uncomment the `# DATABASE_URL="file:./dev.db"` line in root `.env`
+(comment the postgres one), revert the provider commit, `npm run db:generate`.
+`dev.db` + its dated backup are retained untouched for exactly this purpose.
 
 ## Daily commands (all from repo root)
 
@@ -31,7 +15,7 @@ Notes:
 | Start dev server | `npm run dev` (turbo → web on :3000) |
 | Push schema changes | `npm run db:push` |
 | Regenerate Prisma client | `npm run db:generate` |
-| Reseed demo data | `npm run db:reset` (WIPES dev.db — QBO token included. Don't run casually.) |
+| Reseed demo data | `npm run db:reset` — BLOCKED on Postgres by the seed guard (would wipe SHARED live data). Requires SEED_FORCE=1. Don't. |
 | Typecheck everything | `npm run typecheck` |
 
 ## Layout

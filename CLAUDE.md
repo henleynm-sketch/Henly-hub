@@ -12,7 +12,7 @@ This is the v0.1 MVP, considerably grown since first written. Live modules: dash
 
 - Next.js 15 (App Router) · React 19 · TypeScript
 - Tailwind CSS · lucide-react
-- Prisma ORM · SQLite (dev) — swap `provider` + `DATABASE_URL` to use Postgres
+- Prisma ORM · PostgreSQL (Neon) — DATABASE_URL in ROOT .env; SHARED database (Nick + Arnab hit the same data — no db:reset, seed guard enforces). dev.db retained in packages/db/prisma as rollback only.
 - NextAuth v5 (Credentials provider, JWT sessions) — split between `auth.ts` (Node, full) and `auth.config.ts` (edge-safe for middleware)
 
 ## Working in this repo
@@ -56,7 +56,7 @@ src/app/(app)/             authenticated app shell (sidebar + main)
 - **Role gating** happens in two places: middleware (login required) and inside each page (`canSeeFinancials`, `canViewAllProjects`, etc. from `lib/roles.ts`). Never trust the client.
 - **Money is stored as integer cents** in Prisma and rendered via `formatMoney(cents)`.
 - **Dates** come back as `Date` from Prisma; render via `formatDate` / `formatRelative`.
-- **SQLite has no enums.** Role + status fields are strings, validated by the helpers in `lib/roles.ts` and by literal types in the seed.
+- **No DB enums (SQLite legacy, kept on Postgres).** Role + status fields are strings, validated by the helpers in `lib/roles.ts`. Postgres `contains` is case-sensitive — user-facing search must use `mode: "insensitive"`.
 - **CSS:** Tailwind utilities + a handful of component classes in `src/app/globals.css` (`.card`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.input`, `.label`, `.badge-*`).
 - **No comments** in code unless the *why* is non-obvious. The codebase aims to be self-explanatory through naming.
 

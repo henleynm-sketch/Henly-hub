@@ -1,6 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
+const dbUrl = process.env.DATABASE_URL ?? "";
+if (!dbUrl.startsWith("file:") && process.env.SEED_FORCE !== "1") {
+  console.error(
+    "SEED GUARD: DATABASE_URL points at a shared (non-sqlite) database. " +
+    "Seeding would pollute LIVE shared data. Set SEED_FORCE=1 only if you are certain."
+  );
+  process.exit(1);
+}
+
 const prisma = new PrismaClient();
 
 // ---------------------------------------------------------------------------
