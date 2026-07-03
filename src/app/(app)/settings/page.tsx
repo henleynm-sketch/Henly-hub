@@ -811,7 +811,7 @@ export default async function SettingsPage({
                 </p>
               </section>
             )}
-          </div>
+
             {process.env.NODE_ENV === "development" && (
               <section id="developer" className="hh-panel p-6 flex flex-col gap-4 scroll-mt-24">
                 <div>
@@ -826,6 +826,7 @@ export default async function SettingsPage({
                 </div>
               </section>
             )}
+          </div>
 
         </div>
       </div>

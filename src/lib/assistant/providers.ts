@@ -25,7 +25,8 @@ export const DEFAULT_MODELS: Record<Provider, string> = {
 
 export function detectProvider(apiKey: string): Provider | null {
   if (apiKey.startsWith("sk-ant-")) return "anthropic";
-  if (apiKey.startsWith("AIza")) return "gemini";
+  // Google issues two formats: classic "AIza…" and the newer "AQ.…" keys.
+  if (apiKey.startsWith("AIza") || apiKey.startsWith("AQ.")) return "gemini";
   if (apiKey.startsWith("sk-")) return "openai"; // after sk-ant- check
   return null;
 }

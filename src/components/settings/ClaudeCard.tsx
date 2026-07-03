@@ -140,7 +140,7 @@ export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCe
                 <button className="hh-close" onClick={() => setSheetOpen(false)} aria-label="Close">×</button>
               </div>
               <p className="hh-caption mt-2">
-                Anthropic (sk-ant-…), OpenAI (sk-…) or Gemini (AIza…) — provider is
+                Anthropic (sk-ant-…), OpenAI (sk-…) or Gemini (AIza… or AQ.…) — provider is
                 detected automatically and the key is verified before enabling. Stored
                 in the Hub database only, never in source or env files.
               </p>
@@ -160,7 +160,7 @@ export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCe
                       type="password"
                       className="input"
                       autoComplete="new-password"
-                      placeholder="sk-ant-… / sk-… / AIza…"
+                      placeholder="sk-ant-… / sk-… / AIza… / AQ.…"
                       required={!data.hasKey}
                     />
                   )}

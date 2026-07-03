@@ -31,7 +31,7 @@ export async function saveAnthropicConfig(formData: FormData): Promise<Assistant
   if (!provider) {
     return {
       ok: false,
-      error: "Could not recognize this key. Supported: Anthropic (sk-ant-…), OpenAI (sk-…), Google Gemini (AIza…).",
+      error: "Could not recognize this key. Supported: Anthropic (sk-ant-…), OpenAI (sk-…), Google Gemini (AIza… or AQ.…).",
     };
   }
   const providerChanged = existing?.provider !== provider;
