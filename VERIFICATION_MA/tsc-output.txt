@@ -1,2 +1,1 @@
-src/app/(app)/layout.tsx(80,9): error TS2657: JSX expressions must have one parent element.
-tsc exit: 2
+exit: 0

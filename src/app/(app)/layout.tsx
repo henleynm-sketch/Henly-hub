@@ -78,8 +78,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </div>
       {process.env.NODE_ENV !== "production" && (
         <DemoRoleSwitcher currentEmail={session.user.email} />
-        <AssistantMount />
       )}
+      <AssistantMount />
     </div>
   );
 }
