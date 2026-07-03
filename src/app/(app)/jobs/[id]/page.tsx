@@ -7,6 +7,9 @@ import type { Role } from "@/lib/roles";
 import { StatCard } from "@/components/PageHeader";
 import JobFieldsPanel from "@/components/jobs/JobFieldsPanel";
 import JobTreadPanel from "@/components/jobs/JobTreadPanel";
+import LocationCard from "@/components/jobs/LocationCard";
+import WeatherCard from "@/components/jobs/WeatherCard";
+import { googleMapsUrl, osmEmbedUrl } from "@/lib/geocode";
 import { jobTreadJobUrl } from "@/lib/jobtread";
 import { formatMoney, formatDate, formatRelative } from "@/lib/utils";
 
@@ -116,6 +119,34 @@ export default async function JobCockpitPage({ params }: { params: Promise<{ id:
               </span>
             </div>
           </div>
+
+          <LocationCard
+            canEdit
+            data={{
+              projectId: p.id,
+              address: p.address,
+              city: p.city,
+              latitude: p.latitude,
+              longitude: p.longitude,
+              taxRateBps: p.taxRateBps,
+              mapsUrl: googleMapsUrl(p.latitude, p.longitude, [p.address, p.city].filter(Boolean).join(", ")),
+              osmEmbedUrl:
+                p.latitude != null && p.longitude != null ? osmEmbedUrl(p.latitude, p.longitude) : null,
+            }}
+          />
+
+          {p.latitude != null && p.longitude != null && (
+            <Suspense
+              fallback={
+                <section className="hh-panel p-5">
+                  <h2 className="hh-label">Site weather</h2>
+                  <p className="hh-secondary mt-2">Loading forecast…</p>
+                </section>
+              }
+            >
+              <WeatherCard lat={p.latitude} lng={p.longitude} />
+            </Suspense>
+          )}
         </div>
 
         <div className="lg:col-span-2 flex flex-col gap-5">
