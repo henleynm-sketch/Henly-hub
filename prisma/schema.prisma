@@ -734,6 +734,52 @@ model AssistantMessage {
   @@index([threadId, createdAt])
 }
 
+// ─── OAuth 2.1 (Hub as remote MCP connector) ─────────────────────────────────
+// Public clients + PKCE S256 only. Secrets never stored in plaintext: token
+// values live as sha256 hashes. Revocation is immediate (revokedAt checked on
+// every bearer lookup).
+
+model OAuthClient {
+  id           String   @id @default(cuid())
+  clientId     String   @unique
+  name         String
+  redirectUris String   // JSON array of exact-match URIs
+  createdAt    DateTime @default(now())
+  codes        OAuthCode[]
+  tokens       OAuthToken[]
+}
+
+model OAuthCode {
+  id            String      @id @default(cuid())
+  code          String      @unique
+  clientDbId    String
+  client        OAuthClient @relation(fields: [clientDbId], references: [id], onDelete: Cascade)
+  userId        String
+  redirectUri   String
+  codeChallenge String      // S256 challenge
+  scopes        String      @default("hub:tools")
+  expiresAt     DateTime
+  consumedAt    DateTime?
+  createdAt     DateTime    @default(now())
+}
+
+model OAuthToken {
+  id               String      @id @default(cuid())
+  accessTokenHash  String      @unique // sha256
+  refreshTokenHash String?     @unique // sha256; null after rotation
+  clientDbId       String
+  client           OAuthClient @relation(fields: [clientDbId], references: [id], onDelete: Cascade)
+  userId           String
+  scopes           String      @default("hub:tools")
+  expiresAt        DateTime
+  refreshExpiresAt DateTime?
+  revokedAt        DateTime?
+  lastUsedAt       DateTime?
+  createdAt        DateTime    @default(now())
+
+  @@index([userId, revokedAt])
+}
+
 model BrandingConfig {
   id                String   @id @default("singleton")
   backgroundEnabled Boolean  @default(true)
