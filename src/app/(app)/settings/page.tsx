@@ -114,12 +114,14 @@ export default async function SettingsPage({
   const meUiTheme =
     (users.find((u) => u.id === session.user.id) as { uiTheme?: string } | undefined)?.uiTheme ?? "glass";
 
-  const [orgName, orgAddress, orgTz, orgFiscal, hubKey, m365Row, henleyTasksRow] =
+  const [orgName, orgAddress, orgTz, orgFiscal, orgLogoData, orgLogoMime, hubKey, m365Row, henleyTasksRow] =
     await Promise.all([
       getSetting("org.name"),
       getSetting("org.address"),
       getSetting("org.timezone"),
       getSetting("org.fiscalYearStart"),
+      getSetting("org.logoData"),
+      getSetting("org.logoMime"),
       getSetting("HUB_TASKS_API_KEY"),
       prisma.m365Config.findUnique({ where: { id: "singleton" } }).catch(() => null),
       prisma.henleyTasksConfig.findUnique({ where: { id: "singleton" } }).catch(() => null),
@@ -285,7 +287,28 @@ export default async function SettingsPage({
     await setSetting("org.address", String(formData.get("address") || ""));
     await setSetting("org.timezone", String(formData.get("timezone") || "America/Toronto"));
     await setSetting("org.fiscalYearStart", String(formData.get("fiscal") || "January"));
+
+    // Logo: stored as base64 in Setting (small images; files backend later).
+    const removeLogo = formData.get("removeLogo") === "on";
+    const logo = formData.get("logo");
+    if (removeLogo) {
+      await setSetting("org.logoData", "");
+      await setSetting("org.logoMime", "");
+    } else if (logo instanceof File && logo.size > 0) {
+      const okTypes = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
+      if (!okTypes.includes(logo.type)) {
+        redirect("/settings?notice=Logo+must+be+PNG%2C+JPG%2C+WebP+or+SVG#organization");
+      }
+      if (logo.size > 1024 * 1024) {
+        redirect("/settings?notice=Logo+must+be+under+1MB#organization");
+      }
+      const buf = Buffer.from(await logo.arrayBuffer());
+      await setSetting("org.logoData", buf.toString("base64"));
+      await setSetting("org.logoMime", logo.type);
+    }
+
     revalidatePath("/settings");
+    revalidatePath("/", "layout");
     redirect("/settings?notice=Organization+saved#organization");
   }
 
@@ -474,7 +497,29 @@ export default async function SettingsPage({
                 </div>
                 <div>
                   <label className="hh-label block mb-1.5">Logo</label>
-                  <input className="input" disabled placeholder="Coming soon" title="Logo storage lands with the files backend (R2/S3)" />
+                  {orgLogoData && orgLogoMime ? (
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`data:${orgLogoMime};base64,${orgLogoData}`}
+                        alt="Company logo"
+                        className="h-10 max-w-40 object-contain rounded border border-glass-border bg-row-bg p-1"
+                      />
+                      {isCeo && (
+                        <label className="flex items-center gap-1.5 hh-secondary text-xs">
+                          <input type="checkbox" name="removeLogo" /> Remove
+                        </label>
+                      )}
+                    </div>
+                  ) : null}
+                  <input
+                    type="file"
+                    name="logo"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    className="input mt-1.5 !p-1.5 text-xs"
+                    disabled={!isCeo}
+                    title="PNG, JPG, WebP or SVG — max 1MB. Shows in the sidebar."
+                  />
                 </div>
                 {isCeo && (
                   <div className="sm:col-span-2">

@@ -176,6 +176,7 @@ export default function Sidebar({
   focusArea,
   signOutSlot,
   className,
+  logoDataUrl,
 }: {
   role: Role;
   userName: string;
@@ -183,6 +184,7 @@ export default function Sidebar({
   focusArea?: string | null;
   signOutSlot?: React.ReactNode;
   className?: string;
+  logoDataUrl?: string | null;
 }) {
   const items = navByRole[role] ?? navByRole.OFFICE;
   const pathname = usePathname();
@@ -191,7 +193,12 @@ export default function Sidebar({
     <GlassSidebar className={className}>
       {/* Brand header — real Henley Contracting logo, tinted per theme via CSS mask */}
       <div className="flex h-14 items-center border-b border-glass-border px-4">
-        <div className="hh-brand-logo" role="img" aria-label="Henley Contracting" />
+        {logoDataUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoDataUrl} alt="Company logo" className="h-9 max-w-full object-contain" />
+        ) : (
+          <div className="hh-brand-logo" role="img" aria-label="Henley Contracting" />
+        )}
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">

@@ -16,15 +16,30 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!session?.user) redirect("/sign-in");
 
   const role = session.user.role as Role;
+  let logoDataUrl: string | null = null;
+  try {
+    const [logoData, logoMime] = await Promise.all([
+      prisma.setting.findUnique({ where: { key: "org.logoData" } }),
+      prisma.setting.findUnique({ where: { key: "org.logoMime" } }),
+    ]);
+    if (logoData?.value && logoMime?.value) {
+      logoDataUrl = `data:${logoMime.value};base64,${logoData.value}`;
+    }
+  } catch {
+    // Setting table unavailable — masked default logo stands.
+  }
+
   const sidebarProps = {
     role,
     userName: session.user.name ?? "User",
     userEmail: session.user.email ?? "",
     focusArea: session.user.focusArea,
     signOutSlot: <SignOutButton />,
+    logoDataUrl
   };
 
   const branding = await getBrandingConfig();
+
 
   let uiTheme: string = DEFAULT_UI_THEME;
   try {
