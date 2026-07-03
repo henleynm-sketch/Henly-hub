@@ -307,7 +307,7 @@ model Contract {
   authorId      String
   author        User      @relation("ContractAuthor", fields: [authorId], references: [id])
   title         String
-  status        String    @default("DRAFT") // DRAFT | SENT | SIGNED | VOID
+  status        String    @default("DRAFT") // DRAFT | SENT | SIGNED | DEPOSIT_PAID | VOID — order-enforced in actions
   subtotalCents Int       @default(0)
   taxCents      Int       @default(0)
   totalCents    Int       @default(0)
@@ -316,6 +316,8 @@ model Contract {
   sentAt        DateTime?
   signedAt      DateTime?
   signedByName  String?
+  depositPaidAt DateTime?
+  backfilledAt  DateTime? // set when recorded as a historical (pre-Hub) contract
   qbInvoiceId   String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

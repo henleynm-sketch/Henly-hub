@@ -9,7 +9,7 @@ import { formatMoney, formatRelative } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
 function contractBadge(s: string) {
-  if (s === "SIGNED") return "hh-badge hh-badge--success";
+  if (s === "SIGNED" || s === "DEPOSIT_PAID") return "hh-badge hh-badge--success";
   if (s === "SENT") return "hh-badge";
   if (s === "VOID") return "hh-badge hh-badge--danger";
   return "hh-badge";

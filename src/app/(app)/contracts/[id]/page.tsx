@@ -9,7 +9,7 @@ import { formatDate, formatMoney } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 
 function contractBadge(s: string) {
-  if (s === "SIGNED") return "hh-badge hh-badge--success";
+  if (s === "SIGNED" || s === "DEPOSIT_PAID") return "hh-badge hh-badge--success";
   if (s === "SENT") return "hh-badge";
   if (s === "VOID") return "hh-badge hh-badge--danger";
   return "hh-badge";
@@ -40,11 +40,17 @@ export default async function ContractDetail({ params }: { params: Promise<{ id:
       })
     : [];
 
+  // Transitions are order-enforced server-side: DRAFT→SENT→SIGNED→DEPOSIT_PAID
+  // (VOID only before signing). Every transition is audit-logged — manual
+  // states stand in until e-sign/payment providers are chosen.
   async function markSent() {
     "use server";
     const me = await auth();
     if (!me?.user || !canSeeFinancials(me.user.role as Role)) return;
+    const cur = await prisma.contract.findUnique({ where: { id } });
+    if (cur?.status !== "DRAFT") return;
     await prisma.contract.update({ where: { id }, data: { status: "SENT", sentAt: new Date() } });
+    await prisma.auditLog.create({ data: { actorId: me.user.id, action: "contract.sent", target: cur.number } });
     revalidatePath(`/contracts/${id}`);
   }
 
@@ -54,10 +60,27 @@ export default async function ContractDetail({ params }: { params: Promise<{ id:
     if (!me?.user || !canSeeFinancials(me.user.role as Role)) return;
     const name = String(formData.get("signedByName") || "").trim();
     if (!name) return;
+    const cur = await prisma.contract.findUnique({ where: { id } });
+    if (cur?.status !== "SENT") return;
     await prisma.contract.update({
       where: { id },
       data: { status: "SIGNED", signedAt: new Date(), signedByName: name },
     });
+    await prisma.auditLog.create({ data: { actorId: me.user.id, action: "contract.signed", target: cur.number } });
+    revalidatePath(`/contracts/${id}`);
+  }
+
+  async function markDepositPaid() {
+    "use server";
+    const me = await auth();
+    if (!me?.user || !canSeeFinancials(me.user.role as Role)) return;
+    const cur = await prisma.contract.findUnique({ where: { id } });
+    if (cur?.status !== "SIGNED") return;
+    await prisma.contract.update({
+      where: { id },
+      data: { status: "DEPOSIT_PAID", depositPaidAt: new Date() },
+    });
+    await prisma.auditLog.create({ data: { actorId: me.user.id, action: "contract.deposit_paid", target: cur.number } });
     revalidatePath(`/contracts/${id}`);
   }
 
@@ -65,7 +88,10 @@ export default async function ContractDetail({ params }: { params: Promise<{ id:
     "use server";
     const me = await auth();
     if (!me?.user || !canSeeFinancials(me.user.role as Role)) return;
+    const cur = await prisma.contract.findUnique({ where: { id } });
+    if (!cur || cur.status === "SIGNED" || cur.status === "DEPOSIT_PAID" || cur.status === "VOID") return;
     await prisma.contract.update({ where: { id }, data: { status: "VOID" } });
+    await prisma.auditLog.create({ data: { actorId: me.user.id, action: "contract.void", target: cur.number } });
     revalidatePath(`/contracts/${id}`);
   }
 
@@ -157,11 +183,26 @@ export default async function ContractDetail({ params }: { params: Promise<{ id:
               </form>
             )}
             {c.status === "SIGNED" && (
+              <>
+                <p className="hh-secondary">
+                  Signed by <span className="hh-primary">{c.signedByName}</span> on {formatDate(c.signedAt)}.
+                </p>
+                {c.depositCents > 0 && (
+                  <form action={markDepositPaid}>
+                    <button className="btn btn-primary w-full justify-center" type="submit">
+                      Record deposit paid ({formatMoney(c.depositCents)})
+                    </button>
+                  </form>
+                )}
+              </>
+            )}
+            {c.status === "DEPOSIT_PAID" && (
               <p className="hh-secondary">
-                Signed by <span className="hh-primary">{c.signedByName}</span> on {formatDate(c.signedAt)}.
+                Signed by <span className="hh-primary">{c.signedByName}</span> on {formatDate(c.signedAt)} ·
+                deposit paid {formatDate(c.depositPaidAt)}.
               </p>
             )}
-            {c.status !== "VOID" && c.status !== "SIGNED" && (
+            {c.status !== "VOID" && c.status !== "SIGNED" && c.status !== "DEPOSIT_PAID" && (
               <form action={voidContract}>
                 <button className="btn btn-destructive w-full justify-center" type="submit">Void contract</button>
               </form>
