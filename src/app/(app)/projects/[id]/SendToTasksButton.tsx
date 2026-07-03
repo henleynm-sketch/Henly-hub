@@ -49,7 +49,7 @@ export default function SendToTasksButton({ projectName }: { projectName: string
       </button>
 
       {toast && (
-        <div className="fixed bottom-6 right-6 z-[90] hh-panel px-4 py-3 flex items-center gap-2 shadow-lg">
+        <div className="!fixed bottom-6 right-6 z-[90] hh-panel px-4 py-3 flex items-center gap-2 shadow-lg">
           <span className={`hh-dot ${toast.ok ? "hh-dot--green" : "hh-dot--red"}`} />
           <span className="hh-secondary">{toast.msg}</span>
         </div>
