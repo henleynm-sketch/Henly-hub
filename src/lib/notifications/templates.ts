@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { createHmac } from "crypto";
+
 import type { Notification } from "@prisma/client";
 import { getBaseUrl, type Recipient } from "@/lib/notifications/events";
 import { formatMoney } from "@/lib/utils";
@@ -44,16 +44,28 @@ function button(href: string, label: string): string {
   return `<p style="margin:20px 0;"><a href="${href}" style="background:${ACCENT};color:#FFFFFF;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:600;font-size:13px;">${label}</a></p>`;
 }
 
-export function unsubscribeToken(email: string): string {
-  // Stateless HMAC token — the public route verifies it and only then writes
-  // the suppression row. No auth, scope-limited to this one email.
+// Web Crypto HMAC (no node:crypto import — instrumentation also bundles for
+// the Edge runtime, where that module cannot resolve). Stateless token; the
+// public route verifies it and only then writes the suppression row.
+export async function unsubscribeToken(email: string): Promise<string> {
   const secret = process.env.NEXTAUTH_SECRET ?? "henley-hub-unsub";
-  return createHmac("sha256", secret).update(email.toLowerCase()).digest("base64url");
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(email.toLowerCase())));
+  let bin = "";
+  for (const b of sig) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 async function unsubscribeFooter(email: string): Promise<{ html: string; text: string }> {
   const lower = email.toLowerCase();
-  const token = unsubscribeToken(lower);
+  const token = await unsubscribeToken(lower);
   const base = await getBaseUrl();
   const href = `${base}/unsubscribe?token=${token}&email=${encodeURIComponent(lower)}`;
   return {

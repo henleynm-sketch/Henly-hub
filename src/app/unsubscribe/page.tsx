@@ -15,7 +15,7 @@ export default async function UnsubscribePage({
   const sp = await searchParams;
   const email = (sp.email ?? "").toLowerCase();
   const token = sp.token ?? "";
-  const valid = Boolean(email && token && unsubscribeToken(email) === token);
+  const valid = Boolean(email && token && (await unsubscribeToken(email)) === token);
 
   async function confirm() {
     "use server";
