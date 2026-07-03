@@ -4,6 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import ApplyTemplateCard from "./ApplyTemplateCard";
 import WarrantyPanel from "./WarrantyPanel";
 import JobTreadPanel from "@/components/jobs/JobTreadPanel";
+import WeatherCard from "@/components/jobs/WeatherCard";
 import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { createDailyLog } from "@/lib/services/dailyLogService";
@@ -458,6 +459,19 @@ export default async function ProjectDetail({
               })}
             </ul>
           </section>
+
+          {role === "FIELD" && project.latitude != null && project.longitude != null && (
+            <Suspense
+              fallback={
+                <section className="hh-panel p-6">
+                  <h2 className="hh-label">Site weather</h2>
+                  <p className="hh-secondary mt-2">Loading forecast…</p>
+                </section>
+              }
+            >
+              <WeatherCard lat={project.latitude} lng={project.longitude} />
+            </Suspense>
+          )}
 
           {(role === "CEO" || role === "OFFICE") && project.jobtreadJobId && (
             <Suspense
