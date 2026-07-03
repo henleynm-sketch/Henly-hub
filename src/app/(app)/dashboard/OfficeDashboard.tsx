@@ -3,6 +3,8 @@ import PageHeader, { StatCard } from "@/components/PageHeader";
 import { prisma } from "@/lib/prisma";
 import { formatMoney, formatRelative } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
+import { getDashboardAnalytics } from "@/lib/services/dashboardService";
+import { PipelineValueBar, CountDonut, ActivityTrend } from "@/components/dashboard/Charts";
 
 type ActivityKind = "logs" | "estimates" | "selections" | "files";
 type ActivityEntry = {
@@ -54,11 +56,9 @@ export default async function OfficeDashboard({
   const weekStart = startOfWeek(now);
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
+  const analytics = await getDashboardAnalytics();
+
   const [
-    clientCount,
-    activeProjects,
-    pipeline,
-    clockedInNow,
     recentLogs,
     recentDocs,
     recentEstimates,
@@ -72,12 +72,6 @@ export default async function OfficeDashboard({
     clientUpdatesThisMonth,
     qboToken,
   ] = await Promise.all([
-    prisma.client.count(),
-    prisma.project.count({
-      where: { status: { in: ["IN_PROGRESS", "FINISHING", "PERMITTING", "DESIGN", "CLOSING"] } },
-    }),
-    prisma.estimate.aggregate({ _sum: { totalCents: true }, where: { status: { in: ["DRAFT", "SENT"] } } }),
-    prisma.timeEntry.count({ where: { clockOut: null } }),
     prisma.dailyLog.findMany({
       where: { createdAt: { gte: cutoff } },
       orderBy: { createdAt: "desc" },
@@ -186,18 +180,171 @@ export default async function OfficeDashboard({
       />
 
       <div className="space-y-6 p-6">
-        {/* Row 1 — counters */}
+        {/* Row 1 — counters (real derived numbers via dashboardService) */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Active clients" value={String(clientCount)} hint="Across all stages" />
-          <StatCard label="Projects in flight" value={String(activeProjects)} tone="good" />
-          <StatCard label="Open pipeline" value={formatMoney(pipeline._sum.totalCents ?? 0)} hint="Draft + sent estimates" />
+          <StatCard
+            label="Active clients"
+            value={String(analytics.kpis.activeClients)}
+            hint={`with an open job · ${analytics.kpis.totalClients} total`}
+          />
+          <StatCard
+            label="Jobs in flight"
+            value={String(analytics.kpis.jobsInFlight)}
+            tone="good"
+            hint="open + presale + warranty"
+          />
+          <StatCard
+            label="Open pipeline"
+            value={formatMoney(analytics.kpis.openPipelineCents)}
+            hint="Draft + sent estimates"
+          />
           <StatCard
             label="On the clock now"
-            value={String(clockedInNow)}
-            tone={clockedInNow > 0 ? "good" : "default"}
-            hint={clockedInNow === 1 ? "1 person clocked in" : `${clockedInNow} people clocked in`}
+            value={String(analytics.kpis.clockedInNow)}
+            tone={analytics.kpis.clockedInNow > 0 ? "good" : "default"}
+            hint={analytics.kpis.clockedInNow === 1 ? "1 person clocked in" : `${analytics.kpis.clockedInNow} people clocked in`}
           />
         </div>
+
+        {/* Analytics grid — every number reconciles with its source surface */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <section className="hh-panel p-6">
+            <div className="flex items-center justify-between pb-2">
+              <h2 className="hh-label">Pipeline value by stage</h2>
+              <Link href="/jobs/board" className="btn-ghost text-xs">Board →</Link>
+            </div>
+            <p className="hh-caption pb-2">
+              Open estimate $ attributed to each client&apos;s most-advanced staged job
+              {analytics.unstagedPipelineCents > 0
+                ? ` · ${formatMoney(analytics.unstagedPipelineCents)} unstaged`
+                : ""}
+            </p>
+            <PipelineValueBar data={analytics.pipelineByStage} />
+          </section>
+
+          <section className="hh-panel p-6">
+            <div className="flex items-center justify-between pb-2">
+              <h2 className="hh-label">Jobs by construction phase</h2>
+              <Link href="/jobs/board" className="btn-ghost text-xs">Board →</Link>
+            </div>
+            {analytics.byConstructionPhase.some((s) => s.count > 0) ? (
+              <CountDonut data={analytics.byConstructionPhase} />
+            ) : (
+              <p className="hh-secondary py-8">No jobs carry a construction phase yet.</p>
+            )}
+          </section>
+
+          <section className="hh-panel p-6">
+            <h2 className="hh-label pb-2">Jobs by status &amp; division</h2>
+            <div className="grid grid-cols-2 gap-2">
+              <CountDonut data={analytics.byStatus} height={190} />
+              {analytics.byDivision.some((s) => s.count > 0) ? (
+                <CountDonut data={analytics.byDivision} height={190} />
+              ) : (
+                <p className="hh-secondary self-center">No division set on any job yet.</p>
+              )}
+            </div>
+          </section>
+
+          <section className="hh-panel p-6">
+            <h2 className="hh-label pb-2">Activity — last 8 weeks</h2>
+            <ActivityTrend data={analytics.activityTrend} />
+          </section>
+
+          <section className="hh-panel p-6 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <h2 className="hh-label">Warranty</h2>
+              <Link href="/jobs/board" className="btn-ghost text-xs">Warranty view →</Link>
+            </div>
+            {analytics.warrantyByPhase.some((s) => s.count > 0) ? (
+              analytics.warrantyByPhase
+                .filter((s) => s.count > 0)
+                .map((s) => (
+                  <div key={s.label} className="flex items-center justify-between">
+                    <span className="hh-secondary">{s.label}</span>
+                    <span className="hh-primary tabular-nums">{s.count}</span>
+                  </div>
+                ))
+            ) : (
+              <p className="hh-secondary">No jobs in a warranty phase.</p>
+            )}
+          </section>
+
+          <section className="hh-panel p-6 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <h2 className="hh-label">Vendor compliance</h2>
+              <Link href="/vendors" className="btn-ghost text-xs">Vendors →</Link>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="hh-secondary">Missing W-9</span>
+              <span className="hh-primary tabular-nums">{analytics.vendorCompliance.missingW9}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="hh-secondary">COI expiring in 30 days</span>
+              <span className="hh-primary tabular-nums">{analytics.vendorCompliance.expiringSoon}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="hh-secondary">COI expired</span>
+              <span className="hh-primary tabular-nums">{analytics.vendorCompliance.expired}</span>
+            </div>
+            <hr className="hh-divider" />
+            <div className="flex items-center justify-between">
+              <h2 className="hh-label">Henley Tasks</h2>
+              <Link href="/tasks" className="btn-ghost text-xs">Tasks →</Link>
+            </div>
+            {analytics.tasks.ok ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <span className="hh-secondary">Open</span>
+                  <span className="hh-primary tabular-nums">{analytics.tasks.open}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="hh-secondary">Due today</span>
+                  <span className="hh-primary tabular-nums">{analytics.tasks.dueToday}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="hh-secondary">Overdue</span>
+                  <span className={analytics.tasks.overdue > 0 ? "hh-primary tabular-nums" : "hh-secondary tabular-nums"}>
+                    {analytics.tasks.overdue}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <p className="hh-secondary">Henley Tasks unavailable right now.</p>
+            )}
+          </section>
+        </div>
+
+        <section className="hh-panel overflow-x-auto">
+          <div className="border-b border-glass-border px-6 py-4">
+            <h2 className="hh-label">This month vs last</h2>
+          </div>
+          <table className="min-w-full text-sm">
+            <thead className="border-b border-glass-border">
+              <tr>
+                <th className="hh-label px-5 py-3 text-left">Metric</th>
+                <th className="hh-label px-5 py-3 text-right">This month</th>
+                <th className="hh-label px-5 py-3 text-right">Last month</th>
+                <th className="hh-label px-5 py-3 text-right">Δ</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-glass-border">
+              {analytics.comparison.map((r) => {
+                const d = r.thisMonth - r.lastMonth;
+                return (
+                  <tr key={r.metric} className="hh-row--flat">
+                    <td className="px-5 py-3 hh-primary">{r.metric}</td>
+                    <td className="px-5 py-3 text-right tabular-nums hh-primary">{r.thisMonth}</td>
+                    <td className="px-5 py-3 text-right tabular-nums hh-secondary">{r.lastMonth}</td>
+                    <td className={`px-5 py-3 text-right tabular-nums ${d > 0 ? "hh-primary" : "hh-secondary"}`}>
+                      {d === 0 ? "—" : d > 0 ? `+${d}` : String(d)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </section>
 
         {/* Row 2 — activity feed */}
         <section className="hh-panel p-6 flex flex-col gap-4">
