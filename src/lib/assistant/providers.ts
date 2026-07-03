@@ -78,6 +78,11 @@ function sanitizeForAnthropic(messages: ModelMessage[]): ModelMessage[] {
             if (b.type === "tool_use") return { type: "tool_use" as const, id: b.id, name: b.name, input: b.input };
             if (b.type === "tool_result")
               return { type: "tool_result" as const, tool_use_id: b.tool_use_id, content: b.content, ...(b.is_error ? { is_error: true } : {}) };
+            if (b.type === "image")
+              return {
+                type: "image",
+                source: { type: "base64", media_type: b.mediaType, data: b.dataBase64 },
+              } as unknown as (typeof m.content)[number];
             return b;
           }),
         },
@@ -101,8 +106,12 @@ async function callAnthropic(p: CallParams): Promise<ModelResult> {
 
 // ── OpenAI ───────────────────────────────────────────────────────────────────
 
+type OAIUserPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
 type OAIMessage =
-  | { role: "system" | "user"; content: string }
+  | { role: "system"; content: string }
+  | { role: "user"; content: string | OAIUserPart[] }
   | { role: "assistant"; content: string | null; tool_calls?: { id: string; type: "function"; function: { name: string; arguments: string } }[] }
   | { role: "tool"; tool_call_id: string; content: string };
 
@@ -120,10 +129,14 @@ function toOpenAI(system: string, messages: ModelMessage[]): OAIMessage[] {
         .map((b) => ({ id: b.id, type: "function" as const, function: { name: b.name, arguments: JSON.stringify(b.input) } }));
       out.push({ role: "assistant", content: text || null, ...(calls.length ? { tool_calls: calls } : {}) });
     } else {
+      const userParts: OAIUserPart[] = [];
       for (const b of m.content) {
         if (b.type === "tool_result") out.push({ role: "tool", tool_call_id: b.tool_use_id, content: b.content });
-        else if (b.type === "text") out.push({ role: "user", content: b.text });
+        else if (b.type === "text") userParts.push({ type: "text", text: b.text });
+        else if (b.type === "image")
+          userParts.push({ type: "image_url", image_url: { url: `data:${b.mediaType};base64,${b.dataBase64}` } });
       }
+      if (userParts.length) out.push({ role: "user", content: userParts });
     }
   }
   return out;
@@ -169,7 +182,8 @@ async function callOpenAI(p: CallParams): Promise<ModelResult> {
 type GeminiPart =
   | { text: string; thoughtSignature?: string }
   | { functionCall: { name: string; args: Record<string, unknown> }; thoughtSignature?: string }
-  | { functionResponse: { name: string; response: Record<string, unknown> } };
+  | { functionResponse: { name: string; response: Record<string, unknown> } }
+  | { inlineData: { mimeType: string; data: string } };
 
 function toGemini(messages: ModelMessage[]): { role: "user" | "model"; parts: GeminiPart[] }[] {
   // Gemini pairs tool results by NAME, not id — map ids back to names.
@@ -183,6 +197,7 @@ function toGemini(messages: ModelMessage[]): { role: "user" | "model"; parts: Ge
     const parts: GeminiPart[] = [];
     for (const b of m.content) {
       if (b.type === "text") parts.push({ text: b.text });
+      else if (b.type === "image") parts.push({ inlineData: { mimeType: b.mediaType, data: b.dataBase64 } });
       else if (b.type === "tool_use") {
         idToName.set(b.id, b.name);
         parts.push({

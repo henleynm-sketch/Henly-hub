@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { Loader2, Plus, Send, Sparkles, X, Info } from "lucide-react";
+import { Loader2, Paperclip, Plus, Send, Sparkles, Trash2, X, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ChatMsg =
@@ -40,6 +40,8 @@ export default function AssistantPanel({ assistantName = "Claude" }: { assistant
   const [pendingConfirm, setPendingConfirm] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [attachments, setAttachments] = useState<{ mediaType: string; dataBase64: string; name: string }[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -129,10 +131,56 @@ export default function AssistantPanel({ assistantName = "Claude" }: { assistant
   function sendMessage() {
     const text = input.trim();
     if (!text || busy) return;
+    const files = attachments;
     setInput("");
+    setAttachments([]);
     setPendingConfirm(false);
-    setMsgs((c) => [...c.map(resolveConfirms("declined")), { kind: "user", text }]);
-    void run({ message: text });
+    setMsgs((c) => [
+      ...c.map(resolveConfirms("declined")),
+      { kind: "user", text: files.length ? `${text}\n📎 ${files.map((f) => f.name).join(", ")}` : text },
+    ]);
+    void run({ message: text, ...(files.length ? { attachments: files.map(({ mediaType, dataBase64 }) => ({ mediaType, dataBase64 })) } : {}) });
+  }
+
+  async function onPickFiles(list: FileList | null) {
+    if (!list) return;
+    const next = [...attachments];
+    for (const f of Array.from(list).slice(0, 3 - next.length)) {
+      if (!f.type.startsWith("image/")) continue;
+      if (f.size > 4 * 1024 * 1024) {
+        setMsgs((c) => [...c, { kind: "error", text: `${f.name} is over 4MB — not attached.` }]);
+        continue;
+      }
+      const dataBase64 = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result).split(",")[1] ?? "");
+        r.onerror = reject;
+        r.readAsDataURL(f);
+      });
+      next.push({ mediaType: f.type, dataBase64, name: f.name });
+    }
+    setAttachments(next);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  async function deleteChat() {
+    if (busy) return;
+    if (!threadId) {
+      setMsgs([]);
+      return;
+    }
+    setBusy(true);
+    try {
+      await fetch(`/api/assistant/chat?threadId=${encodeURIComponent(threadId)}`, { method: "DELETE" });
+      setMsgs([]);
+      setThreadId(null);
+      setPendingConfirm(false);
+      setAttachments([]);
+    } catch {
+      setMsgs((c) => [...c, { kind: "error", text: "Could not delete the chat" }]);
+    } finally {
+      setBusy(false);
+    }
   }
 
   const resolveConfirms =
@@ -174,8 +222,11 @@ export default function AssistantPanel({ assistantName = "Claude" }: { assistant
               <button className="btn-ghost !p-1.5" onClick={() => setInfoOpen((v) => !v)} aria-label="About the assistant">
                 <Info size={14} />
               </button>
-              <button className="btn-ghost !p-1.5" onClick={newChat} aria-label="New chat" disabled={busy}>
+              <button className="btn-ghost !p-1.5" onClick={newChat} aria-label="New chat" disabled={busy} title="New chat">
                 <Plus size={14} />
+              </button>
+              <button className="btn-ghost !p-1.5" onClick={deleteChat} aria-label="Delete chat" disabled={busy} title="Delete this chat">
+                <Trash2 size={14} />
               </button>
             </div>
 
@@ -249,7 +300,40 @@ export default function AssistantPanel({ assistantName = "Claude" }: { assistant
               <div ref={bottomRef} />
             </div>
 
+            {attachments.length > 0 && (
+              <div className="border-t border-glass-border px-3 pt-2 flex flex-wrap gap-1.5">
+                {attachments.map((a, i) => (
+                  <span key={i} className="hh-chip inline-flex items-center gap-1">
+                    📎 {a.name}
+                    <button
+                      onClick={() => setAttachments((c) => c.filter((_, j) => j !== i))}
+                      aria-label={`Remove ${a.name}`}
+                      className="opacity-70 hover:opacity-100"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="border-t border-glass-border p-3 flex items-end gap-2">
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => void onPickFiles(e.target.files)}
+              />
+              <button
+                className="btn-ghost !p-2.5"
+                onClick={() => fileRef.current?.click()}
+                disabled={busy || attachments.length >= 3}
+                aria-label="Attach images"
+                title="Attach images (max 3, 4MB each)"
+              >
+                <Paperclip size={15} />
+              </button>
               <textarea
                 className="input flex-1 !py-2 text-sm resize-none"
                 rows={2}

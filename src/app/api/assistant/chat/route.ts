@@ -24,6 +24,9 @@ import { toolsForRole, anthropicToolParam, type ToolCtx } from "@/lib/assistant/
  */
 
 const MAX_TOOL_CALLS = 8;
+const MAX_ATTACHMENTS = 3;
+const MAX_ATTACHMENT_BYTES = 4 * 1024 * 1024; // ~4MB decoded
+const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 function systemPrompt(ctx: ToolCtx): string {
   return [
@@ -42,6 +45,16 @@ function toModelMessages(rows: { role: string; content: string }[]): ModelMessag
   const out: ModelMessage[] = [];
   for (const r of rows) {
     if (r.role === "user") {
+      // Attachment-bearing user turns are stored as block JSON.
+      if (r.content.startsWith('{"role":"user","blocks"')) {
+        try {
+          const parsed = JSON.parse(r.content) as StoredBlockMsg;
+          out.push({ role: "user", content: parsed.blocks });
+          continue;
+        } catch {
+          /* fall through to plain text */
+        }
+      }
       out.push({ role: "user", content: r.content });
     } else if (r.role === "assistant" || r.role === "tool") {
       try {
@@ -76,7 +89,21 @@ export async function GET(req: NextRequest) {
     threadId: thread?.id ?? null,
     pendingAction: thread?.pendingAction ? JSON.parse(thread.pendingAction) : null,
     messages: (thread?.messages ?? []).map((m) => {
-      if (m.role === "user") return { role: "user", text: m.content };
+      if (m.role === "user") {
+        if (m.content.startsWith('{"role":"user","blocks"')) {
+          try {
+            const parsed = JSON.parse(m.content) as StoredBlockMsg;
+            const text = parsed.blocks
+              .map((b) => (b.type === "text" ? b.text : b.type === "image" ? "📎 [image]" : ""))
+              .filter(Boolean)
+              .join("\n");
+            return { role: "user", text };
+          } catch {
+            /* plain */
+          }
+        }
+        return { role: "user", text: m.content };
+      }
       try {
         const parsed = JSON.parse(m.content) as StoredBlockMsg;
         const text = parsed.blocks
@@ -119,7 +146,17 @@ export async function POST(req: NextRequest) {
     message?: string;
     confirm?: { approve: boolean };
     newThread?: boolean;
+    attachments?: { mediaType: string; dataBase64: string }[];
   };
+
+  const attachments = (body.attachments ?? [])
+    .filter(
+      (a) =>
+        IMAGE_TYPES.includes(a.mediaType) &&
+        typeof a.dataBase64 === "string" &&
+        a.dataBase64.length * 0.75 <= MAX_ATTACHMENT_BYTES,
+    )
+    .slice(0, MAX_ATTACHMENTS);
 
   let thread =
     body.threadId && !body.newThread
@@ -201,9 +238,23 @@ export async function POST(req: NextRequest) {
               data: { pendingAction: null },
             });
           }
-          await prisma.assistantMessage.create({
-            data: { threadId, role: "user", content: body.message.trim() },
-          });
+          if (attachments.length > 0) {
+            const blocks: ContentBlock[] = [
+              { type: "text", text: body.message.trim() },
+              ...attachments.map((a) => ({
+                type: "image" as const,
+                mediaType: a.mediaType,
+                dataBase64: a.dataBase64,
+              })),
+            ];
+            await prisma.assistantMessage.create({
+              data: { threadId, role: "user", content: JSON.stringify({ role: "user", blocks }) },
+            });
+          } else {
+            await prisma.assistantMessage.create({
+              data: { threadId, role: "user", content: body.message.trim() },
+            });
+          }
         } else {
           send({ type: "error", text: "Empty message" });
           send({ type: "done" });
@@ -316,4 +367,18 @@ export async function POST(req: NextRequest) {
       Connection: "keep-alive",
     },
   });
+}
+
+// Delete a conversation (own threads only; messages cascade).
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const threadId = req.nextUrl.searchParams.get("threadId");
+  if (!threadId) return NextResponse.json({ error: "threadId required" }, { status: 400 });
+  const thread = await prisma.assistantThread.findFirst({
+    where: { id: threadId, userId: session.user.id },
+  });
+  if (!thread) return NextResponse.json({ error: "Thread not found" }, { status: 404 });
+  await prisma.assistantThread.delete({ where: { id: thread.id } });
+  return NextResponse.json({ ok: true });
 }
