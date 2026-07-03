@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import type { Role } from "@/lib/roles";
-import { canViewAllProjects } from "@/lib/roles";
+import { canViewAllProjects, canSeeFinancials } from "@/lib/roles";
 import { formatDate, formatMoney } from "@/lib/utils";
 
 export default async function ProjectsPage() {
@@ -71,7 +71,7 @@ export default async function ProjectsPage() {
             )}
             <hr className="hh-divider" />
             <div className="grid grid-cols-3 gap-2">
-              {p.contractCents > 0 ? (
+              {p.contractCents > 0 && canSeeFinancials(role) ? (
                 <div><span className="hh-label block mb-0.5">Contract</span><span className="hh-primary">{formatMoney(p.contractCents)}</span></div>
               ) : (
                 <div><span className="hh-label block mb-0.5">Milestones</span><span className="hh-primary">{p._count.milestones}</span></div>
