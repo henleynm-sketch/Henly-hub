@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageTeam, type Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
-import { detectProvider, verifyProvider, DEFAULT_MODELS, PROVIDER_LABELS } from "@/lib/assistant/providers";
+import { detectProvider, verifyProvider, modelMatchesProvider, DEFAULT_MODELS, PROVIDER_LABELS } from "@/lib/assistant/providers";
 
 export type AssistantActionResult = { ok: boolean; error?: string; providerLabel?: string };
 
@@ -34,8 +34,10 @@ export async function saveAnthropicConfig(formData: FormData): Promise<Assistant
       error: "Could not recognize this key. Supported: Anthropic (sk-ant-…), OpenAI (sk-…), Google Gemini (AIza… or AQ.…).",
     };
   }
-  const providerChanged = existing?.provider !== provider;
-  if (!model || (providerChanged && model === (existing?.model ?? ""))) {
+  // Wrong-family model names (e.g. claude-* sent to Gemini) are silently
+  // corrected to the provider default — the model field only sticks when it
+  // matches the detected provider.
+  if (!model || !modelMatchesProvider(model, provider)) {
     model = DEFAULT_MODELS[provider];
   }
 

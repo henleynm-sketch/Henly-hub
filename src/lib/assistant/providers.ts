@@ -31,6 +31,14 @@ export function detectProvider(apiKey: string): Provider | null {
   return null;
 }
 
+/** Does this model name plausibly belong to the provider's family? */
+export function modelMatchesProvider(model: string, provider: Provider): boolean {
+  const m = model.toLowerCase();
+  if (provider === "anthropic") return m.startsWith("claude");
+  if (provider === "gemini") return m.startsWith("gemini") || m.startsWith("models/gemini");
+  return m.startsWith("gpt") || /^o\d/.test(m) || m.startsWith("chatgpt");
+}
+
 export type ToolSpec = { name: string; description: string; input_schema: Record<string, unknown> };
 export type ModelResult = { content: ContentBlock[]; stop_reason: string };
 
