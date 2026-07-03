@@ -16,6 +16,7 @@ import HenleyTasksCard, { type HenleyTasksCardData } from "@/components/HenleyTa
 import JobTreadCard from "@/components/settings/JobTreadCard";
 import { getJobTreadCardData } from "@/lib/jobtreadCardData";
 import ClaudeCard, { type ClaudeCardData } from "@/components/settings/ClaudeCard";
+import DemoRoleSwitcher from "@/components/DemoRoleSwitcher";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
 import { SCOPE_GROUPS } from "@/lib/api/scopes";
 import { formatRelative } from "@/lib/utils";
@@ -42,6 +43,7 @@ const SECTIONS = [
   { id: "notifications", label: "Notifications" },
   { id: "audit", label: "Audit log" },
   { id: "danger", label: "Danger zone" },
+  ...(process.env.NODE_ENV === "development" ? [{ id: "developer", label: "Developer" }] : []),
 ];
 
 const DEFAULT_DEPARTMENTS = [
@@ -791,6 +793,21 @@ export default async function SettingsPage({
               </section>
             )}
           </div>
+            {process.env.NODE_ENV === "development" && (
+              <section id="developer" className="hh-panel p-6 flex flex-col gap-4 scroll-mt-24">
+                <div>
+                  <h2 className="hh-label">Developer</h2>
+                  <p className="hh-secondary mt-1">
+                    Dev-build tools. The demo role switcher moved here from the floating
+                    pill — the bottom-right corner now belongs to the Claude launcher.
+                  </p>
+                </div>
+                <div className="max-w-sm">
+                  <DemoRoleSwitcher currentEmail={session.user.email} variant="inline" />
+                </div>
+              </section>
+            )}
+
         </div>
       </div>
     </>

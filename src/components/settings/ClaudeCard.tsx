@@ -63,8 +63,15 @@ export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCe
       )}
 
       <span className="hh-secondary">
-        Chat with the Hub on every page — searches and actions run as the signed-in user,
-        with the same role limits as the UI. Mutations always ask for confirmation.
+        Org-level Anthropic API key powers the in-Hub assistant (the Ask Claude pill).
+        Actions run as the signed-in user with UI role limits; mutations always confirm.
+      </span>
+      <span className="hh-caption">
+        Two directions, honestly: (1) this card = Hub calls the Anthropic API with the org
+        key — there is no &quot;Sign in with Claude&quot; for this, subscription accounts cannot pay
+        for API traffic. (2) Coming once the Hub is hosted publicly: add Henley Hub as a
+        connector inside your own Claude app and sign in with your Hub account — your
+        Claude subscription covers that usage.
       </span>
       {data.configured && (
         <span className="hh-secondary">

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { Loader2, MessageCircle, Plus, Send, X, Info } from "lucide-react";
+import { Loader2, Plus, Send, Sparkles, X, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ChatMsg =
@@ -158,16 +158,17 @@ export default function AssistantPanel() {
     <>
       <button
         onClick={() => setOpen((o) => !o)}
-        aria-label={open ? "Close Claude assistant" : "Open Claude assistant"}
-        className="fixed bottom-16 right-4 z-[75] grid h-12 w-12 place-items-center rounded-full bg-accent text-white shadow-lg hover:bg-accent-hover transition-colors"
+        aria-label={open ? "Close Claude assistant" : "Ask Claude"}
+        className="fixed bottom-4 right-4 z-[75] flex items-center gap-1.5 rounded-full bg-accent px-4 py-2.5 text-xs font-bold text-white shadow-lg hover:bg-accent-hover transition-all active:scale-95"
         style={{ boxShadow: "var(--accent-glow)" }}
       >
-        {open ? <X size={20} /> : <MessageCircle size={20} />}
+        {open ? <X size={15} /> : <Sparkles size={15} />}
+        <span>{open ? "Close" : "Ask Claude"}</span>
       </button>
 
       {open &&
         createPortal(
-          <div className="fixed bottom-32 right-4 z-[75] w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[70vh] hh-panel !p-0 flex flex-col overflow-hidden">
+          <div className="fixed bottom-16 right-4 z-[75] w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[70vh] hh-panel !p-0 flex flex-col overflow-hidden">
             <div className="flex items-center gap-2 border-b border-glass-border px-4 py-3">
               <span className="hh-primary flex-1">Claude · Henley Hub</span>
               <button className="btn-ghost !p-1.5" onClick={() => setInfoOpen((v) => !v)} aria-label="About the assistant">

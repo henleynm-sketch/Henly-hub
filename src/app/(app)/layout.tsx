@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import SignOutButton from "@/components/SignOutButton";
-import DemoRoleSwitcher from "@/components/DemoRoleSwitcher";
 import AssistantMount from "@/components/assistant/AssistantMount";
 import MobileNav from "@/components/MobileNav";
 import { ROLE_LABELS, type Role } from "@/lib/roles";
@@ -76,9 +75,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </GlassTopbar>
         <main className="flex-1 min-h-0 overflow-y-auto">{children}</main>
       </div>
-      {process.env.NODE_ENV !== "production" && (
-        <DemoRoleSwitcher currentEmail={session.user.email} />
-      )}
       <AssistantMount />
     </div>
   );

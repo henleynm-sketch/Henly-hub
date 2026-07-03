@@ -11,7 +11,13 @@ const ROLES = [
   { email: "rachel.t@example.com", label: "Client — Tomlinson", color: "hh-dot--purple" },
 ];
 
-export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: string | null }) {
+export default function DemoRoleSwitcher({
+  currentEmail,
+  variant = "floating",
+}: {
+  currentEmail?: string | null;
+  variant?: "floating" | "inline";
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
@@ -35,9 +41,17 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
     });
   }
 
+  const panelOpen = variant === "inline" || open;
+
   return (
-    <div className="fixed z-50 bottom-4 right-4 max-md:bottom-auto max-md:right-auto max-md:top-16 max-md:left-3">
-      {open ? (
+    <div
+      className={
+        variant === "inline"
+          ? ""
+          : "fixed z-50 bottom-4 right-4 max-md:bottom-auto max-md:right-auto max-md:top-16 max-md:left-3"
+      }
+    >
+      {panelOpen ? (
         <div className="hh-panel w-72 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
@@ -46,13 +60,15 @@ export default function DemoRoleSwitcher({ currentEmail }: { currentEmail?: stri
               </div>
               <div className="hh-caption font-mono">Dev mode only</div>
             </div>
-            <button
-              onClick={() => setOpen(false)}
-              className="hh-close"
-              aria-label="Close"
-            >
-              ×
-            </button>
+            {variant === "floating" && (
+              <button
+                onClick={() => setOpen(false)}
+                className="hh-close"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            )}
           </div>
           <ul className="space-y-1">
             {ROLES.map((r) => {
