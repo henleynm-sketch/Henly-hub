@@ -68,6 +68,22 @@ async function post(url: string, headers: Record<string, string>, body: unknown)
 
 // ── Anthropic ────────────────────────────────────────────────────────────────
 
+function sanitizeForAnthropic(messages: ModelMessage[]): ModelMessage[] {
+  return messages.map((m) =>
+    typeof m.content === "string"
+      ? m
+      : {
+          role: m.role,
+          content: m.content.map((b) => {
+            if (b.type === "tool_use") return { type: "tool_use" as const, id: b.id, name: b.name, input: b.input };
+            if (b.type === "tool_result")
+              return { type: "tool_result" as const, tool_use_id: b.tool_use_id, content: b.content, ...(b.is_error ? { is_error: true } : {}) };
+            return b;
+          }),
+        },
+  );
+}
+
 async function callAnthropic(p: CallParams): Promise<ModelResult> {
   const d = (await post(
     "https://api.anthropic.com/v1/messages",
@@ -76,7 +92,7 @@ async function callAnthropic(p: CallParams): Promise<ModelResult> {
       model: p.model,
       max_tokens: p.maxTokens ?? 2048,
       system: p.system,
-      messages: p.messages,
+      messages: sanitizeForAnthropic(p.messages),
       tools: p.tools,
     },
   )) as { content: ContentBlock[]; stop_reason: string };
@@ -151,8 +167,8 @@ async function callOpenAI(p: CallParams): Promise<ModelResult> {
 // ── Gemini ───────────────────────────────────────────────────────────────────
 
 type GeminiPart =
-  | { text: string }
-  | { functionCall: { name: string; args: Record<string, unknown> } }
+  | { text: string; thoughtSignature?: string }
+  | { functionCall: { name: string; args: Record<string, unknown> }; thoughtSignature?: string }
   | { functionResponse: { name: string; response: Record<string, unknown> } };
 
 function toGemini(messages: ModelMessage[]): { role: "user" | "model"; parts: GeminiPart[] }[] {
@@ -169,7 +185,11 @@ function toGemini(messages: ModelMessage[]): { role: "user" | "model"; parts: Ge
       if (b.type === "text") parts.push({ text: b.text });
       else if (b.type === "tool_use") {
         idToName.set(b.id, b.name);
-        parts.push({ functionCall: { name: b.name, args: b.input } });
+        parts.push({
+          functionCall: { name: b.name, args: b.input },
+          // Echo the model's own thought signature back — Gemini 400s without it.
+          ...(b._gemThought ? { thoughtSignature: b._gemThought } : {}),
+        });
       } else if (b.type === "tool_result") {
         let response: Record<string, unknown>;
         try {
@@ -210,6 +230,7 @@ async function callGemini(p: CallParams): Promise<ModelResult> {
         id: `gem_${Date.now()}_${i++}`,
         name: part.functionCall.name,
         input: part.functionCall.args ?? {},
+        ...(part.thoughtSignature ? { _gemThought: part.thoughtSignature } : {}),
       });
     }
   }

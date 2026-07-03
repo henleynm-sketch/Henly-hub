@@ -11,7 +11,9 @@ const API_VERSION = "2023-06-01";
 
 export type ContentBlock =
   | { type: "text"; text: string }
-  | { type: "tool_use"; id: string; name: string; input: Record<string, unknown> }
+  // _gemThought: Gemini's thoughtSignature, which MUST be echoed back on the
+  // next turn. Stored with the block; stripped before Anthropic/OpenAI calls.
+  | { type: "tool_use"; id: string; name: string; input: Record<string, unknown>; _gemThought?: string }
   | { type: "tool_result"; tool_use_id: string; content: string; is_error?: boolean };
 
 export type ModelMessage = { role: "user" | "assistant"; content: string | ContentBlock[] };
