@@ -18,6 +18,7 @@ import { getJobTreadCardData } from "@/lib/jobtreadCardData";
 import ClaudeCard, { type ClaudeCardData } from "@/components/settings/ClaudeCard";
 import DemoRoleSwitcher from "@/components/DemoRoleSwitcher";
 import ConnectFromClaude from "@/components/settings/ConnectFromClaude";
+import NotifyControls from "@/components/settings/NotifyControls";
 import { listMyGrants } from "./oauthGrantActions";
 import { headers } from "next/headers";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
@@ -60,11 +61,18 @@ const DEFAULT_DEPARTMENTS = [
 ];
 
 const NOTIFICATION_EVENTS = [
+  // Live email catalog — the Email column drives real sends.
+  { key: "ESTIMATE_ACCEPTED", label: "Estimate accepted" },
+  { key: "SELECTION_DECIDED", label: "Selection approved/declined" },
+  { key: "JOB_STAGE_CHANGED", label: "Job stage/phase changed (opt-in)" },
+  { key: "INBOX_MESSAGE", label: "New inbox message" },
+  { key: "TIME_APPROVALS_DAILY", label: "Time entries awaiting approval (daily)" },
+  { key: "JOB_ASSIGNED", label: "New job assignment" },
+  // Legacy rows kept (SMS column reserved for the Quo brief).
   { key: "DAILY_LOG", label: "Daily log posted" },
   { key: "SELECTION_OVERDUE", label: "Selection overdue" },
   { key: "CONTRACT_SIGNED", label: "Contract signed" },
   { key: "DEPOSIT_PAID", label: "Deposit paid" },
-  { key: "TIME_NEEDS_APPROVAL", label: "Time entry needs approval" },
 ];
 
 async function getSetting(key: string): Promise<string | null> {
@@ -245,6 +253,16 @@ export default async function SettingsPage({
   const isPublicHost = !/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);
   const connectorUrl = `${isPublicHost ? "https" : "http"}://${host}/api/mcp`;
   const myGrants = await listMyGrants();
+
+  const notifyEnabledRow = await prisma.setting.findUnique({ where: { key: "notify.enabled" } }).catch(() => null);
+  const notifyEnabled = notifyEnabledRow?.value !== "off";
+  const deliveryLog = await prisma.notificationDelivery
+    .findMany({
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      include: { notification: { select: { eventType: true } } },
+    })
+    .catch(() => []);
   const claudeData: ClaudeCardData = {
     configured: Boolean(anthropicRow?.apiKey),
     enabled: Boolean(anthropicRow?.enabled && anthropicRow.apiKey),
@@ -794,7 +812,12 @@ export default async function SettingsPage({
             {isCeo && (
               <section id="notifications" className="hh-panel p-6 flex flex-col gap-4 scroll-mt-24">
                 <h2 className="hh-label">Notifications</h2>
-                <p className="hh-caption">Delivery is not wired yet — preferences are saved for when it is.</p>
+                <p className="hh-caption">
+                  Email delivery is LIVE from hello@henleycontracting.com. Client and
+                  vendor emails follow their own opt-outs on their records; rows below
+                  are your personal preferences.
+                </p>
+                {isCeo && <NotifyControls enabled={notifyEnabled} />}
                 <form action={savePrefs} className="flex flex-col gap-2">
                   <div className="grid grid-cols-[1fr_60px_60px] gap-2 items-center">
                     <span className="hh-label">Event</span>
@@ -817,6 +840,46 @@ export default async function SettingsPage({
                   })}
                   <button className="btn-primary w-full sm:w-auto mt-2" type="submit">Save preferences</button>
                 </form>
+
+                {isCeo && (
+                  <div className="border-t border-glass-border pt-3">
+                    <h3 className="hh-label mb-2">Delivery log (last 100)</h3>
+                    {deliveryLog.length === 0 ? (
+                      <p className="hh-secondary">No deliveries yet.</p>
+                    ) : (
+                      <div className="overflow-x-auto max-h-80 overflow-y-auto">
+                        <table className="min-w-full text-xs">
+                          <thead>
+                            <tr>
+                              <th className="hh-label px-2 py-1.5 text-left">Event</th>
+                              <th className="hh-label px-2 py-1.5 text-left">Recipient</th>
+                              <th className="hh-label px-2 py-1.5 text-left">Status</th>
+                              <th className="hh-label px-2 py-1.5 text-left">Detail</th>
+                              <th className="hh-label px-2 py-1.5 text-left">When</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-glass-border">
+                            {deliveryLog.map((d) => (
+                              <tr key={d.id} className="hh-row--flat">
+                                <td className="px-2 py-1.5 hh-secondary">{d.notification.eventType}</td>
+                                <td className="px-2 py-1.5 hh-secondary">{d.email}</td>
+                                <td className="px-2 py-1.5">
+                                  <span className={d.status === "sent" ? "hh-badge hh-badge--success" : d.status === "failed" ? "hh-badge hh-badge--danger" : "hh-badge"}>
+                                    {d.status}{d.attempts > 1 ? ` ×${d.attempts}` : ""}
+                                  </span>
+                                </td>
+                                <td className="px-2 py-1.5 hh-caption max-w-64 truncate" title={d.lastError ?? d.suppressReason ?? undefined}>
+                                  {d.suppressReason ?? d.lastError ?? "—"}
+                                </td>
+                                <td className="px-2 py-1.5 hh-caption whitespace-nowrap">{formatRelative(d.createdAt)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
               </section>
             )}
 

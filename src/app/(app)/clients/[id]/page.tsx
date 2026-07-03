@@ -35,6 +35,20 @@ export default async function ClientDetailPage({
   });
   if (!client) notFound();
 
+  async function toggleEmailOptOut() {
+    "use server";
+    const { auth } = await import("@/auth");
+    const { prisma } = await import("@/lib/prisma");
+    const { revalidatePath } = await import("next/cache");
+    const me = await auth();
+    const role = (me?.user as { role?: string } | undefined)?.role;
+    if (role !== "CEO" && role !== "OFFICE") return;
+    const cur = await prisma.client.findUnique({ where: { id } });
+    if (!cur) return;
+    await prisma.client.update({ where: { id }, data: { emailOptOut: !cur.emailOptOut } });
+    revalidatePath(`/clients/${id}`);
+  }
+
   return (
     <>
       <PageHeader
@@ -68,6 +82,14 @@ export default async function ClientDetailPage({
           {/* Activity timeline */}
           {client.crmActivities.length > 0 && (
             <section className="hh-panel p-6 flex flex-col gap-4">
+              <form action={toggleEmailOptOut} className="flex items-center justify-between gap-2">
+                <span className="hh-secondary">
+                  Notification emails {client.emailOptOut ? "OFF for this client" : "on (estimates, contracts, site updates)"}
+                </span>
+                <button className="btn-secondary text-xs" type="submit">
+                  {client.emailOptOut ? "Re-enable" : "Opt out"}
+                </button>
+              </form>
               <div className="pb-1">
                 <h2 className="hh-label">Activity timeline</h2>
               </div>

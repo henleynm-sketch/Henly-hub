@@ -29,10 +29,11 @@ function parseFormData(fd: FormData) {
   const fax          = String(fd.get("fax")          || "").trim() || null;
   const division     = String(fd.get("division")     || "").trim() || null;
   const w9OnFile     = fd.get("w9OnFile") === "true";
+  const emailOptOut  = fd.get("emailOptOut") === "true";
   const coiRaw       = String(fd.get("coiExpiresAt") || "").trim();
   const coiExpiresAt = coiRaw ? new Date(coiRaw) : null;
   const notes        = String(fd.get("notes")        || "").trim() || null;
-  return { name, trade, type, email, officePhone, fax, division, w9OnFile, coiExpiresAt, notes };
+  return { name, trade, type, email, officePhone, fax, division, w9OnFile, emailOptOut, coiExpiresAt, notes };
 }
 
 function validateFields(fields: ReturnType<typeof parseFormData>): string | null {

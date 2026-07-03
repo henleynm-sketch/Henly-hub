@@ -33,6 +33,7 @@ export default async function VendorsPage() {
     fax:          v.fax,
     division:     v.division,
     w9OnFile:     v.w9OnFile,
+    emailOptOut:  v.emailOptOut,
     coiExpiresAt: v.coiExpiresAt?.toISOString() ?? null,
     notes:        v.notes,
     createdAt:    v.createdAt.toISOString(),

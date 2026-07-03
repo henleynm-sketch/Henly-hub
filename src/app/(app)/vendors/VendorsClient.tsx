@@ -20,6 +20,7 @@ type Vendor = {
   fax: string | null;
   division: string | null;
   w9OnFile: boolean;
+  emailOptOut: boolean;
   coiExpiresAt: string | null;
   notes: string | null;
   createdAt: string;
@@ -218,6 +219,21 @@ function VendorForm({
             className="rounded"
           />
           <label htmlFor="w9OnFile" className="text-sm text-ink-soft">W-9 on file</label>
+        </div>
+
+        {/* Notification email opt-out */}
+        <div className="flex items-center gap-2 sm:col-span-2">
+          <input
+            type="checkbox"
+            id="emailOptOut"
+            name="emailOptOut"
+            value="true"
+            defaultChecked={vendor?.emailOptOut ?? false}
+            className="rounded"
+          />
+          <label htmlFor="emailOptOut" className="text-sm text-ink-soft">
+            Opt out of notification emails (COI/W-9 reminders, assignments)
+          </label>
         </div>
 
         {/* Notes */}
