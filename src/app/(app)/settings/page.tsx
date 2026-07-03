@@ -17,6 +17,9 @@ import JobTreadCard from "@/components/settings/JobTreadCard";
 import { getJobTreadCardData } from "@/lib/jobtreadCardData";
 import ClaudeCard, { type ClaudeCardData } from "@/components/settings/ClaudeCard";
 import DemoRoleSwitcher from "@/components/DemoRoleSwitcher";
+import ConnectFromClaude from "@/components/settings/ConnectFromClaude";
+import { listMyGrants } from "./oauthGrantActions";
+import { headers } from "next/headers";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
 import { SCOPE_GROUPS } from "@/lib/api/scopes";
 import { formatRelative } from "@/lib/utils";
@@ -235,6 +238,11 @@ export default async function SettingsPage({
   const jobTreadData = await getJobTreadCardData();
 
   const anthropicRow = await prisma.anthropicConfig.findUnique({ where: { id: "singleton" } }).catch(() => null);
+  const hdrs = await headers();
+  const host = hdrs.get("host") ?? "localhost:3000";
+  const isPublicHost = !/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);
+  const connectorUrl = `${isPublicHost ? "https" : "http"}://${host}/api/mcp`;
+  const myGrants = await listMyGrants();
   const claudeData: ClaudeCardData = {
     configured: Boolean(anthropicRow?.apiKey),
     enabled: Boolean(anthropicRow?.enabled && anthropicRow.apiKey),
@@ -657,6 +665,12 @@ export default async function SettingsPage({
               />
 
               <ClaudeCard data={claudeData} isCeo={isCeo} />
+
+              <ConnectFromClaude
+                connectorUrl={connectorUrl}
+                isPublicHost={isPublicHost}
+                grants={myGrants}
+              />
             </section>
 
             {/* 5 — API keys */}
