@@ -1,89 +1,128 @@
 import Link from "next/link";
-import { signIn } from "@/auth";
 import { redirect } from "next/navigation";
+import { signIn } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/api/rateLimit";
 
 const demoLogins = [
-  { email: "kyle@henleyhub.com", role: "CEO / Owner" },
-  { email: "morgan@henleyhub.com", role: "Office / Sales" },
-  { email: "jess@henleyhub.com", role: "Field crew lead" },
-  { email: "tile-pro@subs.com", role: "Subcontractor" },
-  { email: "rachel.t@example.com", role: "Client" },
+  { label: "CEO", email: "kyle@henleyhub.com" },
+  { label: "Office", email: "morgan@henleyhub.com" },
+  { label: "Field", email: "jess@henleyhub.com" },
+  { label: "Sub", email: "tile-pro@subs.com" },
+  { label: "Client", email: "rachel.t@example.com" },
 ];
 
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; callbackUrl?: string }>;
+  searchParams: Promise<{ error?: string; callbackUrl?: string; notice?: string }>;
 }) {
   const sp = await searchParams;
-  async function handleSignIn(formData: FormData) {
+  const callbackUrl = sp.callbackUrl ?? "/dashboard";
+
+  const [orgName, logoData, logoMime] = await Promise.all([
+    prisma.setting.findUnique({ where: { key: "org.name" } }).catch(() => null),
+    prisma.setting.findUnique({ where: { key: "org.logoData" } }).catch(() => null),
+    prisma.setting.findUnique({ where: { key: "org.logoMime" } }).catch(() => null),
+  ]);
+  const logoUrl =
+    logoData?.value && logoMime?.value ? `data:${logoMime.value};base64,${logoData.value}` : null;
+
+  async function doSignIn(formData: FormData) {
     "use server";
-    const email = String(formData.get("email") || "");
+    const email = String(formData.get("email") || "").trim().toLowerCase();
     const password = String(formData.get("password") || "");
-    const callbackUrl = String(formData.get("callbackUrl") || "/dashboard");
+    // Per-email throttle reusing the token-bucket pattern.
+    const rl = rateLimit(`login:${email}`, "write");
+    if (!rl.ok) {
+      redirect(`/sign-in?error=rate&callbackUrl=${encodeURIComponent(callbackUrl)}`);
+    }
     try {
       await signIn("credentials", { email, password, redirectTo: callbackUrl });
     } catch (err) {
-      if ((err as Error).message?.includes("NEXT_REDIRECT")) throw err;
+      if ((err as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")) throw err;
       redirect(`/sign-in?error=invalid&callbackUrl=${encodeURIComponent(callbackUrl)}`);
     }
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-canvas px-6 py-12">
-      <div className="w-full max-w-md">
-        <Link href="/" className="mb-8 flex items-center gap-2.5 justify-center">
-          <div className="grid h-10 w-10 place-items-center rounded-[10px] bg-accent text-white shadow-lg">
-            <span className="text-base font-bold tracking-tight">H</span>
-          </div>
-          <span className="text-xl font-bold tracking-tight text-ink">Henley Hub</span>
-        </Link>
-
-        <div className="hh-panel p-6">
-          <h1 className="text-xl font-bold text-ink">Sign in</h1>
-          <p className="mt-1 hh-secondary">Enter your hub credentials.</p>
-
-          {sp.error && (
-            <div className="mt-4 rounded-[10px] border border-rose-500/20 bg-rose-500/5 px-3 py-2.5 text-sm text-status-error font-medium shadow-sm">
-              That email or password didn't match.
-            </div>
+    <div className="min-h-screen grid place-items-center p-6">
+      <div className="hh-panel w-full max-w-sm p-7 flex flex-col gap-4">
+        <div className="flex flex-col items-center gap-2 pb-1">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="" className="h-10 max-w-44 object-contain" />
+          ) : (
+            <div className="hh-brand-logo" role="img" aria-label="Henley Contracting" />
           )}
-
-          <form action={handleSignIn} className="mt-5 space-y-4">
-            <input type="hidden" name="callbackUrl" value={sp.callbackUrl ?? "/dashboard"} />
-            <div>
-              <label className="label">Email</label>
-              <input className="input mt-1.5" name="email" type="email" required autoComplete="email" />
-            </div>
-            <div>
-              <label className="label">Password</label>
-              <input
-                className="input mt-1.5"
-                name="password"
-                type="password"
-                required
-                autoComplete="current-password"
-                defaultValue="demo"
-              />
-            </div>
-            <button className="btn btn-primary w-full justify-center mt-2" type="submit">
-              Sign in
-            </button>
-          </form>
+          <h1 className="hh-display text-lg font-bold text-ink">
+            {orgName?.value ?? "Henley Hub"}
+          </h1>
         </div>
 
-        <div className="hh-panel mt-6 p-6">
-          <div className="hh-label mb-3">Demo logins (password: demo)</div>
-          <ul className="grid gap-2">
-            {demoLogins.map((d) => (
-              <li key={d.email} className="hh-row justify-between">
-                <span className="hh-secondary font-mono">{d.email}</span>
-                <span className="hh-label">{d.role}</span>
-              </li>
-            ))}
-          </ul>
+        {sp.notice === "signed-out" && (
+          <div className="hh-row hh-row--flat">
+            <span className="hh-dot hh-dot--green" />
+            <span className="hh-secondary">You&apos;re signed out.</span>
+          </div>
+        )}
+        {sp.notice === "reset-done" && (
+          <div className="hh-row hh-row--flat">
+            <span className="hh-dot hh-dot--green" />
+            <span className="hh-secondary">Password updated — sign in with the new one.</span>
+          </div>
+        )}
+        {sp.error && (
+          <div className="flex items-start gap-2">
+            <span className="hh-dot hh-dot--red mt-1" />
+            <span className="hh-secondary">
+              {sp.error === "rate"
+                ? "Too many attempts — wait a minute and try again."
+                : "That email and password combination didn't work."}
+            </span>
+          </div>
+        )}
+
+        <form action={doSignIn} className="flex flex-col gap-3">
+          <div>
+            <label className="hh-label block mb-1.5">Email</label>
+            <input name="email" type="email" className="input" autoComplete="email" required />
+          </div>
+          <div>
+            <label className="hh-label block mb-1.5">Password</label>
+            <input
+              name="password"
+              type="password"
+              className="input"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+          <button className="btn-primary w-full" type="submit">
+            Sign in
+          </button>
+        </form>
+
+        <div className="flex items-center justify-between">
+          <Link href="/forgot-password" className="hh-secondary text-sm hover:underline">
+            Forgot password?
+          </Link>
+          <span className="hh-caption">Invitation-only</span>
         </div>
+
+        {process.env.NODE_ENV === "development" && (
+          <div className="border-t border-glass-border pt-3">
+            <div className="hh-caption mb-1.5">Demo users (dev builds only) · password: demo</div>
+            <div className="flex flex-wrap gap-1.5">
+              {demoLogins.map((d) => (
+                <span key={d.email} className="hh-chip" title={d.email}>
+                  {d.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   );
 }

@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react";
 export default function SignOutButton() {
   async function action() {
     "use server";
-    await signOut({ redirectTo: "/" });
+    await signOut({ redirectTo: "/sign-in?notice=signed-out" });
   }
   return (
     <form action={action}>
