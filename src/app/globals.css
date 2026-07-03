@@ -4,7 +4,11 @@
 
 :root {
   color-scheme: dark;
-  
+
+  /* native select popup — solid, UA-rendered, must not be translucent */
+  --select-popup-bg:  #151619;
+  --select-popup-ink: #FFFFFF;
+
   --bg-canvas: #0A0B0D;
   --accent: #4C7DFF;
   --accent-hover: #3A6BF0;
@@ -77,7 +81,10 @@
 /* Light mode overrides */
 .light {
   color-scheme: light;
-  
+
+  --select-popup-bg:  #FFFFFF;
+  --select-popup-ink: #0A0A0B;
+
   --color-canvas: #111A28;
   --color-surface: rgba(255,255,255,0.10);
   --color-surface-raised: rgba(255,255,255,0.14);
@@ -1202,14 +1209,24 @@ html:not(.light) .border-slate-100,
   --hh-dot-yellow:  #D97706;
 }
 
-/* Force native <select> option pop-ups to use the correct OS color-scheme.
-   Without this Chrome renders options with a white/light UA background even
-   when the app is dark → white text on white background = invisible. */
+/* Force native <select> option pop-ups to use the correct color-scheme.
+   Element-level (not class-level) so raw selects are covered too — Chrome
+   otherwise renders the option list with a white UA background under dark
+   glass → white-on-white. `option` supports only background/color. */
+select,
 .input {
   color-scheme: dark;
 }
-.light .input {
+.light select,
+.light .input,
+[data-ui="saas"] select,
+[data-ui="saas"] .input {
   color-scheme: light;
+}
+select option,
+select optgroup {
+  background-color: var(--select-popup-bg);
+  color: var(--select-popup-ink);
 }
 
 /* Reduced-motion: prevent .card lift transform */
@@ -1229,6 +1246,9 @@ html:not(.light) .border-slate-100,
    ============================================================ */
 [data-ui="saas"] {
   color-scheme: light;
+
+  --select-popup-bg:  #FFFFFF;
+  --select-popup-ink: #16181D;
 
   --bg-canvas: #FAFAFB;
   --hh-canvas: #FAFAFB;
