@@ -218,6 +218,13 @@ export async function syncInbox(): Promise<SyncResult> {
         },
       });
       created++;
+      {
+        const { emitNotification } = await import("@/lib/notifications/dispatch");
+        await emitNotification({
+          eventType: "INBOX_MESSAGE",
+          payload: { subject: thread.subject, channel: "EMAIL" },
+        });
+      }
     }
 
     await recordSync(true, `Synced ${created} new message${created === 1 ? "" : "s"}`);
@@ -254,4 +261,42 @@ export async function sendReply(graphMessageId: string, body: string): Promise<v
   const code = errBody.error?.code ?? "";
   const msg = errBody.error?.message ?? `Graph reply failed (HTTP ${res.status})`;
   throw new Error(code ? `${code}: ${msg}` : msg);
+}
+
+// ── Outbound mail (notification rail) ────────────────────────────────────────
+// Sends via Graph /users/{mailbox}/sendMail as the configured shared mailbox
+// (hello@henleycontracting.com). Requires the Application Mail.Send RBAC
+// assignment scoped to that mailbox (verified via
+// Test-ServicePrincipalAuthorization → InScope=True). Errors surface verbatim.
+
+export async function sendMail(input: {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}): Promise<void> {
+  const creds = await getM365Credentials();
+  if (!creds) throw new Error("Microsoft 365 is not configured");
+  const token = await getGraphToken(creds);
+
+  const res = await fetch(
+    `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(creds.mailbox)}/sendMail`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: {
+          subject: input.subject,
+          body: { contentType: "HTML", content: input.html },
+          toRecipients: [{ emailAddress: { address: input.to } }],
+        },
+        saveToSentItems: true,
+      }),
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Graph sendMail ${res.status}: ${text.slice(0, 600)}`);
+  }
 }

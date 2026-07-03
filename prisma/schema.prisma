@@ -58,6 +58,7 @@ model Client {
   leadSource   String?    // see LEAD_SOURCE in src/lib/taxonomy.ts
   notes        String?
   qbCustomerId String?
+  emailOptOut  Boolean   @default(false) // suppresses all notification email to this client
   jobtreadAccountId String? @unique
   users        User[]    @relation("ClientUsers")
   projects     Project[]
@@ -600,6 +601,7 @@ model Vendor {
   division     String?   // validated against DIVISION in src/lib/taxonomy.ts
   w9OnFile     Boolean   @default(false)
   coiExpiresAt DateTime?
+  emailOptOut  Boolean   @default(false) // suppresses all notification email to this vendor
   archivedAt   DateTime? // soft-delete; JT sync must never resurrect archived vendors
   jobtreadAccountId String? @unique
   notes        String?
@@ -781,6 +783,55 @@ model OAuthToken {
   createdAt        DateTime    @default(now())
 
   @@index([userId, revokedAt])
+}
+
+// ─── Email notifications (BuilderTrend-class) ────────────────────────────────
+// Event rows are immutable facts; deliveries carry per-recipient state with
+// dedupe, retries and honest suppression reasons. Content visibility is
+// re-checked at SEND time, never trusted from emit time.
+
+model Notification {
+  id           String   @id @default(cuid())
+  eventType    String
+  actorId      String?
+  jobId        String?  // Project (legacy) id — UI "Job"
+  engagementId String?
+  clientId     String?
+  vendorId     String?
+  payload      String?  // JSON
+  createdAt    DateTime @default(now())
+  deliveries   NotificationDelivery[]
+
+  @@index([eventType, createdAt])
+}
+
+model NotificationDelivery {
+  id             String       @id @default(cuid())
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  recipientType  String       // user | client | vendor
+  recipientId    String
+  email          String
+  status         String       @default("queued") // queued | sent | failed | suppressed
+  suppressReason String?
+  attempts       Int          @default(0)
+  lastError      String?
+  lastAttemptAt  DateTime?
+  sentAt         DateTime?
+  dedupeKey      String       @unique // eventType:subjectId:email:day
+  createdAt      DateTime     @default(now())
+
+  @@index([status, lastAttemptAt])
+}
+
+model NotificationUnsubscribe {
+  id        String   @id @default(cuid())
+  email     String
+  scope     String   @default("all")
+  token     String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([email])
 }
 
 model BrandingConfig {
