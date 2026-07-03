@@ -15,6 +15,7 @@ import QuoCard, { type QuoCardData } from "@/components/QuoCard";
 import HenleyTasksCard, { type HenleyTasksCardData } from "@/components/HenleyTasksCard";
 import JobTreadCard from "@/components/settings/JobTreadCard";
 import { getJobTreadCardData } from "@/lib/jobtreadCardData";
+import ClaudeCard, { type ClaudeCardData } from "@/components/settings/ClaudeCard";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
 import { SCOPE_GROUPS } from "@/lib/api/scopes";
 import { formatRelative } from "@/lib/utils";
@@ -230,6 +231,15 @@ export default async function SettingsPage({
   };
 
   const jobTreadData = await getJobTreadCardData();
+
+  const anthropicRow = await prisma.anthropicConfig.findUnique({ where: { id: "singleton" } }).catch(() => null);
+  const claudeData: ClaudeCardData = {
+    configured: Boolean(anthropicRow?.apiKey),
+    enabled: Boolean(anthropicRow?.enabled && anthropicRow.apiKey),
+    apiKeyMasked: anthropicRow?.apiKey ? `${anthropicRow.apiKey.slice(0, 10)}••••••` : null,
+    hasKey: Boolean(anthropicRow?.apiKey),
+    model: anthropicRow?.model ?? "claude-sonnet-5",
+  };
 
   const myPrefs = await prisma.userNotificationPref
     .findMany({ where: { userId: session.user.id } })
@@ -643,6 +653,8 @@ export default async function SettingsPage({
                 isCeo={isCeo}
                 canTest={role === "CEO" || role === "OFFICE"}
               />
+
+              <ClaudeCard data={claudeData} isCeo={isCeo} />
             </section>
 
             {/* 5 — API keys */}
