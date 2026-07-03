@@ -256,13 +256,27 @@ export default async function SettingsPage({
 
   const notifyEnabledRow = await prisma.setting.findUnique({ where: { key: "notify.enabled" } }).catch(() => null);
   const notifyEnabled = notifyEnabledRow?.value !== "off";
-  const deliveryLog = await prisma.notificationDelivery
-    .findMany({
+  // Proper try/catch: before prisma generate + restart, the model itself is
+  // undefined on the running client — .catch() alone can't guard that.
+  let deliveryLog: {
+    id: string;
+    email: string;
+    status: string;
+    attempts: number;
+    lastError: string | null;
+    suppressReason: string | null;
+    createdAt: Date;
+    notification: { eventType: string };
+  }[] = [];
+  try {
+    deliveryLog = await prisma.notificationDelivery.findMany({
       orderBy: { createdAt: "desc" },
       take: 100,
       include: { notification: { select: { eventType: true } } },
-    })
-    .catch(() => []);
+    });
+  } catch {
+    // table/model not available yet — section renders with an empty log
+  }
   const claudeData: ClaudeCardData = {
     configured: Boolean(anthropicRow?.apiKey),
     enabled: Boolean(anthropicRow?.enabled && anthropicRow.apiKey),
