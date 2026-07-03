@@ -186,9 +186,9 @@ export const TOOLS: ToolDef[] = [
       const rows = await prisma.client.findMany({
         where: {
           OR: [
-            { name: { contains: q } },
-            { primaryEmail: { contains: q } },
-            { primaryPhone: { contains: q } },
+            { name: { contains: q, mode: "insensitive" } },
+            { primaryEmail: { contains: q, mode: "insensitive" } },
+            { primaryPhone: { contains: q, mode: "insensitive" } },
           ],
         },
         take: 15,
@@ -356,7 +356,7 @@ export const TOOLS: ToolDef[] = [
       const rows = await prisma.costItem.findMany({
         where: {
           active: true,
-          OR: [{ name: { contains: q } }, { description: { contains: q } }],
+          OR: [{ name: { contains: q, mode: "insensitive" } }, { description: { contains: q, mode: "insensitive" } }],
         },
         take: 15,
         include: { costCode: { select: { number: true } } },

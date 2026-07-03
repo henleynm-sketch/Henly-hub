@@ -43,10 +43,10 @@ export default async function ClientsPage({
   const where: any = {};
   if (q) {
     where.OR = [
-      { name: { contains: q } },
-      { primaryEmail: { contains: q } },
-      { primaryPhone: { contains: q.replace(/\D/g, "") || q } },
-      { city: { contains: q } },
+      { name: { contains: q, mode: "insensitive" } },
+      { primaryEmail: { contains: q, mode: "insensitive" } },
+      { primaryPhone: { contains: q.replace(/\D/g, "") || q, mode: "insensitive" } },
+      { city: { contains: q, mode: "insensitive" } },
     ];
   }
   if (stage) where.stage = stage;
