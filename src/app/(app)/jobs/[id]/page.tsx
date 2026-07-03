@@ -73,7 +73,7 @@ export default async function JobCockpitPage({ params }: { params: Promise<{ id:
               </a>
             )}
             <Link href={`/projects/${p.id}`} className="btn-primary text-xs">
-              Full project view
+              Full job view
             </Link>
           </div>
         </div>

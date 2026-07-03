@@ -32,7 +32,7 @@ export default async function EngagementsPage() {
     <div>
       <PageHeader
         title="Projects"
-        subtitle={`${engagements.length} projects · ${ungrouped} jobs not yet in a project`}
+        subtitle={`Every active and past project · ${engagements.length} projects · ${ungrouped} jobs awaiting a project`}
       />
       <div className="px-6 pb-8 flex flex-col gap-5 max-w-4xl">
         <NewEngagementForm clients={clients} />

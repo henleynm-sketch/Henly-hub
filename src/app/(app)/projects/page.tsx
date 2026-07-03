@@ -11,6 +11,11 @@ export default async function ProjectsPage() {
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
   const role = session.user.role as Role;
+  // Office roles: the Projects surface is the engagement hierarchy under
+  // /jobs/projects — this legacy job-card grid stays only as the scoped
+  // "my jobs" view for Field/Sub/Client (time clock + dashboards link here).
+  if (role === "CEO" || role === "OFFICE") redirect("/jobs/projects");
+
   const userId = session.user.id;
   const clientId = session.user.clientId;
 
