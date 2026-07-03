@@ -9,7 +9,7 @@ import PrintButton from "@/components/PrintButton";
 export default async function ContractPrintPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
-  if (!canSeeFinancials(session.user.role as Role)) redirect("/dashboard");
+  const viewerRole = session.user.role as Role;
 
   const { id } = await params;
   const c = await prisma.contract.findUnique({
@@ -21,6 +21,13 @@ export default async function ContractPrintPage({ params }: { params: Promise<{ 
     },
   });
   if (!c) notFound();
+
+  // Office roles always; the owning client only once the contract is signed.
+  const isOwnerClient =
+    viewerRole === "CLIENT" &&
+    session.user.clientId === c.clientId &&
+    (c.status === "SIGNED" || c.status === "DEPOSIT_PAID");
+  if (!canSeeFinancials(viewerRole) && !isOwnerClient) redirect("/dashboard");
 
   const lines = c.estimate?.lineItems ?? [];
 
