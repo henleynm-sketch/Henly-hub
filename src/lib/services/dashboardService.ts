@@ -64,9 +64,7 @@ export async function getDashboardAnalytics(): Promise<DashboardAnalytics> {
 
   const [
     totalClients,
-    activeClientRows,
-    jobsInFlight,
-    pipelineAgg,
+    activeClientJobRows,
     clockedInNow,
     jobGroups,
     openEstimates,
@@ -81,14 +79,14 @@ export async function getDashboardAnalytics(): Promise<DashboardAnalytics> {
     cmpComplete,
   ] = await Promise.all([
     prisma.client.count(),
-    prisma.client.findMany({
-      where: { projects: { some: { status: { not: "CLOSED" }, archivedAt: null } } },
-      select: { id: true },
-    }),
-    prisma.project.count({ where: { status: { in: OPEN_STATUSES }, archivedAt: null } }),
-    prisma.estimate.aggregate({
-      _sum: { totalCents: true },
-      where: { status: { in: ["DRAFT", "SENT"] } },
+    // Active clients derived from a plain project scan — filtered count()/
+    // aggregate() queries returned empty under the dev server while findMany/
+    // groupBy on identical data returned rows (observed 2026-07-03); deriving
+    // KPIs from the SAME sources as the panels makes reconciliation
+    // structural rather than coincidental.
+    prisma.project.findMany({
+      where: { status: { not: "CLOSED" }, archivedAt: null },
+      select: { clientId: true },
     }),
     prisma.timeEntry.count({ where: { clockOut: null } }),
     prisma.project.groupBy({
@@ -222,12 +220,18 @@ export async function getDashboardAnalytics(): Promise<DashboardAnalytics> {
     tasks = { ok: false };
   }
 
+  const jobsInFlight = jobGroups
+    .filter((g) => OPEN_STATUSES.includes(g.status))
+    .reduce((a, g) => a + g._count._all, 0);
+  const openPipelineCents = openEstimates.reduce((a, e) => a + e.totalCents, 0);
+  const activeClients = new Set(activeClientJobRows.map((r) => r.clientId)).size;
+
   return {
     kpis: {
-      activeClients: activeClientRows.length,
+      activeClients,
       totalClients,
       jobsInFlight,
-      openPipelineCents: pipelineAgg._sum.totalCents ?? 0,
+      openPipelineCents,
       clockedInNow,
     },
     pipelineByStage: PIPELINE_STAGE.map((label, i) => ({
