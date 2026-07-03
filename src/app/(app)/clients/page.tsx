@@ -27,7 +27,10 @@ export default async function ClientsPage({
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
   const role = session.user.role as Role;
-  if (!canViewAllProjects(role) && role !== "FIELD") {
+  // Role matrix: CRM (client PII + pipeline) is CEO/Office only. FIELD was
+  // whitelisted here historically — direct-URL access leaked 451 customer
+  // records to field crew (caught in the Lane V walk).
+  if (!canViewAllProjects(role)) {
     return <div className="p-8 hh-secondary">CRM is only visible to office staff.</div>;
   }
   const sp = await searchParams;
