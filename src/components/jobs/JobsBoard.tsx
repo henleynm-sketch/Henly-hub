@@ -27,12 +27,18 @@ export default function JobsBoard({
   canDrag,
   isCeo,
   userId,
+  lockedGroupBy,
+  cardLinkBase = "/jobs",
 }: {
   views: JobViewDTO[];
   jobs: BoardJob[];
   canDrag: boolean;
   isCeo: boolean;
   userId: string;
+  /** Lock the board to one axis (hides the view switcher) — CRM pipeline lens. */
+  lockedGroupBy?: GroupAxis;
+  /** Where cards link: "/jobs" (cockpit) or "/crm" (deal page). */
+  cardLinkBase?: string;
 }) {
   const router = useRouter();
   const [views, setViews] = useState(initialViews);
@@ -46,7 +52,10 @@ export default function JobsBoard({
   const [toast, setToast] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
-  const view = views.find((v) => v.id === viewId) ?? views[0];
+  const lockedView: JobViewDTO | null = lockedGroupBy
+    ? { id: "__locked__", name: "Sales Pipeline", ownerId: null, groupBy: lockedGroupBy, filters: null, sortOrder: 0 }
+    : null;
+  const view = lockedView ?? views.find((v) => v.id === viewId) ?? views[0];
   const axis: GroupAxis = view?.groupBy ?? "status";
   const columns = GROUP_AXES[axis] as readonly string[];
 
@@ -138,6 +147,7 @@ export default function JobsBoard({
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 px-6">
+        {!lockedGroupBy && (
         <div className="relative">
           <button
             className="btn-secondary text-sm inline-flex items-center gap-1.5"
@@ -206,6 +216,7 @@ export default function JobsBoard({
             </div>
           )}
         </div>
+        )}
 
         <div className="relative flex-1 max-w-xs">
           <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 opacity-50" />
@@ -282,7 +293,7 @@ export default function JobsBoard({
                       dragId === j.id && "opacity-50",
                     )}
                   >
-                    <Link href={`/jobs/${j.id}`} className="hh-primary hover:underline">
+                    <Link href={`${cardLinkBase}/${j.id}`} className="hh-primary hover:underline">
                       {j.name}
                       {j.code ? <span className="hh-caption ml-1.5">{j.code}</span> : null}
                     </Link>
