@@ -80,8 +80,17 @@ export async function createProject(input: CreateProjectInput) {
 }
 
 export async function updateProject(id: string, input: UpdateProjectInput) {
-  await getProjectById(id);
-  return prisma.project.update({ where: { id }, data: input, select: projectSelect });
+  const existing = await getProjectById(id);
+  const data: Record<string, unknown> = { ...input };
+  // An address change invalidates the geocoded pin — clear coords so the
+  // Location card honestly asks to re-locate instead of showing a stale pin.
+  if (input.address !== undefined && input.address !== existing.address) {
+    data.latitude = null;
+    data.longitude = null;
+    data.geocodedAt = null;
+    data.geocodeSource = null;
+  }
+  return prisma.project.update({ where: { id }, data, select: projectSelect });
 }
 
 // Soft archive — stamps archivedAt, never hard-deletes.

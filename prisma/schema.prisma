@@ -78,6 +78,11 @@ model Project {
   jobtreadJobId String?  @unique
   address      String?
   city         String?
+  latitude     Float?    // site coords; cleared whenever address changes
+  longitude    Float?
+  geocodedAt   DateTime?
+  geocodeSource String?  // jobtread | nominatim | manual
+  taxRateBps   Int       @default(1300) // Ontario HST 13% — display chip, bps
   projectType  String?   // Custom Home | Addition | Renovation | Kitchen | Garage | ADU | Misc Small Jobs | Handyman Services | Warranty
   status       String    @default("OPEN") // CLOSED | GENERAL | OPEN | PRESALE | WARRANTY -- see isValidJobStatus in src/lib/taxonomy.ts
   currentPhase String?   // free-text operational phase (e.g. "Permitting / Design Refresh", "Finishings 80%")

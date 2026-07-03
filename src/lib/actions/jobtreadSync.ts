@@ -50,7 +50,7 @@ type JTJob = {
   number?: string | null;
   closedOn?: string | null;
   description?: string | null;
-  location?: { address?: string | null; account?: { id: string } | null } | null;
+  location?: { address?: string | null; latitude?: number | null; longitude?: number | null; account?: { id: string } | null } | null;
   customFieldValues?: { nodes?: CFV[] };
 };
 
@@ -349,7 +349,7 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
       number: {},
       closedOn: {},
       description: {},
-      location: { address: {}, account: { id: {} } },
+      location: { address: {}, latitude: {}, longitude: {}, account: { id: {} } },
       customFieldValues: CFV_SHAPE,
     },
     { size: 25 },
@@ -369,6 +369,10 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
 
     const data: Record<string, unknown> = { jobtreadJobId: j.id, name: j.name };
     if (j.location?.address) data.address = j.location.address;
+    // JT-provided coordinates: persist with source "jobtread" unless a manual
+    // fix exists. No Nominatim calls in sync (rate limit) — on-demand only.
+    const jtLat = j.location?.latitude ?? null;
+    const jtLng = j.location?.longitude ?? null;
 
     // Four board axes through the discovered fieldMap; exact match against the
     // canonical constants — unmatched values are counted and left alone.
@@ -401,6 +405,25 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
     if (existing) {
       const code = await codeFor(existing.code);
       if (code) data.code = code;
+      const addressChanged =
+        j.location?.address !== undefined &&
+        j.location?.address !== null &&
+        j.location.address !== existing.address;
+      if (jtLat != null && jtLng != null) {
+        const coordsDiffer = existing.latitude !== jtLat || existing.longitude !== jtLng;
+        if (coordsDiffer && (existing.geocodeSource !== "manual" || existing.latitude == null)) {
+          data.latitude = jtLat;
+          data.longitude = jtLng;
+          data.geocodedAt = new Date();
+          data.geocodeSource = "jobtread";
+        }
+      } else if (addressChanged && existing.latitude != null) {
+        // Address moved and JT has no coords — clear the now-stale pin.
+        data.latitude = null;
+        data.longitude = null;
+        data.geocodedAt = null;
+        data.geocodeSource = null;
+      }
       if (changed(existing as unknown as Record<string, unknown>, data)) {
         await prisma.project.update({ where: { id: existing.id }, data });
         counts.updated++;
@@ -419,6 +442,12 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
       const code = await codeFor(null);
       if (code) data.code = code;
       if (j.description) data.description = j.description;
+      if (jtLat != null && jtLng != null) {
+        data.latitude = jtLat;
+        data.longitude = jtLng;
+        data.geocodedAt = new Date();
+        data.geocodeSource = "jobtread";
+      }
       await prisma.project.create({
         data: {
           ...(data as object),
