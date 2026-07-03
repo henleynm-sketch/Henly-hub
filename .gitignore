@@ -4,12 +4,13 @@ node_modules
 .env.local
 *.log
 .DS_Store
-prisma/dev.db
-prisma/dev.db-journal
-.next/
+**/prisma/dev.db
+**/prisma/dev.db-journal
+**/prisma/dev.db-wal
 out/
 coverage/
 tsconfig.tsbuildinfo
+.turbo
 
 # Raw client data — sensitive PII, never commit.
 # Seed scripts read from /imports/ at runtime; keep your own exports there.
