@@ -157,7 +157,7 @@ export default function JobsBoard({
             <ChevronDown size={14} className={cn("transition-transform", switcherOpen && "rotate-180")} />
           </button>
           {switcherOpen && (
-            <div className="absolute left-0 top-full mt-1 z-40 w-72 hh-panel !p-2 flex flex-col gap-0.5">
+            <div className="!absolute left-0 top-full mt-1 z-40 w-72 hh-panel !p-2 flex flex-col gap-0.5">
               <span className="hh-caption px-2 pt-1">Personal</span>
               {personal.map((v) => (
                 <div key={v.id} className="flex items-center">

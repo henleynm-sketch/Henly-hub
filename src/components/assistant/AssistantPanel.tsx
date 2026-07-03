@@ -168,7 +168,7 @@ export default function AssistantPanel({ assistantName = "Claude" }: { assistant
 
       {open &&
         createPortal(
-          <div className="fixed bottom-16 right-4 z-[75] w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[70vh] hh-panel !p-0 flex flex-col overflow-hidden">
+          <div className="!fixed bottom-16 right-4 z-[75] w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[70vh] hh-panel !p-0 flex flex-col overflow-hidden">
             <div className="flex items-center gap-2 border-b border-glass-border px-4 py-3">
               <span className="hh-primary flex-1">{assistantName} · Henley Hub</span>
               <button className="btn-ghost !p-1.5" onClick={() => setInfoOpen((v) => !v)} aria-label="About the assistant">
