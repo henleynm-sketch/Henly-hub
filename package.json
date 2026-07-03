@@ -13,10 +13,10 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "db:push": "npm run db:push -w web",
-    "db:generate": "npm run db:generate -w web",
-    "db:seed": "npm run db:seed -w web",
-    "db:reset": "npm run db:reset -w web"
+    "db:push": "npm run db:push -w @repo/db",
+    "db:generate": "npm run db:generate -w @repo/db",
+    "db:seed": "npm run db:seed -w @repo/db",
+    "db:reset": "npm run db:reset -w @repo/db"
   },
   "devDependencies": {
     "turbo": "^2.3.3"

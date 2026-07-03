@@ -1,23 +1,28 @@
 # Dev Runbook — Turborepo layout
 
-The app now lives in `apps/web`. Same URLs, same behavior — only the folder moved.
+The app lives in `apps/web`; ALL database files (schema, dev.db, seeds) live in
+`packages/db`. Same URLs, same behavior — only folders moved.
 
-## One-time cutover (after pulling the turbo commits)
-
-Run from the repo root in PowerShell, dev server STOPPED:
+## One-time cutover (dev server STOPPED, from repo root in PowerShell)
 
 ```powershell
-Move-Item .env apps\web\.env
-Move-Item prisma\dev.db apps\web\prisma\dev.db -Force
-Remove-Item prisma, src, public, scripts -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item next.config.mjs, postcss.config.js, tailwind.config.ts, tsconfig.json, next-env.d.ts, .env.example, node_modules, .next -Recurse -Force -ErrorAction SilentlyContinue
+git reset
+Move-Item .\prisma\dev.db .\packages\db\prisma\dev.db -Force
+Remove-Item prisma, node_modules, .next -Recurse -Force -ErrorAction SilentlyContinue
 npm install
+npm run db:generate
 npm run dev
 ```
 
-`-Force` on the dev.db move is deliberate: it overwrites the copied snapshot in
-`apps/web/prisma` with your live database. If `git status` still shows leftovers,
-that's untracked debris — safe to delete.
+Notes:
+- `.env` STAYS at the repo root — do NOT move it. It is now the single source
+  of truth; all scripts load it from root via dotenv-cli.
+- `DATABASE_URL="file:./dev.db"` stays EXACTLY as-is. The path is relative to
+  schema.prisma, which now sits next to dev.db in `packages/db/prisma/`.
+- The `-Force` on the dev.db move is deliberate: it overwrites a stale snapshot
+  copy with your LIVE database (it holds the QuickBooks token — never recreate it).
+- FIRST CHECK after boot: Settings → QuickBooks must still say CONNECTED.
+  If it says disconnected: STOP, do not re-auth — the dev.db move/path is wrong.
 
 ## Daily commands (all from repo root)
 
@@ -26,21 +31,30 @@ that's untracked debris — safe to delete.
 | Start dev server | `npm run dev` (turbo → web on :3000) |
 | Push schema changes | `npm run db:push` |
 | Regenerate Prisma client | `npm run db:generate` |
-| Reseed demo data | `npm run db:reset` |
+| Reseed demo data | `npm run db:reset` (WIPES dev.db — QBO token included. Don't run casually.) |
 | Typecheck everything | `npm run typecheck` |
 
-You can also `cd apps\web` and run the same scripts directly — root scripts are
-just passthroughs (`-w web`).
+## Layout
+
+```
+apps/web            frontend + in-Next backend (Door 1, /api/v1, assistant, MCP, OAuth)
+packages/db         @repo/db — schema.prisma, dev.db, seeds, PrismaClient singleton
+.env                ROOT — single source of truth for env
+turbo.json          pipeline
+```
+
+`apps/web/src/lib/prisma.ts` is a one-line re-export of `@repo/db` — every
+existing `@/lib/prisma` import (including the protected QuickBooks files)
+resolves unchanged.
 
 ## Things that did NOT change
 
 - URL: http://localhost:3000 — all routes identical
-- Database: SQLite at `apps/web/prisma/dev.db` (same file, new home)
-- `.env` keys: unchanged, file just moved to `apps/web/.env`
+- `.env` keys and location (root)
 - Branch: `claude/henley-hub-platform-2wIAN`
 
 ## Reminders
 
 - PowerShell 5.1: use `;` between commands, never `&&`
-- Run commands FROM the repo root (`C:\Users\solut\Documents\henley-hub`)
-- Node 20+ (pinned in `.nvmrc` / engines)
+- Run commands FROM the repo root
+- Node 20+

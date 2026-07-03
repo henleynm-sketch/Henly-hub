@@ -15,6 +15,7 @@ if (process.env.VERCEL_BRANCH_URL) {
 
 const nextConfig = {
   reactStrictMode: true,
+  transpilePackages: ["@repo/db"],
   experimental: {
     serverActions: { allowedOrigins },
   },
