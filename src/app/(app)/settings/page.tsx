@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomBytes, createHash } from "crypto";
-import { canManageTeam, ROLE_LABELS, type Role } from "@/lib/roles";
+import { canManageTeam, ROLES, ROLE_LABELS, type Role } from "@/lib/roles";
 import PageHeader from "@/components/PageHeader";
 import M365Card, { type M365CardData } from "@/components/M365Card";
 import { SharePointCard } from "@/components/settings/SharePointCard";
@@ -19,6 +19,7 @@ import ClaudeCard, { type ClaudeCardData } from "@/components/settings/ClaudeCar
 import DemoRoleSwitcher from "@/components/DemoRoleSwitcher";
 import ConnectFromClaude from "@/components/settings/ConnectFromClaude";
 import NotifyControls from "@/components/settings/NotifyControls";
+import InvitePanel, { type InviteRow } from "@/components/settings/InvitePanel";
 import { listMyGrants } from "./oauthGrantActions";
 import { headers } from "next/headers";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
@@ -253,6 +254,27 @@ export default async function SettingsPage({
   const isPublicHost = !/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);
   const connectorUrl = `${isPublicHost ? "https" : "http"}://${host}/api/mcp`;
   const myGrants = await listMyGrants();
+
+  let inviteRows: InviteRow[] = [];
+  try {
+    const invites = await prisma.invite.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 25,
+      where: { revokedAt: null },
+    });
+    const now = new Date();
+    inviteRows = invites.map((i) => ({
+      id: i.id,
+      email: i.email,
+      role: i.role,
+      createdAt: i.createdAt.toISOString(),
+      expiresAt: i.expiresAt.toISOString(),
+      acceptedAt: i.acceptedAt?.toISOString() ?? null,
+      expired: !i.acceptedAt && i.expiresAt < now,
+    }));
+  } catch {
+    // Invite table not pushed yet — Team section renders without the panel data.
+  }
 
   const notifyEnabledRow = await prisma.setting.findUnique({ where: { key: "notify.enabled" } }).catch(() => null);
   const notifyEnabled = notifyEnabledRow?.value !== "off";
@@ -664,7 +686,14 @@ export default async function SettingsPage({
                   </p>
                 </>
               )}
-            </section>
+            
+              {isCeo && (
+                <InvitePanel
+                  roles={ROLES.map((r) => ({ value: r, label: ROLE_LABELS[r] ?? r }))}
+                  invites={inviteRows}
+                />
+              )}
+</section>
 
             {/* 3 — Departments */}
             {isCeo && (
