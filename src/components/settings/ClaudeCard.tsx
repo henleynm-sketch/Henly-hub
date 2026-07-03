@@ -15,6 +15,8 @@ export type ClaudeCardData = {
   apiKeyMasked: string | null;
   hasKey: boolean;
   model: string;
+  provider: string;
+  providerLabel: string;
 };
 
 export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCeo: boolean }) {
@@ -38,14 +40,17 @@ export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCe
         return;
       }
       setSheetOpen(false);
-      flash("Claude assistant enabled");
+      flash(r.providerLabel ? `${r.providerLabel} connected — assistant enabled` : "Assistant enabled");
     });
   }
 
   return (
     <div className="hh-row hh-row--flat flex-col !items-start !gap-2">
       <div className="flex items-center justify-between w-full">
-        <span className="hh-primary">Claude assistant</span>
+        <span className="hh-primary">
+          AI assistant
+          {data.configured && <span className="hh-badge ml-2">{data.providerLabel}</span>}
+        </span>
         {data.enabled ? (
           <span className="hh-badge hh-badge--success">enabled</span>
         ) : data.configured ? (
@@ -63,8 +68,10 @@ export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCe
       )}
 
       <span className="hh-secondary">
-        Org-level Anthropic API key powers the in-Hub assistant (the Ask Claude pill).
-        Actions run as the signed-in user with UI role limits; mutations always confirm.
+        One universal key box: paste an Anthropic, OpenAI, or Google Gemini API key —
+        the Hub detects the provider, verifies it live, and the assistant pill goes
+        live app-wide. Actions run as the signed-in user with UI role limits;
+        mutations always confirm.
       </span>
       <span className="hh-caption">
         Two directions, honestly: (1) this card = Hub calls the Anthropic API with the org
@@ -75,7 +82,7 @@ export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCe
       </span>
       {data.configured && (
         <span className="hh-secondary">
-          Key {data.apiKeyMasked} · model {data.model}
+          {data.providerLabel} key {data.apiKeyMasked} · model {data.model}
         </span>
       )}
 
@@ -129,12 +136,13 @@ export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCe
             <div className="absolute inset-0 bg-black/55" onClick={() => setSheetOpen(false)} />
             <div className="hh-panel relative w-full max-w-md">
               <div className="flex items-center justify-between">
-                <h3 className="hh-label">{data.configured ? "Edit Claude assistant" : "Configure Claude assistant"}</h3>
+                <h3 className="hh-label">{data.configured ? "Edit AI assistant" : "Configure AI assistant"}</h3>
                 <button className="hh-close" onClick={() => setSheetOpen(false)} aria-label="Close">×</button>
               </div>
               <p className="hh-caption mt-2">
-                Org-level Anthropic API key (console.anthropic.com). Stored in the Hub
-                database only — never in source or env files.
+                Anthropic (sk-ant-…), OpenAI (sk-…) or Gemini (AIza…) — provider is
+                detected automatically and the key is verified before enabling. Stored
+                in the Hub database only, never in source or env files.
               </p>
               <form action={onSave} className="mt-4 flex flex-col gap-3">
                 <div>
@@ -152,14 +160,14 @@ export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCe
                       type="password"
                       className="input"
                       autoComplete="new-password"
-                      placeholder="sk-ant-…"
+                      placeholder="sk-ant-… / sk-… / AIza…"
                       required={!data.hasKey}
                     />
                   )}
                 </div>
                 <div>
-                  <label className="hh-label block mb-1.5">Model</label>
-                  <input name="model" className="input" defaultValue={data.model} />
+                  <label className="hh-label block mb-1.5">Model (blank = provider default)</label>
+                  <input name="model" className="input" defaultValue={data.model} placeholder="auto" />
                 </div>
                 {sheetError && (
                   <div className="flex items-center gap-2">

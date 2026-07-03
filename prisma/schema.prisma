@@ -701,9 +701,12 @@ model JobView {
   @@index([ownerId, sortOrder])
 }
 
-// Anthropic assistant config — org key entered via Settings (never .env).
+// AI assistant config — org key entered via Settings (never .env). Universal:
+// provider auto-detected from the key prefix (anthropic | openai | gemini).
+// Model name kept as AnthropicConfig for stability (protected-file adjacency).
 model AnthropicConfig {
   id        String   @id @default("singleton")
+  provider  String   @default("anthropic") // anthropic | openai | gemini
   apiKey    String?
   model     String   @default("claude-sonnet-5")
   enabled   Boolean  @default(false)

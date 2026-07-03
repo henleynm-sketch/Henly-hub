@@ -249,6 +249,11 @@ export default async function SettingsPage({
     apiKeyMasked: anthropicRow?.apiKey ? `${anthropicRow.apiKey.slice(0, 10)}••••••` : null,
     hasKey: Boolean(anthropicRow?.apiKey),
     model: anthropicRow?.model ?? "claude-sonnet-5",
+    provider: anthropicRow?.provider ?? "anthropic",
+    providerLabel:
+      ({ anthropic: "Claude", openai: "GPT", gemini: "Gemini" } as Record<string, string>)[
+        anthropicRow?.provider ?? "anthropic"
+      ] ?? "Claude",
   };
 
   const myPrefs = await prisma.userNotificationPref

@@ -4,12 +4,13 @@ import { prisma } from "@/lib/prisma";
 import type { Role } from "@/lib/roles";
 import { rateLimit } from "@/lib/api/rateLimit";
 import {
-  callMessages,
+  getAssistantConfig,
   isAssistantEnabled,
   AssistantError,
   type ContentBlock,
   type ModelMessage,
 } from "@/lib/assistant/anthropic";
+import { callModel, DEFAULT_MODELS, ProviderError, type Provider } from "@/lib/assistant/providers";
 import { toolsForRole, anthropicToolParam, type ToolCtx } from "@/lib/assistant/tools";
 
 /**
@@ -217,7 +218,13 @@ export async function POST(req: NextRequest) {
             orderBy: { createdAt: "asc" },
             take: 120,
           });
-          const res = await callMessages({
+          const cfg = await getAssistantConfig();
+          if (!cfg?.apiKey) throw new AssistantError("Assistant is not configured");
+          const provider = (cfg.provider as Provider) || "anthropic";
+          const res = await callModel({
+            provider,
+            apiKey: cfg.apiKey,
+            model: cfg.model || DEFAULT_MODELS[provider],
             system: systemPrompt(ctx),
             messages: toModelMessages(rows),
             tools: toolParam,
@@ -289,7 +296,11 @@ export async function POST(req: NextRequest) {
         send({ type: "done", threadId });
       } catch (err) {
         const msg =
-          err instanceof AssistantError ? err.message : err instanceof Error ? err.message : "Assistant error";
+          err instanceof AssistantError || err instanceof ProviderError
+            ? err.message
+            : err instanceof Error
+            ? err.message
+            : "Assistant error";
         send({ type: "error", text: msg });
         send({ type: "done", threadId });
       } finally {

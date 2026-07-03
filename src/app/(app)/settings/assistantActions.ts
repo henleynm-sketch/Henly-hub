@@ -4,8 +4,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageTeam, type Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
+import { detectProvider, verifyProvider, DEFAULT_MODELS, PROVIDER_LABELS } from "@/lib/assistant/providers";
 
-export type AssistantActionResult = { ok: boolean; error?: string };
+export type AssistantActionResult = { ok: boolean; error?: string; providerLabel?: string };
 
 async function ceo() {
   const me = await auth();
@@ -18,19 +19,43 @@ export async function saveAnthropicConfig(formData: FormData): Promise<Assistant
   if (!me) return { ok: false, error: "Not authorized" };
 
   const apiKey = String(formData.get("apiKey") || "").trim();
-  const model = String(formData.get("model") || "").trim() || "claude-sonnet-5";
+  let model = String(formData.get("model") || "").trim();
 
   const existing = await prisma.anthropicConfig.findUnique({ where: { id: "singleton" } }).catch(() => null);
   if (!existing?.apiKey && !apiKey) return { ok: false, error: "API key is required" };
 
-  const data: { model: string; apiKey?: string; enabled: boolean } = { model, enabled: true };
+  // Universal box: detect the provider from the key prefix, verify it live,
+  // and only then enable. Model auto-fills per provider when left blank.
+  const effectiveKey = apiKey || existing!.apiKey!;
+  const provider = detectProvider(effectiveKey);
+  if (!provider) {
+    return {
+      ok: false,
+      error: "Could not recognize this key. Supported: Anthropic (sk-ant-…), OpenAI (sk-…), Google Gemini (AIza…).",
+    };
+  }
+  const providerChanged = existing?.provider !== provider;
+  if (!model || (providerChanged && model === (existing?.model ?? ""))) {
+    model = DEFAULT_MODELS[provider];
+  }
+
+  const check = await verifyProvider(provider, effectiveKey, model);
+  if (!check.ok) {
+    return { ok: false, error: `${PROVIDER_LABELS[provider]} rejected the key/model: ${check.error}` };
+  }
+
+  const data: { model: string; apiKey?: string; enabled: boolean; provider: string } = {
+    model,
+    enabled: true,
+    provider,
+  };
   if (apiKey) data.apiKey = apiKey;
 
   try {
     await prisma.anthropicConfig.upsert({
       where: { id: "singleton" },
       update: data,
-      create: { id: "singleton", apiKey: apiKey || null, model, enabled: true },
+      create: { id: "singleton", apiKey: apiKey || null, model, enabled: true, provider },
     });
   } catch (err) {
     return {
@@ -44,8 +69,8 @@ export async function saveAnthropicConfig(formData: FormData): Promise<Assistant
     data: { actorId: me.user.id, action: existing?.apiKey ? "assistant.config.edit" : "assistant.config.enable", target: model },
   });
   revalidatePath("/settings");
-  revalidatePath("/", "layout"); // Ask Claude pill appears app-wide immediately
-  return { ok: true };
+  revalidatePath("/", "layout"); // launcher pill appears app-wide immediately
+  return { ok: true, providerLabel: PROVIDER_LABELS[provider] };
 }
 
 // Kill switch: hides the launcher app-wide and blocks the route.

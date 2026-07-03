@@ -31,7 +31,7 @@ function Linkify({ text }: { text: string }) {
   );
 }
 
-export default function AssistantPanel() {
+export default function AssistantPanel({ assistantName = "Claude" }: { assistantName?: string }) {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState("");
@@ -158,19 +158,19 @@ export default function AssistantPanel() {
     <>
       <button
         onClick={() => setOpen((o) => !o)}
-        aria-label={open ? "Close Claude assistant" : "Ask Claude"}
+        aria-label={open ? "Close assistant" : `Ask ${assistantName}`}
         className="fixed bottom-4 right-4 z-[75] flex items-center gap-1.5 rounded-full bg-accent px-4 py-2.5 text-xs font-bold text-white shadow-lg hover:bg-accent-hover transition-all active:scale-95"
         style={{ boxShadow: "var(--accent-glow)" }}
       >
         {open ? <X size={15} /> : <Sparkles size={15} />}
-        <span>{open ? "Close" : "Ask Claude"}</span>
+        <span>{open ? "Close" : `Ask ${assistantName}`}</span>
       </button>
 
       {open &&
         createPortal(
           <div className="fixed bottom-16 right-4 z-[75] w-[380px] max-w-[calc(100vw-2rem)] h-[540px] max-h-[70vh] hh-panel !p-0 flex flex-col overflow-hidden">
             <div className="flex items-center gap-2 border-b border-glass-border px-4 py-3">
-              <span className="hh-primary flex-1">Claude · Henley Hub</span>
+              <span className="hh-primary flex-1">{assistantName} · Henley Hub</span>
               <button className="btn-ghost !p-1.5" onClick={() => setInfoOpen((v) => !v)} aria-label="About the assistant">
                 <Info size={14} />
               </button>
@@ -253,7 +253,7 @@ export default function AssistantPanel() {
               <textarea
                 className="input flex-1 !py-2 text-sm resize-none"
                 rows={2}
-                placeholder={pendingConfirm ? "Confirm above, or type to move on…" : "Message Claude…"}
+                placeholder={pendingConfirm ? "Confirm above, or type to move on…" : `Message ${assistantName}…`}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
