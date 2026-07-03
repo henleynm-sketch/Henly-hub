@@ -79,7 +79,7 @@ type Rendered = { subject: string; html: string; text: string };
 export async function renderTemplate(n: Notification, r: Recipient): Promise<Rendered> {
   const payload = n.payload ? (JSON.parse(n.payload) as Record<string, unknown>) : {};
   const base = await getBaseUrl();
-  const external = r.type !== "user";
+  const external = r.type === "client" || r.type === "vendor";
   const footer = external ? await unsubscribeFooter(r.email) : { html: "", text: "" };
 
   const job = n.jobId
@@ -96,6 +96,16 @@ export async function renderTemplate(n: Notification, r: Recipient): Promise<Ren
   let text = "";
 
   switch (n.eventType) {
+    case "INVITE":
+      subject = `You're invited to Henley Hub`;
+      body = `<p>${p(payload.inviterName)} invited you to Henley Hub as <strong>${p(payload.roleLabel)}</strong> for ${p(payload.orgName)}.</p><p>The link is valid for 7 days.</p>${button(`${base}/invite/${p(payload.rawToken)}`, "Accept invitation")}`;
+      text = `You're invited to Henley Hub as ${p(payload.roleLabel)}. Accept (7 days): ${base}/invite/${p(payload.rawToken)}`;
+      break;
+    case "PASSWORD_RESET":
+      subject = "Reset your Henley Hub password";
+      body = `<p>A password reset was requested for this address. The link is valid for 1 hour — if you didn't ask for it, ignore this email.</p>${button(`${base}/reset/${p(payload.rawToken)}`, "Reset password")}`;
+      text = `Reset your Henley Hub password (1 hour): ${base}/reset/${p(payload.rawToken)}`;
+      break;
     case "TEST_EMAIL":
       subject = "Henley Hub — test email";
       body = `<p>This is the notification rail verification send. If you are reading this in Outlook, Graph sendMail from hello@ works end to end.</p>`;

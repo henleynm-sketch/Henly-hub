@@ -15,11 +15,11 @@ import { renderTemplate } from "@/lib/notifications/templates";
  * NAMING MAP: UI "Project" = Engagement; UI "Job" = Project (legacy).
  */
 
-export type Recipient = { type: "user" | "client" | "vendor"; id: string; email: string };
+export type Recipient = { type: "user" | "client" | "vendor" | "direct"; id: string; email: string };
 
 export type EventDef = {
   label: string;
-  audience: "client" | "internal" | "vendor" | "actor";
+  audience: "client" | "internal" | "vendor" | "actor" | "direct";
   /** default when no explicit pref exists (org default can override via Setting notify.default.<KEY>) */
   defaultOn: boolean;
   /** internal events: which roles receive it */
@@ -28,6 +28,11 @@ export type EventDef = {
 
 export const EVENTS: Record<string, EventDef> = {
   TEST_EMAIL: { label: "Test email", audience: "actor", defaultOn: true },
+
+  // Transactional auth mail (direct recipient from payload; prefs/unsubscribe
+  // do not apply — the master kill switch still does).
+  INVITE: { label: "User invite", audience: "direct", defaultOn: true },
+  PASSWORD_RESET: { label: "Password reset", audience: "direct", defaultOn: true },
 
   // Client-facing
   DAILY_LOG_CLIENT: { label: "Daily log posted (client-visible)", audience: "client", defaultOn: true },
@@ -90,6 +95,12 @@ export async function resolveRecipients(n: Notification): Promise<Recipient[]> {
     return out;
   }
 
+  if (def.audience === "direct") {
+    const payload = n.payload ? (JSON.parse(n.payload) as { directEmail?: string }) : {};
+    if (payload.directEmail) out.push({ type: "direct", id: "direct", email: payload.directEmail });
+    return out;
+  }
+
   if (def.audience === "client") {
     const clientId =
       n.clientId ??
@@ -125,6 +136,11 @@ export async function resolveRecipients(n: Notification): Promise<Recipient[]> {
 // ── Send-time layered checks + render ────────────────────────────────────────
 
 async function layeredSuppression(n: Notification, r: Recipient): Promise<string | null> {
+  // Transactional auth mail: bypass prefs AND unsubscribe (a reset email must
+  // reach an unsubscribed user or they are locked out). Master switch still
+  // gates in dispatch.
+  if (r.type === "direct") return null;
+
   // 1. unsubscribe table (externals)
   const unsub = await prisma.notificationUnsubscribe.findFirst({
     where: { email: r.email.toLowerCase() },
