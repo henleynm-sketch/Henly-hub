@@ -24,8 +24,11 @@ export async function geocodeProject(projectId: string): Promise<LocationActionR
 
   const project = await prisma.project.findUnique({ where: { id: projectId } });
   if (!project) return { ok: false, error: "Project not found" };
-  const address = [project.address, project.city].filter(Boolean).join(", ");
+  let address = [project.address, project.city].filter(Boolean).join(", ");
   if (!address) return { ok: false, error: "Project has no address to geocode" };
+  // Bare street addresses (no city on Hub-created jobs) are ambiguous across
+  // Canada; Henley operates in Ontario, so add the province as a region hint.
+  if (!address.includes(",")) address = `${address}, Ontario`;
 
   try {
     const hit = await geocodeAddress(address);
