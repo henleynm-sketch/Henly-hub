@@ -13,6 +13,10 @@ export default auth((req) => {
     nextUrl.pathname.startsWith("/api/auth") ||
     nextUrl.pathname.startsWith("/api/external") ||
     nextUrl.pathname.startsWith("/api/v1") ||
+    nextUrl.pathname.startsWith("/.well-known") ||
+    nextUrl.pathname.startsWith("/api/oauth") ||
+    nextUrl.pathname.startsWith("/api/mcp") ||
+    nextUrl.pathname.startsWith("/oauth/authorize") ||
     nextUrl.pathname.startsWith("/_next") ||
     nextUrl.pathname.startsWith("/favicon");
 
