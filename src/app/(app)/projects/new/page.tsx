@@ -12,14 +12,25 @@ import {
   isValidDivision,
 } from "@/lib/taxonomy";
 
-export default async function NewProjectPage() {
+export default async function NewJobPage() {
   const clients = await prisma.client.findMany({ orderBy: { name: "asc" } });
+  const engagements = await prisma.engagement.findMany({
+    orderBy: { updatedAt: "desc" },
+    include: { client: { select: { name: true } } },
+  });
 
   async function create(formData: FormData) {
     "use server";
     const name = String(formData.get("name") || "").trim();
     const clientId = String(formData.get("clientId") || "");
     if (!name || !clientId) return;
+
+    // Optional parent project (engagement) — must belong to the same client.
+    const engagementId = String(formData.get("engagementId") || "") || null;
+    if (engagementId) {
+      const e = await prisma.engagement.findUnique({ where: { id: engagementId } });
+      if (!e || e.clientId !== clientId) return;
+    }
 
     const rawStatus = String(formData.get("status") || "OPEN");
     const rawJobType = String(formData.get("jobType") || "");
@@ -30,6 +41,7 @@ export default async function NewProjectPage() {
       data: {
         name,
         clientId,
+        engagementId,
         address: String(formData.get("address") || "") || null,
         contractCents: Math.round(Number(formData.get("contract") || 0) * 100),
         budgetCents: Math.round(Number(formData.get("budget") || 0) * 100),
@@ -47,7 +59,7 @@ export default async function NewProjectPage() {
 
   return (
     <>
-      <PageHeader title="New project" />
+      <PageHeader title="New job" subtitle="Jobs live under a project (client engagement) — pick one below or leave it for later triage." />
       <form action={create} className="max-w-2xl space-y-4 p-6">
         <div className="card space-y-4 p-5">
           {/* ── Client + name ─────────────────────────────────────────────── */}
@@ -61,8 +73,18 @@ export default async function NewProjectPage() {
             </select>
           </div>
           <div>
-            <label className="label">Project name</label>
+            <label className="label">Job name</label>
             <input className="input mt-1" name="name" required />
+          </div>
+          <div>
+            <label className="label">Project (optional)</label>
+            <select name="engagementId" className="input mt-1">
+              <option value="">— none yet —</option>
+              {engagements.map((e) => (
+                <option key={e.id} value={e.id}>{e.name} · {e.client.name}</option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-slate-500">Must match the chosen client — mismatches are rejected.</p>
           </div>
           <div>
             <label className="label">Address</label>
@@ -137,7 +159,7 @@ export default async function NewProjectPage() {
           </div>
         </div>
         <div className="flex justify-end">
-          <button className="btn-primary" type="submit">Create project</button>
+          <button className="btn-primary" type="submit">Create job</button>
         </div>
       </form>
     </>

@@ -61,12 +61,29 @@ model Client {
   jobtreadAccountId String? @unique
   users        User[]    @relation("ClientUsers")
   projects     Project[]
+  engagements  Engagement[]
   threads      Thread[]
   estimates    Estimate[]
   contracts    Contract[]
   crmActivities CrmActivity[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+// A client engagement/contract that groups Jobs (the legacy Project model).
+// Displayed as "Project" in the UI; the Project model below is the Job.
+model Engagement {
+  id          String    @id @default(cuid())
+  name        String
+  clientId    String
+  client      Client    @relation(fields: [clientId], references: [id])
+  description String?
+  status      String    @default("ACTIVE") // ACTIVE | COMPLETE | ON_HOLD
+  jobs        Project[] @relation("EngagementJobs")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([clientId])
 }
 
 model Project {
@@ -76,6 +93,8 @@ model Project {
   name         String
   code         String?   @unique  // short join key (e.g. "SMTH") for per-project Tasks; unique among non-null
   jobtreadJobId String?  @unique
+  engagementId String?
+  engagement   Engagement? @relation("EngagementJobs", fields: [engagementId], references: [id])
   address      String?
   city         String?
   latitude     Float?    // site coords; cleared whenever address changes

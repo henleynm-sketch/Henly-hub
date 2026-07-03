@@ -27,6 +27,7 @@ export default async function JobCockpitPage({ params }: { params: Promise<{ id:
     where: { id },
     include: {
       client: { select: { id: true, name: true } },
+      engagement: { select: { id: true, name: true } },
       budgetItems: true,
       dailyLogs: { orderBy: { date: "desc" }, take: 5, include: { author: { select: { name: true } } } },
       milestones: { orderBy: { order: "asc" } },
@@ -102,6 +103,22 @@ export default async function JobCockpitPage({ params }: { params: Promise<{ id:
               division: p.division,
             }}
           />
+          <div className="hh-panel p-5 flex flex-col gap-2">
+            <h2 className="hh-label">Project</h2>
+            {p.engagement ? (
+              <Link href={`/jobs/projects/${p.engagement.id}`} className="hh-primary hover:underline">
+                {p.engagement.name}
+              </Link>
+            ) : (
+              <span className="hh-secondary">
+                Not in a project yet —{" "}
+                <Link href="/jobs/projects" className="hh-primary hover:underline">
+                  assign one
+                </Link>
+              </span>
+            )}
+          </div>
+
           <div className="hh-panel p-5 flex flex-col gap-2">
             <h2 className="hh-label">Dates</h2>
             <div className="flex items-center justify-between">

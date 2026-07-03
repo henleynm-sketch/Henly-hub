@@ -39,6 +39,7 @@ const JOBS_GROUP: Item = {
   icon: PlugZap,
   children: [
     { href: "/jobs", label: "Dashboard" },
+    { href: "/jobs/projects", label: "Projects" },
     { href: "/jobs/list", label: "All Jobs" },
     { href: "/jobs/board", label: "Board" },
     { href: "/jobs/daily-logs", label: "Daily Logs" },
