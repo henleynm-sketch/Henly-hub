@@ -40,7 +40,7 @@ export default function ClaudeCard({ data, isCeo }: { data: ClaudeCardData; isCe
         return;
       }
       setSheetOpen(false);
-      flash(r.providerLabel ? `${r.providerLabel} connected — assistant enabled` : "Assistant enabled");
+      flash(r.providerLabel ? `${r.providerLabel} connected (${r.model ?? "auto"}) — assistant enabled` : "Assistant enabled");
     });
   }
 

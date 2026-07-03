@@ -225,6 +225,63 @@ export async function callModel(p: CallParams): Promise<ModelResult> {
   return callGemini(p);
 }
 
+/**
+ * "Detect & connect" for real: build a candidate model list (the requested
+ * model first when it matches the provider family, then live-discovered and
+ * known-good fallbacks) and return the first one that verifies. Gemini
+ * candidates come from ListModels with the user's own key, so quota changes
+ * on Google's side (e.g. free tier dropping older flash models) self-heal.
+ */
+export async function pickWorkingModel(
+  provider: Provider,
+  apiKey: string,
+  requested: string,
+): Promise<{ ok: true; model: string } | { ok: false; error: string }> {
+  const candidates: string[] = [];
+  if (requested && modelMatchesProvider(requested, provider)) candidates.push(requested);
+
+  if (provider === "gemini") {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?pageSize=100&key=${encodeURIComponent(apiKey)}`,
+        { cache: "no-store" },
+      );
+      if (res.ok) {
+        const d = (await res.json()) as {
+          models?: { name?: string; supportedGenerationMethods?: string[] }[];
+        };
+        const usable = (d.models ?? [])
+          .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
+          .map((m) => (m.name ?? "").replace(/^models\//, ""))
+          .filter((n) => n && !/preview|exp|embedding|tts|image|audio|live/i.test(n));
+        // Prefer newest flash, then flash-lite, then pro.
+        const rank = (n: string) => (n.includes("flash-lite") ? 1 : n.includes("flash") ? 0 : 2);
+        usable.sort((x, y) => rank(x) - rank(y) || y.localeCompare(x));
+        candidates.push(...usable.slice(0, 4));
+      }
+    } catch {
+      // discovery unavailable — fall through to static candidates
+    }
+    candidates.push("gemini-2.5-flash", "gemini-2.0-flash");
+  } else if (provider === "openai") {
+    candidates.push("gpt-4o", "gpt-4o-mini");
+  } else {
+    candidates.push("claude-sonnet-5", "claude-haiku-4-5");
+  }
+
+  const tried = new Set<string>();
+  let lastError = "No candidate models";
+  for (const model of candidates) {
+    if (!model || tried.has(model)) continue;
+    tried.add(model);
+    if (tried.size > 4) break; // bounded verification attempts
+    const check = await verifyProvider(provider, apiKey, model);
+    if (check.ok) return { ok: true, model };
+    lastError = `${model}: ${check.error}`;
+  }
+  return { ok: false, error: lastError };
+}
+
 /** Cheap live check used by "Save & enable" — errors returned verbatim. */
 export async function verifyProvider(
   provider: Provider,

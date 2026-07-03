@@ -4,9 +4,9 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageTeam, type Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
-import { detectProvider, verifyProvider, modelMatchesProvider, DEFAULT_MODELS, PROVIDER_LABELS } from "@/lib/assistant/providers";
+import { detectProvider, pickWorkingModel, PROVIDER_LABELS } from "@/lib/assistant/providers";
 
-export type AssistantActionResult = { ok: boolean; error?: string; providerLabel?: string };
+export type AssistantActionResult = { ok: boolean; error?: string; providerLabel?: string; model?: string };
 
 async function ceo() {
   const me = await auth();
@@ -34,17 +34,14 @@ export async function saveAnthropicConfig(formData: FormData): Promise<Assistant
       error: "Could not recognize this key. Supported: Anthropic (sk-ant-…), OpenAI (sk-…), Google Gemini (AIza… or AQ.…).",
     };
   }
-  // Wrong-family model names (e.g. claude-* sent to Gemini) are silently
-  // corrected to the provider default — the model field only sticks when it
-  // matches the detected provider.
-  if (!model || !modelMatchesProvider(model, provider)) {
-    model = DEFAULT_MODELS[provider];
+  // Auto-select a model that actually works for THIS key: requested model
+  // first (when it matches the provider family), then live-discovered and
+  // known-good candidates — first verified winner is saved.
+  const picked = await pickWorkingModel(provider, effectiveKey, model);
+  if (!picked.ok) {
+    return { ok: false, error: `${PROVIDER_LABELS[provider]} rejected the key: ${picked.error}` };
   }
-
-  const check = await verifyProvider(provider, effectiveKey, model);
-  if (!check.ok) {
-    return { ok: false, error: `${PROVIDER_LABELS[provider]} rejected the key/model: ${check.error}` };
-  }
+  model = picked.model;
 
   const data: { model: string; apiKey?: string; enabled: boolean; provider: string } = {
     model,
@@ -72,7 +69,7 @@ export async function saveAnthropicConfig(formData: FormData): Promise<Assistant
   });
   revalidatePath("/settings");
   revalidatePath("/", "layout"); // launcher pill appears app-wide immediately
-  return { ok: true, providerLabel: PROVIDER_LABELS[provider] };
+  return { ok: true, providerLabel: PROVIDER_LABELS[provider], model };
 }
 
 // Kill switch: hides the launcher app-wide and blocks the route.
