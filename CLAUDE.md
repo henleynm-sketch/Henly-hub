@@ -6,7 +6,7 @@ This file is read by Claude Code at the start of every session. Keep it short an
 
 Henley Hub is a residential remodeling business platform — CRM, unified client comms (email/SMS/in-app), estimates, contracts, projects with milestones and daily logs, budget tracking, financials, and a client portal. Role-aware: CEO / OFFICE / FIELD / SUB / CLIENT each see a different app.
 
-This is the v0.1 MVP. Modules with full UI: dashboard, CRM, inbox, projects, estimates, financials, settings. Modules stubbed (route + nav exists, UI shell only): contracts, files, selections, QuickBooks integration.
+This is the v0.1 MVP, considerably grown since first written. Live modules: dashboard (analytics grid: recharts charts + comparison table via `lib/services/dashboardService.ts`), CRM (dense client table w/ derived job rollups), inbox, Jobs area (dashboard, All Jobs, board w/ saved views, job cockpit w/ location+weather, daily logs, live JT to-dos, catalog, connection/sync), Projects hierarchy (UI "Project" = `Engagement` model grouping Jobs; UI "Job" = legacy `Project` model — protected relations hang off it), estimates (catalog picker), contracts (estimate conversion, lifecycle DRAFT→SENT→SIGNED→DEPOSIT_PAID, historical backfill), vendors (compliance + soft-delete), financials, settings (integrations: QBO, M365, Quo, Henley Tasks, JobTread, Claude assistant). Claude assistant: role-scoped tool layer (`lib/assistant/`), confirm-gated mutations, SSE chat route, floating panel. Still stubbed: files/selections partially, e-sign + payment providers.
 
 ## Stack
 
