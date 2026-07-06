@@ -1,0 +1,67 @@
+name: Deploy to production VPS
+
+# SSH-deploys Henley Hub to the Hostinger Ubuntu VPS on push to the trunk
+# branch. The build runs on the server (simplest path for Next.js + Prisma).
+# All host/user/key/path values come from GitHub Secrets — nothing sensitive
+# lives in this file.
+
+on:
+  push:
+    branches:
+      - claude/henley-hub-platform-2wIAN
+  workflow_dispatch:
+
+# Never run two production deploys at once; let an in-flight deploy finish
+# rather than cancelling it mid-build/reload.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: SSH deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_BRANCH: claude/henley-hub-platform-2wIAN
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          # Fail the job on the first failing command; abort a slow build/reload.
+          script_stop: true
+          command_timeout: 20m
+          # Pass these into the remote shell so the script can use $DEPLOY_PATH /
+          # $DEPLOY_BRANCH. Secrets are injected by the Action, not stored here.
+          envs: DEPLOY_PATH,DEPLOY_BRANCH
+          script: |
+            set -e
+            # Load nvm so `nvm use` (pins Node 20 via .nvmrc) is available.
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+            cd "$DEPLOY_PATH"
+            nvm use
+
+            # Pull the exact branch state. NO `git clean` — the gitignored .env
+            # and any uploaded files on the server must survive the deploy.
+            git fetch --all --prune
+            git reset --hard "origin/$DEPLOY_BRANCH"
+
+            npm ci
+            npx prisma generate
+
+            # This repo has NO prisma/migrations/ directory — it has only ever
+            # used `prisma db push`. So the deploy applies the schema with db push.
+            # Once an initial migration is committed, replace the line below with
+            # `npx prisma migrate deploy` (see deploy/README.md). Never db:reset.
+            npx prisma db push
+
+            npm run build
+
+            pm2 reload ecosystem.config.js --update-env
+            pm2 save
