@@ -18,11 +18,13 @@ jobs:
     name: typecheck + build
     runs-on: ubuntu-latest
 
-    # Placeholder values only — never real secrets. Just enough for Prisma to
-    # generate against SQLite and for Next/Auth.js to build without throwing on
-    # missing env. Real secrets live in .env / the Setting + ApiKey tables.
+    # Placeholder values only — never real secrets. The URL is Postgres-shaped
+    # so Prisma schema validation passes (provider = postgresql); no database
+    # is actually reachable in CI, and none is needed: generate + tsc + next
+    # build never open a connection because every page is auth-gated/dynamic.
+    # Real secrets live in .env on the server / GitHub Secrets.
     env:
-      DATABASE_URL: "file:./ci.db"
+      DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci?schema=public"
       AUTH_SECRET: "ci-placeholder-not-a-real-secret-do-not-use"
       AUTH_URL: "http://localhost:3000"
       AUTH_TRUST_HOST: "true"
@@ -41,11 +43,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Workspace scripts run through `dotenv -e ../../.env`, so a root .env
+      # must exist in CI. Mirror the placeholder env above into it.
+      - name: Create CI env file
+        run: |
+          {
+            echo "DATABASE_URL=$DATABASE_URL"
+            echo "AUTH_SECRET=$AUTH_SECRET"
+            echo "AUTH_URL=$AUTH_URL"
+            echo "AUTH_TRUST_HOST=$AUTH_TRUST_HOST"
+            echo "HUB_TASKS_API_KEY="
+          } > .env
+
+      # Schema path comes from the root package.json "prisma.schema" key
+      # (monorepo layout: packages/db/prisma/schema.prisma).
       - name: Generate Prisma client
         run: npx prisma generate
 
       - name: TypeScript no-emit check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: Build
         run: npm run build
