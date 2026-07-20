@@ -8,12 +8,15 @@ module.exports = {
   apps: [
     {
       name: "henley-hub",
-      // Run Next.js directly (avoids an extra `npm` shell process under PM2).
-      script: "node_modules/next/dist/bin/next",
-      args: "start -p 3000",
+      // Monorepo: the Next.js app lives in apps/web, so start it through the
+      // workspace's own `npm start` — that runs `dotenv -e ../../.env -- next
+      // start`, loading the root .env (auth vars) exactly like every other
+      // script in this repo. `next start` honors the PORT env below.
+      script: "npm",
+      args: "start",
       // Server deploy path. Change here (and DEPLOY_PATH secret) if you clone
       // the repo somewhere other than the default.
-      cwd: "/home/deploy/henley-hub",
+      cwd: "/home/deploy/henley-hub/apps/web",
 
       // Single fork instance — do NOT switch to cluster mode. Two reasons, both
       // process-local state that cluster would fork and corrupt:
