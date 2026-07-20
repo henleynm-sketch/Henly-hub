@@ -8,9 +8,12 @@ module.exports = {
   apps: [
     {
       name: "henley-hub",
-      // Run Next.js directly (avoids an extra `npm` shell process under PM2).
-      script: "node_modules/next/dist/bin/next",
-      args: "start -p 3000",
+      // Monorepo: the Next.js app lives in the web workspace. Start it from
+      // the repo root exactly the way it is started by hand — `npm run start
+      // -w web` — which runs the workspace's `dotenv -e ../../.env -- next
+      // start`, loading the root .env (auth vars). Honors the PORT env below.
+      script: "npm",
+      args: "run start -w web",
       // Server deploy path. Change here (and DEPLOY_PATH secret) if you clone
       // the repo somewhere other than the default.
       cwd: "/home/deploy/henley-hub",
