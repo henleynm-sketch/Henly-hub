@@ -46,12 +46,16 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
             cd "$DEPLOY_PATH"
-            nvm use
 
-            # Pull the exact branch state. NO `git clean` — the gitignored .env
-            # and any uploaded files on the server must survive the deploy.
+            # Pull the exact branch state FIRST so .nvmrc and everything else
+            # exist even on a stale/fresh clone. NO `git clean` — the gitignored
+            # .env and any uploaded files on the server must survive the deploy.
             git fetch --all --prune
             git reset --hard "origin/$DEPLOY_BRANCH"
+
+            # `nvm install` reads .nvmrc: uses the pinned Node, installing it
+            # first if this server doesn't have it yet.
+            nvm install
 
             npm ci
             npx prisma generate
