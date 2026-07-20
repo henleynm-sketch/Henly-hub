@@ -58,13 +58,18 @@ jobs:
             nvm install
 
             npm ci
-            npx prisma generate
+
+            # Use the repo's own db scripts, not bare npx: they run with
+            # packages/db as CWD, which is where Prisma finds the .env holding
+            # DATABASE_URL. Bare `npx prisma` at the root only sees the root
+            # .env (auth vars) and fails with "env var not found".
+            npm run db:generate
 
             # This repo has NO prisma/migrations/ directory — it has only ever
             # used `prisma db push`. So the deploy applies the schema with db push.
             # Once an initial migration is committed, replace the line below with
-            # `npx prisma migrate deploy` (see deploy/README.md). Never db:reset.
-            npx prisma db push
+            # `prisma migrate deploy` (see deploy/README.md). Never db:reset.
+            npm run db:push
 
             npm run build
 
