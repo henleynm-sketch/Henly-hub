@@ -7,6 +7,7 @@ import { requireScope, isAuthFailure } from "./auth";
 import { rateLimit, rateKindForMethod } from "./rateLimit";
 import { readIdempotencyKey, getIdempotent, setIdempotent } from "./idempotency";
 import { ValidationError, fail, failFromError } from "./errors";
+import { logError, errorParts } from "@/lib/diagnostics";
 
 // A handler returns plain data (wrapped in the success envelope), optionally
 // with a custom status, or a Response it built itself (escape hatch).
@@ -115,6 +116,17 @@ export function apiRoute<P extends Record<string, string> = Record<string, strin
       return NextResponse.json(envelope, { status, headers: { "Cache-Control": "no-store" } });
     } catch (err) {
       const res = failFromError(err);
+      // Capture alongside the existing response — status/body are unchanged.
+      // 5xx = real bug (error); 4xx = client/validation issue (warning).
+      const { message, stack } = errorParts(err);
+      void logError({
+        level: res.status >= 500 ? "error" : "warning",
+        source: "api",
+        message,
+        stack,
+        route: `${method} ${path}`,
+        context: { status: res.status, apiKeyId: apiKey.id },
+      });
       logCall(apiKey.id, method, path, res.status, scope, idemKey, Date.now() - start);
       return res;
     }

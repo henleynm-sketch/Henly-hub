@@ -20,3 +20,6 @@ imports/*.xlsx
 imports/*.xls
 imports/*.json
 !imports/.gitkeep
+
+# Bridge cleanup staging — never commit
+_to_delete/

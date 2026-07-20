@@ -24,6 +24,7 @@ import {
   ListChecks,
   PlugZap,
   ChevronDown,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
@@ -67,6 +68,7 @@ const navByRole: Record<Role, Item[]> = {
     { href: "/vendors",   label: "Vendors",   icon: HardHat },
     JOBS_GROUP,
     { href: "/settings", label: "Settings", icon: Settings },
+    { href: "/settings/diagnostics", label: "Diagnostics", icon: Activity },
   ],
   OFFICE: [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
