@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [claude/henley-hub-platform-2wIAN]
+    branches:
+      - main
+      - "feature/**"
   pull_request:
-    branches: [claude/henley-hub-platform-2wIAN]
+    branches: [main]
 
 concurrency:
   group: ci-${{ github.ref }}
