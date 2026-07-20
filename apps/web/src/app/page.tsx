@@ -120,7 +120,7 @@ export default async function Home({
             Henley Hub · Sign in
           </div>
           <h2 className="mt-2 text-3xl font-bold tracking-tight" style={{ color: "#141417" }}>
-            Welcome back
+            Welcome Back
           </h2>
           <p className="mt-2 text-sm" style={{ color: "#5A616B" }}>
             Sign in with your work email and password to get to work.
