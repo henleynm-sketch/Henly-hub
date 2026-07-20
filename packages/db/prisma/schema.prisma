@@ -540,6 +540,31 @@ model ApiCallLog {
   @@index([ts])
 }
 
+// ─── Diagnostics ────────────────────────────────────────────────────────────
+// In-app error capture for the CEO-only Settings → Diagnostics panel. Every row
+// is written by logError() in apps/web/src/lib/diagnostics.ts, which runs the
+// message, stack, and context through a redaction pass BEFORE the row is stored.
+// Nothing here should ever contain a live secret — the redaction step is the
+// guardrail. No external error service (Sentry etc.); a single fork instance
+// makes an in-DB log sufficient and self-contained.
+model ErrorLog {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  level        String    @default("error") // error | warning | info
+  source       String    // server-action | api | client | integration
+  message      String
+  stack        String?
+  context      String?   // already-redacted JSON string
+  route        String?
+  userId       String?
+  resolved     Boolean   @default(false)
+  resolvedAt   DateTime?
+  resolvedById String?
+
+  @@index([resolved, createdAt])
+  @@index([createdAt])
+}
+
 // ─── Warranty ─────────────────────────────────────────────────────────────────
 // Tracks deficiency items for projects in WARRANTY status.
 // warrantyPhase is a string field on Project validated against WARRANTY_PHASE.

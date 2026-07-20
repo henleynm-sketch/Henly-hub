@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import SignOutButton from "@/components/SignOutButton";
 import AssistantMount from "@/components/assistant/AssistantMount";
 import MobileNav from "@/components/MobileNav";
+import DiagnosticsBoundary from "@/components/DiagnosticsBoundary";
 import { ROLE_LABELS, type Role } from "@/lib/roles";
 import { GlassTopbar } from "@/components/ui/GlassTopbar";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -88,7 +89,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <ThemeToggle />
           </div>
         </GlassTopbar>
-        <main className="flex-1 min-h-0 overflow-y-auto">{children}</main>
+        <main className="flex-1 min-h-0 overflow-y-auto">
+          <DiagnosticsBoundary>{children}</DiagnosticsBoundary>
+        </main>
       </div>
       <AssistantMount />
     </div>
