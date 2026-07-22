@@ -251,3 +251,18 @@ export async function registerUser(formData: FormData): Promise<AuthActionResult
   await signIn("credentials", { email, password, redirect: false });
   redirect("/pending");
 }
+
+// Email/password sign-in for the branded auth page. Errors round-trip back to
+// "/" via a query param so the split-screen can show them inline.
+export async function signInWithPassword(formData: FormData): Promise<void> {
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+  const rl = rateLimit(`login:${email}`, "write");
+  if (!rl.ok) redirect("/?error=rate");
+  try {
+    await signIn("credentials", { email, password, redirectTo: "/dashboard" });
+  } catch (err) {
+    if ((err as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")) throw err;
+    redirect("/?error=invalid");
+  }
+}

@@ -9,14 +9,14 @@ import { redirect } from "next/navigation";
 // redirects to the provider's consent screen.
 export async function startGoogleSignIn(): Promise<void> {
   if (!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET)) {
-    redirect("/sign-in?error=google_unconfigured");
+    redirect("/?error=google_unconfigured");
   }
   await signIn("google", { redirectTo: "/dashboard" });
 }
 
 export async function startMicrosoftSignIn(): Promise<void> {
   if (!(process.env.AUTH_MICROSOFT_ENTRA_ID_ID && process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET)) {
-    redirect("/sign-in?error=microsoft_unconfigured");
+    redirect("/?error=microsoft_unconfigured");
   }
   await signIn("microsoft-entra-id", { redirectTo: "/dashboard" });
 }
