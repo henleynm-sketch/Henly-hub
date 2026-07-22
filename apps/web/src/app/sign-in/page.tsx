@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/api/rateLimit";
+import { startGoogleSignIn, startMicrosoftSignIn } from "@/lib/actions/oauth";
 
 const demoLogins = [
   { label: "CEO", email: "kyle@henleyhub.com" },
@@ -78,6 +79,10 @@ export default async function SignInPage({
             <span className="hh-secondary">
               {sp.error === "rate"
                 ? "Too many attempts — wait a minute and try again."
+                : sp.error === "google_unconfigured"
+                ? "Google sign-in isn't set up yet — use your email and password for now."
+                : sp.error === "microsoft_unconfigured"
+                ? "Microsoft sign-in isn't set up yet — use your email and password for now."
                 : "That email and password combination didn't work."}
             </span>
           </div>
@@ -101,6 +106,18 @@ export default async function SignInPage({
           <button className="btn-primary w-full" type="submit">
             Sign in
           </button>
+        </form>
+
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-glass-border" />
+          <span className="hh-caption">or</span>
+          <div className="h-px flex-1 bg-glass-border" />
+        </div>
+        <form action={startGoogleSignIn}>
+          <button className="btn-secondary w-full" type="submit">Continue with Google</button>
+        </form>
+        <form action={startMicrosoftSignIn}>
+          <button className="btn-secondary w-full" type="submit">Continue with Microsoft</button>
         </form>
 
         <div className="flex items-center justify-between">
