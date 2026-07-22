@@ -30,10 +30,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               (function() {
                 try {
                   const theme = localStorage.getItem('theme') || 'dark';
+                  const root = document.documentElement;
                   if (theme === 'light') {
-                    document.documentElement.classList.add('light');
+                    root.classList.add('light');
+                    root.classList.remove('dark');
                   } else {
-                    document.documentElement.classList.remove('light');
+                    root.classList.add('dark');
+                    root.classList.remove('light');
                   }
                 } catch (e) {}
               })()

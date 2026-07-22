@@ -6,11 +6,15 @@ export default function NewClientPage() {
   async function create(formData: FormData) {
     "use server";
     const name = String(formData.get("name") || "").trim();
-    if (!name) return;
+    const email = String(formData.get("email") || "").trim();
+    const phone = String(formData.get("phone") || "").trim();
+    // Manual entry requires a name and at least one contact method. (Imports and
+    // the v1 API stay permissive — they call createClient directly.)
+    if (!name || (!email && !phone)) return;
     const c = await createClient({
       name,
-      primaryEmail: String(formData.get("email") || "").trim() || null,
-      primaryPhone: String(formData.get("phone") || "").trim() || null,
+      primaryEmail: email || null,
+      primaryPhone: phone || null,
       address: String(formData.get("address") || "").trim() || null,
       city: String(formData.get("city") || "").trim() || null,
       state: String(formData.get("state") || "").trim() || null,

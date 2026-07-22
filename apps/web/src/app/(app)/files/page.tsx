@@ -49,11 +49,16 @@ export default async function FilesPage({
   const sp = await searchParams;
   const kindFilter = sp.kind && (KINDS as readonly string[]).includes(sp.kind) ? sp.kind : undefined;
 
-  const projectWhere = canViewAllProjects(role)
+  const baseProjectWhere = canViewAllProjects(role)
     ? {}
     : role === "CLIENT" && clientId
     ? { clientId }
     : { assignments: { some: { userId } } };
+  // Arriving from a job (?projectId=) narrows to that one job. Intersected with
+  // the role scope above, so this can only ever narrow access, never widen it.
+  const projectWhere = sp.projectId
+    ? { ...baseProjectWhere, id: sp.projectId }
+    : baseProjectWhere;
 
   const docWhere: any = {};
   if (kindFilter) docWhere.kind = kindFilter;
