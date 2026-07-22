@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth, signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { canManageTeam, ROLES, ROLE_LABELS, type Role } from "@/lib/roles";
+import { canManageTeam, ROLES, ROLE_LABELS, PENDING_ROLE, type Role } from "@/lib/roles";
 import {
   ensureOrganization,
   newRawToken,
@@ -20,6 +20,10 @@ export type AuthActionResult = { ok: boolean; error?: string };
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const RESET_TTL_MS = 60 * 60 * 1000;
 const BCRYPT_COST = 12;
+
+// Self-service registration is limited to the company domain; everyone else
+// still needs an invite. Registered accounts start with zero access (PENDING).
+const ALLOWED_REGISTER_DOMAIN = "henleycontracting.com";
 
 async function ceo() {
   const me = await auth();
@@ -196,4 +200,54 @@ export async function resetPassword(formData: FormData): Promise<AuthActionResul
     }),
   ]);
   return { ok: true };
+}
+
+// ── Self-service registration (public, domain-restricted) ────────────────────
+// Creates a PENDING account with zero access. The CEO grants a real role in
+// Settings → Team & Access; until then the user only sees the waiting screen.
+// This preserves the invite-only access model while allowing staff to sign up.
+export async function registerUser(formData: FormData): Promise<AuthActionResult> {
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+  const confirm = String(formData.get("confirm") || "");
+
+  if (!name) return { ok: false, error: "Name is required" };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, error: "Enter a valid email address" };
+  }
+  if (email.split("@")[1] !== ALLOWED_REGISTER_DOMAIN) {
+    return { ok: false, error: `Registration is limited to @${ALLOWED_REGISTER_DOMAIN} email addresses. Ask your administrator for an invite.` };
+  }
+  if (password !== confirm) return { ok: false, error: "Passwords do not match" };
+  const policy = passwordPolicyError(password);
+  if (policy) return { ok: false, error: policy };
+
+  // Throttle per email, same token-bucket the login + reset flows use.
+  const rl = rateLimit(`register:${email}`, "write");
+  if (!rl.ok) return { ok: false, error: "Too many attempts — wait a minute and try again." };
+
+  if (await prisma.user.findUnique({ where: { email } })) {
+    return { ok: false, error: "An account with this email already exists — try signing in." };
+  }
+
+  const org = await ensureOrganization();
+  const user = await prisma.user.create({
+    data: {
+      email,
+      name,
+      passwordHash: await bcrypt.hash(password, BCRYPT_COST),
+      role: PENDING_ROLE,
+      organizationId: org.id,
+    },
+  });
+  await prisma.auditLog.create({
+    data: { actorId: user.id, action: "auth.register.pending", target: email },
+  });
+
+  // Sign in so they land on the holding screen; access stays zero until a role
+  // is assigned. redirect() throws NEXT_REDIRECT, which Next turns into a client
+  // navigation — the {ok:false} returns above are the only values callers see.
+  await signIn("credentials", { email, password, redirect: false });
+  redirect("/pending");
 }

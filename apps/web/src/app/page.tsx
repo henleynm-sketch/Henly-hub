@@ -168,9 +168,12 @@ export default async function Home({
             </button>
           </form>
 
-          <div className="mt-4 text-center">
-            <a href="mailto:henleynm@gmail.com?subject=Henley%20Hub%20password%20reset" className="text-sm" style={{ color: "#2563EB" }}>
+          <div className="mt-4 flex items-center justify-center gap-5">
+            <a href="/forgot-password" className="text-sm" style={{ color: "#2563EB" }}>
               Forgot password?
+            </a>
+            <a href="/register" className="text-sm" style={{ color: "#2563EB" }}>
+              Create account
             </a>
           </div>
 
@@ -178,8 +181,12 @@ export default async function Home({
             className="mt-8 rounded-lg p-4 text-sm leading-relaxed"
             style={{ background: "#F7F1E5", border: "1px solid rgba(0,0,0,0.08)", color: "#5A616B" }}
           >
-            <span className="font-semibold" style={{ color: "#141417" }}>Henley Contracting.</span>{" "}
-            Sign in with your work email and password. New here? Ask Nick to send you an invite.
+            <span className="font-semibold" style={{ color: "#141417" }}>New to Henley Hub?</span>{" "}
+            Staff with a @henleycontracting.com email can{" "}
+            <a href="/register" className="font-semibold underline" style={{ color: "#141417" }}>
+              create an account
+            </a>
+            . An administrator assigns your access before you can sign in.
           </div>
 
           <details className="mt-6">

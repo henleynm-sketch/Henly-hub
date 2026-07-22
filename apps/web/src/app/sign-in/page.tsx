@@ -107,7 +107,9 @@ export default async function SignInPage({
           <Link href="/forgot-password" className="hh-secondary text-sm hover:underline">
             Forgot password?
           </Link>
-          <span className="hh-caption">Invitation-only</span>
+          <Link href="/register" className="hh-secondary text-sm hover:underline">
+            Create account
+          </Link>
         </div>
 
         {process.env.NODE_ENV === "development" && (
