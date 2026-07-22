@@ -5,7 +5,7 @@ import SignOutButton from "@/components/SignOutButton";
 import AssistantMount from "@/components/assistant/AssistantMount";
 import MobileNav from "@/components/MobileNav";
 import DiagnosticsBoundary from "@/components/DiagnosticsBoundary";
-import { ROLE_LABELS, type Role } from "@/lib/roles";
+import { ROLE_LABELS, isPending, type Role } from "@/lib/roles";
 import { GlassTopbar } from "@/components/ui/GlassTopbar";
 import ThemeToggle from "@/components/ThemeToggle";
 import { getBrandingConfig } from "@/lib/branding";
@@ -17,6 +17,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!session?.user) redirect("/sign-in");
 
   const role = session.user.role as Role;
+  // Server-authoritative backstop: a PENDING (no-role) account never renders the
+  // app shell, even if middleware is bypassed.
+  if (isPending(role)) redirect("/pending");
   let logoDataUrl: string | null = null;
   try {
     const [logoData, logoMime] = await Promise.all([

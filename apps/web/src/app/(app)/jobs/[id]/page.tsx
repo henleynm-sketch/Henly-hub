@@ -39,12 +39,15 @@ export default async function JobCockpitPage({ params }: { params: Promise<{ id:
   const estimateCents = p.budgetItems.reduce((a, b) => a + b.estimateCents, 0);
   const doneMilestones = p.milestones.filter((m) => m.status === "DONE").length;
 
+  // Deep modules link to the existing surfaces, scoped to THIS job so they show
+  // only its records — not every job's. Files/Schedule scope by project id;
+  // Estimates/Messages are client-scoped in the data model (no projectId FK).
   const tabs = [
     { label: "Project", href: `/projects/${p.id}` },
-    { label: "Estimates", href: "/estimates" },
-    { label: "Schedule", href: "/schedule" },
-    { label: "Files", href: "/files" },
-    { label: "Messages", href: "/inbox" },
+    { label: "Estimates", href: `/estimates?clientId=${p.client.id}` },
+    { label: "Schedule", href: `/schedule?projectId=${p.id}` },
+    { label: "Files", href: `/files?projectId=${p.id}` },
+    { label: "Messages", href: `/inbox?clientId=${p.client.id}` },
   ];
 
   return (

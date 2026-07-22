@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
+import { hasAppAccess } from "@/lib/roles";
 
 const { auth } = NextAuth(authConfig);
 
@@ -19,6 +20,7 @@ export default auth((req) => {
     nextUrl.pathname.startsWith("/oauth/authorize") ||
     nextUrl.pathname.startsWith("/unsubscribe") ||
     nextUrl.pathname.startsWith("/signup") ||
+    nextUrl.pathname.startsWith("/register") ||
     nextUrl.pathname.startsWith("/invite/") ||
     nextUrl.pathname.startsWith("/forgot-password") ||
     nextUrl.pathname.startsWith("/reset/") ||
@@ -26,14 +28,29 @@ export default auth((req) => {
     nextUrl.pathname.startsWith("/_next") ||
     nextUrl.pathname.startsWith("/favicon");
 
+  // Registered/SSO accounts with no assigned role (PENDING) are held on /pending.
+  const role = (req.auth?.user as { role?: string } | undefined)?.role;
+  const isPendingUser = isLoggedIn && !hasAppAccess(role);
+  const onPending = nextUrl.pathname === "/pending";
+
   if (isAuthRoute) {
-    if (isLoggedIn) return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    if (isLoggedIn)
+      return NextResponse.redirect(new URL(isPendingUser ? "/pending" : "/dashboard", nextUrl));
     return NextResponse.next();
   }
   if (!isLoggedIn && !isPublic) {
     const url = new URL("/sign-in", nextUrl);
     url.searchParams.set("callbackUrl", nextUrl.pathname);
     return NextResponse.redirect(url);
+  }
+  // Pending accounts can reach nothing but the holding screen (and public/auth
+  // routes, so they can still sign out).
+  if (isPendingUser && !onPending && !isPublic) {
+    return NextResponse.redirect(new URL("/pending", nextUrl));
+  }
+  // A real account should never sit on the holding screen.
+  if (isLoggedIn && !isPendingUser && onPending) {
+    return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
   return NextResponse.next();
 });

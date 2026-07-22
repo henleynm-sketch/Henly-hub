@@ -24,3 +24,22 @@ export function canManageTeam(role: Role) {
 export function canViewAllProjects(role: Role) {
   return role === "CEO" || role === "OFFICE";
 }
+
+// A self-registered account (email/password or SSO) holds PENDING until the CEO
+// assigns a real role. PENDING — and any empty or unrecognized value — grants
+// zero access anywhere; every permission helper above already returns false for
+// it, and the middleware + app shell hold such users on the waiting screen.
+export const PENDING_ROLE = "PENDING";
+
+export function hasAppAccess(role: string | null | undefined): boolean {
+  return !!role && (ROLES as readonly string[]).includes(role);
+}
+
+export function isPending(role: string | null | undefined): boolean {
+  return !hasAppAccess(role);
+}
+
+// Display label that also covers the PENDING / no-access state.
+export function roleLabel(role: string): string {
+  return (ROLE_LABELS as Record<string, string>)[role] ?? "Pending — no access";
+}

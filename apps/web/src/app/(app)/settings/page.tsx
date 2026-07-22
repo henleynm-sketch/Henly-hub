@@ -20,6 +20,7 @@ import DemoRoleSwitcher from "@/components/DemoRoleSwitcher";
 import ConnectFromClaude from "@/components/settings/ConnectFromClaude";
 import NotifyControls from "@/components/settings/NotifyControls";
 import InvitePanel, { type InviteRow } from "@/components/settings/InvitePanel";
+import TeamMemberRow from "@/components/settings/TeamMemberRow";
 import { listMyGrants } from "./oauthGrantActions";
 import { headers } from "next/headers";
 import ApiKeysManager, { type ApiKeyRow, type ScopeGroup } from "@/components/ApiKeysManager";
@@ -600,56 +601,26 @@ export default async function SettingsPage({
                   </thead>
                   <tbody className="divide-y divide-glass-border">
                     {users.map((u) => (
-                      <tr key={u.id} className="hh-row--flat align-top">
-                        <td className="px-3 py-3">
-                          <div className="hh-primary">{u.name}</div>
-                          <div className="hh-secondary">{u.email}</div>
-                        </td>
-                        <td className="px-3 py-3 hh-secondary">{ROLE_LABELS[u.role as Role] ?? u.role}</td>
-                        <td className="px-3 py-3 hh-secondary">{u.department ?? u.focusArea ?? "—"}</td>
-                        <td className="px-3 py-3 hh-secondary">{u.reportsTo?.name ?? "—"}</td>
-                        <td className="px-3 py-3">
-                          {u.active ? (
-                            <span className="hh-badge hh-badge--success !ml-0">active</span>
-                          ) : (
-                            <span className="hh-badge hh-badge--danger !ml-0">inactive</span>
-                          )}
-                        </td>
-                        {isCeo && (
-                          <td className="px-3 py-3 text-right">
-                            <details>
-                              <summary className="btn-ghost text-xs cursor-pointer inline-flex">Edit</summary>
-                              <form action={updateUser} className="mt-2 grid gap-2 text-left min-w-[220px]">
-                                <input type="hidden" name="id" value={u.id} />
-                                <select name="role" className="input" defaultValue={u.role}>
-                                  {Object.keys(ROLE_LABELS).map((r) => (
-                                    <option key={r} value={r}>{ROLE_LABELS[r as Role]}</option>
-                                  ))}
-                                </select>
-                                <select name="department" className="input" defaultValue={u.department ?? ""}>
-                                  <option value="">No department</option>
-                                  {departments.map((d) => (
-                                    <option key={d.id} value={d.name}>{d.name}</option>
-                                  ))}
-                                </select>
-                                <select name="reportsTo" className="input" defaultValue={u.reportsToId ?? ""}>
-                                  <option value="">Reports to no one</option>
-                                  {users.filter((x) => x.id !== u.id).map((x) => (
-                                    <option key={x.id} value={x.id}>{x.name}</option>
-                                  ))}
-                                </select>
-                                <button className="btn-secondary" type="submit">Save</button>
-                              </form>
-                              <form action={toggleActive} className="mt-1">
-                                <input type="hidden" name="id" value={u.id} />
-                                <button className="btn-ghost text-xs w-full" type="submit">
-                                  {u.active ? "Deactivate" : "Reactivate"}
-                                </button>
-                              </form>
-                            </details>
-                          </td>
-                        )}
-                      </tr>
+                      <TeamMemberRow
+                        key={u.id}
+                        isCeo={!!isCeo}
+                        colSpan={isCeo ? 6 : 5}
+                        user={{
+                          id: u.id,
+                          name: u.name,
+                          email: u.email,
+                          role: u.role,
+                          department: u.department,
+                          focusArea: u.focusArea,
+                          reportsToId: u.reportsToId,
+                          reportsToName: u.reportsTo?.name ?? null,
+                          active: u.active,
+                        }}
+                        departments={departments.map((d) => ({ id: d.id, name: d.name }))}
+                        peers={users.map((x) => ({ id: x.id, name: x.name }))}
+                        updateAction={updateUser}
+                        toggleAction={toggleActive}
+                      />
                     ))}
                   </tbody>
                 </table>

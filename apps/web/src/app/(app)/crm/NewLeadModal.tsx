@@ -24,6 +24,10 @@ export default function NewLeadModal() {
       setError("Name is required.");
       return;
     }
+    if (!email && !phone) {
+      setError("Add an email or a phone number.");
+      return;
+    }
     setError(null);
 
     start(async () => {

@@ -108,12 +108,17 @@ export async function createLead(input: {
 
   const name = input.name.trim();
   if (!name) throw new Error("Name is required");
+  const email = input.email?.trim() || "";
+  const phone = input.phone?.trim() || "";
+  // Manual entry must carry a way to reach the lead. Server is the real gate —
+  // never trust the client. (Imports/API use createClient and stay permissive.)
+  if (!email && !phone) throw new Error("Add an email or a phone number");
 
   const client = await prisma.client.create({
     data: {
       name,
-      primaryEmail: input.email?.trim() || null,
-      primaryPhone: input.phone?.trim() || null,
+      primaryEmail: email || null,
+      primaryPhone: phone || null,
       leadSource: input.leadSource || null,
       stage: "LEAD",
     },
