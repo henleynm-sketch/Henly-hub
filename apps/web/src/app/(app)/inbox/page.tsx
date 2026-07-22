@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { formatRelative } from "@/lib/utils";
 import type { Role } from "@/lib/roles";
-import { MessageSquare, Mail, MessageCircle, Phone } from "lucide-react";
+import { MessageSquare, Mail, MessageCircle, Phone, ChevronLeft } from "lucide-react";
 import type { ElementType } from "react";
 import ReplyBar from "./ReplyBar";
 import DismissButton from "./DismissButton";
@@ -161,7 +161,7 @@ export default async function InboxPage({
         <div className="hh-panel !p-0 grid grid-cols-12 overflow-hidden">
 
           {/* ── Thread List Column ─────────────────────────────────────────────── */}
-          <aside className="col-span-12 md:col-span-5 lg:col-span-4 border-r border-glass-border flex flex-col h-[calc(100vh-13rem)] md:h-[calc(100vh-11rem)] overflow-hidden">
+          <aside className={`col-span-12 md:col-span-5 lg:col-span-4 border-r border-glass-border ${sp.threadId ? "hidden md:flex" : "flex"} flex-col h-[calc(100vh-13rem)] md:h-[calc(100vh-11rem)] overflow-hidden`}>
 
             {/* Per-source tabs */}
             <div className="flex border-b border-glass-border bg-row-bg shrink-0">
@@ -256,7 +256,7 @@ export default async function InboxPage({
           </aside>
 
           {/* ── Conversation Pane Column ───────────────────────────────────────── */}
-          <section className="col-span-12 md:col-span-7 lg:col-span-8 flex flex-col h-[calc(100vh-13rem)] md:h-[calc(100vh-11rem)] overflow-hidden bg-row-bg">
+          <section className={`col-span-12 md:col-span-7 lg:col-span-8 ${sp.threadId ? "flex" : "hidden md:flex"} flex-col h-[calc(100vh-13rem)] md:h-[calc(100vh-11rem)] overflow-hidden bg-row-bg`}>
             {!activeThread ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-2">
                 <MessageSquare className="h-10 w-10 text-ink-muted animate-pulse" />
@@ -266,7 +266,14 @@ export default async function InboxPage({
             ) : (
               <>
                 {/* Convo Header */}
-                <div className="border-b border-glass-border bg-row-bg px-6 py-4 flex items-center gap-3 shrink-0">
+                <div className="border-b border-glass-border bg-row-bg px-4 md:px-6 py-4 flex items-center gap-3 shrink-0">
+                  <a
+                    href={`/inbox?channel=${activeChannel}`}
+                    className="md:hidden -ml-1 grid h-9 w-9 shrink-0 place-items-center rounded-lg text-ink-soft hover:text-ink"
+                    aria-label="Back to inbox"
+                  >
+                    <ChevronLeft size={20} />
+                  </a>
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent font-semibold text-sm">
                     {getInitials(activeThread.client?.name ?? "I")}
                   </div>
