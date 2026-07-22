@@ -7,7 +7,11 @@ import { canSeeFinancials } from "@/lib/roles";
 import type { Role } from "@/lib/roles";
 import { formatMoney, formatRelative } from "@/lib/utils";
 
-export default async function EstimatesPage() {
+export default async function EstimatesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ clientId?: string }>;
+}) {
   const session = await auth();
   if (!session?.user) redirect("/sign-in");
   const role = session.user.role as Role;
@@ -15,7 +19,11 @@ export default async function EstimatesPage() {
     return <div className="p-8 hh-secondary">Estimates are visible to office staff only.</div>;
   }
 
+  // When opened from a job cockpit (?clientId=), show only that client's
+  // estimates. Estimates have no projectId FK, so client is the tightest scope.
+  const sp = await searchParams;
   const estimates = await prisma.estimate.findMany({
+    where: sp.clientId ? { clientId: sp.clientId } : undefined,
     orderBy: { createdAt: "desc" },
     include: { client: true, author: true },
   });
