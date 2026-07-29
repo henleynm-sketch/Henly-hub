@@ -141,6 +141,7 @@ model Project {
   crmActivities CrmActivity[]
   changeOrders ChangeOrder[]
   warrantyItems WarrantyItem[]
+  estimates    Estimate[] @relation("ProjectEstimates")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -190,6 +191,7 @@ model BudgetItem {
   actualCents      Int      @default(0)
   vendor           String?
   sourceTemplateId String?  // set when created from a template (idempotency)
+  jobtreadId       String?  @unique // JT job cost item id (sync idempotency)
   createdAt        DateTime @default(now())
 }
 
@@ -269,6 +271,9 @@ model Estimate {
   id         String   @id @default(cuid())
   clientId   String
   client     Client   @relation(fields: [clientId], references: [id])
+  projectId  String?  // linked job — feeds the pipeline chart's stage attribution
+  project    Project? @relation("ProjectEstimates", fields: [projectId], references: [id])
+  jobtreadDocumentId String? @unique // JT customerOrder id (sync idempotency)
   authorId   String
   author     User     @relation("EstimateAuthor", fields: [authorId], references: [id])
   number     String   @unique
