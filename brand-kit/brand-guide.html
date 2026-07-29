@@ -1,0 +1,265 @@
+<title>Henley — Brand System</title>
+<style>
+  :root{
+    color-scheme: dark;
+    --canvas:#0A0B0D; --panel:#151619;
+    --accent:#4C7DFF; --accent-hover:#3A6BF0; --accent-focus:rgba(76,125,255,.45);
+    --ink:#000; --charcoal:#58595B; --grey:#808080; --paper:#fff;
+    --text:#F4F5F7; --text-2:#A7ABB4; --text-3:#71767F;
+    --panel-glass:linear-gradient(155deg,rgba(255,255,255,.085),rgba(255,255,255,.016));
+    --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.26); --divider:rgba(255,255,255,.14);
+    --row:rgba(255,255,255,.045); --row-hover:rgba(255,255,255,.08);
+    --tile:linear-gradient(160deg,rgba(255,255,255,.13),rgba(255,255,255,.045));
+    --chip-bg:rgba(255,255,255,.08);
+    --success:#3DDC84; --warning:#FFB020; --danger:#FF5C5C; --info:#4C7DFF; --purple:#A855F7;
+    --shadow:0 20px 50px rgba(0,0,0,.55);
+    --r-sm:6px; --r-md:12px; --r-lg:16px; --r-panel:20px;
+    --font:"Inter",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    --font-display:"Space Grotesk","Inter",ui-sans-serif,system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--canvas); color:var(--text);
+    font-family:var(--font); -webkit-font-smoothing:antialiased; line-height:1.5;
+    background-image:
+      radial-gradient(900px 640px at 62% 116%, rgba(255,168,92,.10), transparent 60%),
+      radial-gradient(820px 520px at 10% -10%, rgba(90,130,255,.12), transparent 60%),
+      linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+    background-size:auto,auto,46px 46px,46px 46px;
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:64px 28px 96px;}
+  .eyebrow{font-size:11px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--text-3);}
+  h1{font-family:var(--font-display); font-weight:600; letter-spacing:-.02em; font-size:clamp(34px,6vw,58px);
+     margin:14px 0 10px; text-wrap:balance;}
+  .lede{color:var(--text-2); font-size:18px; max-width:60ch; margin:0;}
+  h2{font-family:var(--font-display); font-weight:600; letter-spacing:-.01em; font-size:22px; margin:0 0 4px;}
+  .sec{margin-top:56px;}
+  .sec > .hd{display:flex; align-items:baseline; gap:12px; margin-bottom:20px; padding-bottom:12px;
+             border-bottom:1px solid var(--divider);}
+  .sec > .hd .n{font-family:var(--mono); font-size:12px; color:var(--accent);}
+  .sub{color:var(--text-3); font-size:13px;}
+  .card{background:var(--panel-glass); backdrop-filter:blur(26px) saturate(155%);
+        -webkit-backdrop-filter:blur(26px) saturate(155%);
+        border:1px solid var(--border); border-radius:var(--r-panel);
+        box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.30); padding:22px;}
+  .grid{display:grid; gap:16px;}
+  .label{font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text-3);}
+
+  /* palette */
+  .sw-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+  .sw{border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; background:var(--row);}
+  .sw .chip{height:76px;}
+  .sw .meta{padding:10px 12px;}
+  .sw .nm{font-size:13px; font-weight:600;}
+  .sw .hex{font-family:var(--mono); font-size:11px; color:var(--text-3); text-transform:uppercase;}
+
+  /* type scale */
+  .type-row{display:flex; align-items:baseline; gap:18px; padding:12px 0; border-bottom:1px solid var(--divider);}
+  .type-row:last-child{border-bottom:0;}
+  .type-row .tag{font-family:var(--mono); font-size:11px; color:var(--text-3); width:120px; flex-shrink:0;}
+
+  /* components */
+  .btnrow{display:flex; flex-wrap:wrap; gap:12px; align-items:center;}
+  .btn{display:inline-flex; align-items:center; gap:8px; min-height:36px; padding:8px 16px;
+       font-family:inherit; font-size:14px; font-weight:500; border:1px solid transparent;
+       border-radius:var(--r-md); cursor:pointer; color:var(--text); transition:.15s cubic-bezier(.16,1,.3,1);}
+  .btn:hover{transform:translateY(-1.5px);}
+  .btn-primary{background:var(--accent); border-color:var(--accent-hover); color:#fff;
+               box-shadow:0 4px 14px var(--accent-focus), inset 0 1px 0 rgba(255,255,255,.18);}
+  .btn-primary:hover{background:var(--accent-hover);}
+  .btn-secondary{background:var(--tile); box-shadow:inset 0 1px 0 rgba(255,255,255,.28), inset 0 0 0 .5px rgba(255,255,255,.18);}
+  .btn-ghost{color:var(--text-2);}
+  .btn-ghost:hover{background:var(--row-hover); color:var(--text);}
+  .btn-destructive{background:rgba(250,82,82,.15); border-color:rgba(250,82,82,.25); color:#FF8787;}
+
+  .badge{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600;
+         letter-spacing:.05em; text-transform:uppercase; padding:3px 10px; border-radius:9999px;
+         color:var(--accent); border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);
+         background:color-mix(in srgb,var(--accent) 12%,transparent);}
+  .badge.s{color:var(--success); border-color:color-mix(in srgb,var(--success) 24%,transparent); background:color-mix(in srgb,var(--success) 13%,transparent);}
+  .badge.w{color:var(--warning); border-color:color-mix(in srgb,var(--warning) 26%,transparent); background:color-mix(in srgb,var(--warning) 14%,transparent);}
+  .badge.d{color:var(--danger); border-color:color-mix(in srgb,var(--danger) 24%,transparent); background:color-mix(in srgb,var(--danger) 13%,transparent);}
+
+  .input{width:100%; padding:9px 12px; font-family:inherit; font-size:14px; color:var(--text);
+         background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:var(--r-md);}
+  .input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-focus); background:rgba(255,255,255,.1);}
+
+  .dot{display:inline-block; width:10px; height:10px; border-radius:9999px;}
+  .row{display:flex; align-items:center; gap:12px; background:var(--row); border-radius:var(--r-md); padding:12px 14px;}
+  .chip-tag{font-family:var(--mono); font-size:11px; color:var(--text-2); background:var(--chip-bg); border-radius:6px; padding:2px 6px;}
+
+  .two{grid-template-columns:1fr 1fr;}
+  @media(max-width:720px){.two{grid-template-columns:1fr;}}
+
+  /* site status table */
+  .sites{width:100%; border-collapse:collapse; font-size:14px;}
+  .sites th,.sites td{text-align:left; padding:12px 14px; border-bottom:1px solid var(--divider); vertical-align:top;}
+  .sites th{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-3); font-weight:600;}
+  .sites td .u{font-family:var(--mono); font-size:12px; color:var(--text-2);}
+  .tick{color:var(--success); font-weight:600;} .block{color:var(--warning); font-weight:600;}
+  .foot{margin-top:64px; padding-top:20px; border-top:1px solid var(--divider); color:var(--text-3); font-size:12px;
+        display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  code{font-family:var(--mono); font-size:.9em; color:var(--text); background:var(--chip-bg); padding:1px 5px; border-radius:4px;}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Henley Contracting · Design System</div>
+    <h1>One system, three surfaces.</h1>
+    <p class="lede">The shared visual language for Henley Hub, Henley Tasks, and the client Design Discovery site — so every Henley product looks like it was built by the same firm. Distilled from the Hub, the most complete of the three.</p>
+    <div class="btnrow" style="margin-top:22px;">
+      <span class="badge s"><span class="dot" style="background:var(--success)"></span> Canonical: Henley Hub</span>
+      <span class="chip-tag">henley-brand.css</span>
+    </div>
+  </header>
+
+  <!-- WHERE IT STANDS -->
+  <section class="sec">
+    <div class="hd"><span class="n">01</span><h2>Where it stands today</h2></div>
+    <div class="card" style="padding:6px 8px;">
+      <table class="sites">
+        <thead><tr><th>Surface</th><th>What it is</th><th>Editable</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Henley Hub</strong><br><span class="u">hub.henleycontracting.com</span></td>
+            <td>Internal operating platform — CRM, projects, estimates, time clock. Next.js. Owns the design system.</td>
+            <td><span class="tick">✓ Source in hand</span></td>
+          </tr>
+          <tr>
+            <td><strong>Henley Tasks</strong><br><span class="u">tasks.henleycontracting.com</span></td>
+            <td>Field &amp; office task app. Separate PHP codebase, separate host.</td>
+            <td><span class="block">⧗ Needs access</span></td>
+          </tr>
+          <tr>
+            <td><strong>Design Discovery</strong><br><span class="u">design.henleycontracting.com</span></td>
+            <td>Client-facing design &amp; selections intake — the premium onboarding experience.</td>
+            <td><span class="block">⧗ Needs access</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sub" style="margin-top:14px;">The Hub is the reference. The kit below is what gets applied to the other two once their source lands — same tokens, same components, one look.</p>
+  </section>
+
+  <!-- COLOR -->
+  <section class="sec">
+    <div class="hd"><span class="n">02</span><h2>Color</h2><span class="sub">architectural neutrals · one blue accent · semantic status</span></div>
+
+    <div class="label" style="margin-bottom:12px;">Ground &amp; accent</div>
+    <div class="grid sw-grid">
+      <div class="sw"><div class="chip" style="background:#0A0B0D;"></div><div class="meta"><div class="nm">Canvas</div><div class="hex">#0A0B0D</div></div></div>
+      <div class="sw"><div class="chip" style="background:#151619;"></div><div class="meta"><div class="nm">Panel</div><div class="hex">#151619</div></div></div>
+      <div class="sw"><div class="chip" style="background:#4C7DFF;"></div><div class="meta"><div class="nm">Accent</div><div class="hex">#4C7DFF</div></div></div>
+      <div class="sw"><div class="chip" style="background:#3A6BF0;"></div><div class="meta"><div class="nm">Accent hover</div><div class="hex">#3A6BF0</div></div></div>
+    </div>
+
+    <div class="label" style="margin:22px 0 12px;">Brand greys — architectural black / charcoal / grey / white</div>
+    <div class="grid sw-grid">
+      <div class="sw"><div class="chip" style="background:#000;"></div><div class="meta"><div class="nm">Ink</div><div class="hex">#000000</div></div></div>
+      <div class="sw"><div class="chip" style="background:#58595B;"></div><div class="meta"><div class="nm">Charcoal</div><div class="hex">#58595B</div></div></div>
+      <div class="sw"><div class="chip" style="background:#808080;"></div><div class="meta"><div class="nm">Grey</div><div class="hex">#808080</div></div></div>
+      <div class="sw"><div class="chip" style="background:#fff;"></div><div class="meta"><div class="nm">Paper</div><div class="hex">#FFFFFF</div></div></div>
+    </div>
+
+    <div class="label" style="margin:22px 0 12px;">Semantic status — separate from the accent</div>
+    <div class="grid sw-grid">
+      <div class="sw"><div class="chip" style="background:#3DDC84;"></div><div class="meta"><div class="nm">Success</div><div class="hex">#3DDC84</div></div></div>
+      <div class="sw"><div class="chip" style="background:#FFB020;"></div><div class="meta"><div class="nm">Warning</div><div class="hex">#FFB020</div></div></div>
+      <div class="sw"><div class="chip" style="background:#FF5C5C;"></div><div class="meta"><div class="nm">Danger</div><div class="hex">#FF5C5C</div></div></div>
+      <div class="sw"><div class="chip" style="background:#A855F7;"></div><div class="meta"><div class="nm">Purple</div><div class="hex">#A855F7</div></div></div>
+    </div>
+  </section>
+
+  <!-- TYPE -->
+  <section class="sec">
+    <div class="hd"><span class="n">03</span><h2>Typography</h2><span class="sub">Space Grotesk display · Inter body · mono for data</span></div>
+    <div class="card">
+      <div class="type-row"><span class="tag">Display / H1</span><span class="hh-display" style="font-family:var(--font-display); font-size:40px; font-weight:600; letter-spacing:-.02em;">Owner dashboard</span></div>
+      <div class="type-row"><span class="tag">Section / H2</span><span style="font-family:var(--font-display); font-size:24px; font-weight:600;">Pipeline by stage</span></div>
+      <div class="type-row"><span class="tag">Body</span><span style="font-size:16px; color:var(--text-2);">Projects in flight, and what needs your attention.</span></div>
+      <div class="type-row"><span class="tag">Label / caps</span><span class="label" style="font-size:12px;">Open pipeline</span></div>
+      <div class="type-row"><span class="tag">Value / mono</span><span style="font-family:var(--font-display); font-variant-numeric:tabular-nums; font-size:28px; letter-spacing:-.02em;">$259,000</span></div>
+    </div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section class="sec">
+    <div class="hd"><span class="n">04</span><h2>Components</h2><span class="sub">rendered live from the shared kit</span></div>
+    <div class="grid two">
+      <div class="card">
+        <div class="label" style="margin-bottom:14px;">Buttons</div>
+        <div class="btnrow">
+          <button class="btn btn-primary">New estimate</button>
+          <button class="btn btn-secondary">New lead</button>
+          <button class="btn btn-ghost">Cancel</button>
+          <button class="btn btn-destructive">Delete</button>
+        </div>
+        <div class="label" style="margin:22px 0 12px;">Status pills</div>
+        <div class="btnrow">
+          <span class="badge s">Active</span>
+          <span class="badge w">Pending</span>
+          <span class="badge d">Overdue</span>
+          <span class="badge">In review</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:14px;">Inputs</div>
+        <div class="grid" style="gap:10px;">
+          <div><span class="label">Work email</span><input class="input" style="margin-top:6px;" placeholder="you@henleycontracting.com"></div>
+          <div><span class="label">Project</span><input class="input" style="margin-top:6px;" value="Vargas — Primary Suite Addition"></div>
+        </div>
+        <div class="label" style="margin:22px 0 12px;">Rows &amp; status dots</div>
+        <div class="grid" style="gap:8px;">
+          <div class="row"><span class="dot" style="background:var(--success)"></span><span>On the clock</span><span class="chip-tag" style="margin-left:auto;">2 crew</span></div>
+          <div class="row"><span class="dot" style="background:var(--warning)"></span><span>Awaiting approval</span><span class="chip-tag" style="margin-left:auto;">3</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="label" style="margin-bottom:14px;">KPI card — the Hub's signature surface</div>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));">
+        <div class="row" style="flex-direction:column; align-items:flex-start; gap:6px; padding:18px;">
+          <span class="label">Active clients</span><span style="font-family:var(--font-display); font-size:30px;">4</span><span class="sub">with an open job · 6 total</span>
+        </div>
+        <div class="row" style="flex-direction:column; align-items:flex-start; gap:6px; padding:18px;">
+          <span class="label">Open pipeline</span><span style="font-family:var(--font-display); font-size:30px; color:var(--success);">$259,000</span><span class="sub">draft + sent estimates</span>
+        </div>
+        <div class="row" style="flex-direction:column; align-items:flex-start; gap:6px; padding:18px;">
+          <span class="label">On the clock now</span><span style="font-family:var(--font-display); font-size:30px;">0</span><span class="sub">0 people clocked in</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USAGE -->
+  <section class="sec">
+    <div class="hd"><span class="n">05</span><h2>Ground rules</h2></div>
+    <div class="grid two">
+      <div class="card"><div class="label" style="margin-bottom:8px;">Do</div>
+        <ul style="margin:0; padding-left:18px; color:var(--text-2); font-size:14px; line-height:1.8;">
+          <li>Blue <code>#4C7DFF</code> for primary actions &amp; active nav only.</li>
+          <li>Status colors carry meaning — never as decoration.</li>
+          <li>Reference every color through a token, never a raw hex.</li>
+          <li>Space Grotesk for headings &amp; numbers; Inter for everything else.</li>
+        </ul>
+      </div>
+      <div class="card"><div class="label" style="margin-bottom:8px;">Don't</div>
+        <ul style="margin:0; padding-left:18px; color:var(--text-2); font-size:14px; line-height:1.8;">
+          <li>Introduce a second accent hue per surface.</li>
+          <li>Mix radii — stay on the 6 / 12 / 16 / 20px scale.</li>
+          <li>Let one site drift its own look — evolve the system for all three together.</li>
+          <li>Hardcode greys outside the token definitions.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>Henley Contracting Ltd. · Design system reference</span>
+    <span>Source of truth · <code>brand-kit/henley-brand.css</code></span>
+  </div>
+</div>
