@@ -43,6 +43,7 @@ const SECTIONS = [
   { id: "team", label: "Team & access" },
   { id: "departments", label: "Departments" },
   { id: "integrations", label: "Integrations" },
+  { id: "dataimport", label: "Data import" },
   { id: "appearance", label: "Appearance" },
   { id: "apikeys", label: "API keys" },
   { id: "notifications", label: "Notifications" },
@@ -783,6 +784,19 @@ export default async function SettingsPage({
                 grants={myGrants}
               />
             </section>
+
+            {isCeo && (
+              <section id="dataimport" className="hh-panel p-6 flex flex-col gap-3 scroll-mt-24">
+                <h2 className="hh-label">Data import</h2>
+                <span className="hh-secondary">
+                  Load clients and jobs from HubSpot or BuilderTrend CSV exports — source presets,
+                  editable column mapping, and a dry-run preview before anything is written.
+                </span>
+                <span>
+                  <Link href="/settings/import" className="btn-secondary text-xs">Open importer →</Link>
+                </span>
+              </section>
+            )}
 
             {/* 5 — API keys */}
             {isCeo && (

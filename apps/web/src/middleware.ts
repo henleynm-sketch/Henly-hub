@@ -35,6 +35,9 @@ export default auth((req) => {
     url.searchParams.set("callbackUrl", nextUrl.pathname);
     return NextResponse.redirect(url);
   }
+  if (nextUrl.pathname.startsWith("/settings/import") && req.auth?.user?.role !== "CEO") {
+    return NextResponse.redirect(new URL("/settings", nextUrl));
+  }
   return NextResponse.next();
 });
 
