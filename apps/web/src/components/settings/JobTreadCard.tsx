@@ -74,7 +74,18 @@ function SyncSummaryView({ s }: { s: JobTreadSyncSummary }) {
       {row("Customers", s.customers)}
       {row("Vendors", s.vendors)}
       {row("Jobs", s.jobs)}
+      {row("Budget items", s.budgetItems)}
       {row("Daily logs", s.dailyLogs)}
+      {s.estimates && (
+        <div className="flex items-center justify-between w-full">
+          <span className="hh-secondary">Estimates</span>
+          <span className="hh-secondary tabular-nums">
+            {s.estimates.created} new · {s.estimates.updated} updated · {s.estimates.skipped} unchanged
+            {s.estimates.linked > 0 ? ` · ${s.estimates.linked} linked to jobs` : ""}
+            {s.estimates.noProject > 0 ? ` · ${s.estimates.noProject} no project` : ""}
+          </span>
+        </div>
+      )}
       {s.catalog && (
         <>
           {row("Cost types", s.catalog.costTypes)}
@@ -94,6 +105,34 @@ function SyncSummaryView({ s }: { s: JobTreadSyncSummary }) {
           <span className="hh-secondary tabular-nums">
             {unmatched.map(([k, n]) => `${k}: ${n}`).join(" · ")}
           </span>
+        </div>
+      )}
+      {(s.warnings ?? []).length > 0 && (
+        <div className="w-full mt-1">
+          <span className="hh-label">Warnings</span>
+          <ul className="mt-1 flex flex-col gap-1">
+            {s.warnings!.map((w, i) => (
+              <li key={i} className="flex items-center justify-between gap-3 w-full">
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="hh-dot hh-dot--orange shrink-0" />
+                  <span className="hh-secondary truncate">
+                    {w.kind === "job-no-client" ? "Job has no client: " : "Daily log has no job in Hub: "}
+                    {w.label}
+                  </span>
+                </span>
+                {w.jobtreadJobId && (
+                  <a
+                    href={`https://app.jobtread.com/jobs/${w.jobtreadJobId}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-ghost text-xs shrink-0"
+                  >
+                    Open in JobTread →
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
       {s.error && (

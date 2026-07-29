@@ -92,6 +92,12 @@ export type EntityCounts = {
   [k: string]: number;
 };
 
+export type SyncWarning = {
+  kind: "job-no-client" | "daily-log-no-project";
+  label: string;
+  jobtreadJobId?: string;
+};
+
 export type JobTreadSyncSummary = {
   ranAt: string;
   customers?: EntityCounts;
@@ -103,6 +109,7 @@ export type JobTreadSyncSummary = {
   budgetItems?: EntityCounts;
   estimates?: EntityCounts & { linked: number; noProject: number };
   todos?: { count: number };
+  warnings?: SyncWarning[];
   error?: string;
 };
 
@@ -348,7 +355,7 @@ export async function syncJobTreadJobs(): Promise<SyncActionResult> {
   try {
     const cf = await loadCFLookup();
     const fieldMap = await loadFieldMap();
-    const { counts, unmatched, budgetItems } = await jobsSync(cf, fieldMap);
+    const { counts, unmatched, budgetItems, warnings } = await jobsSync(cf, fieldMap);
     return {
       ok: true,
       summary: {
@@ -356,6 +363,7 @@ export async function syncJobTreadJobs(): Promise<SyncActionResult> {
         jobs: counts,
         unmatchedTaxonomy: unmatched,
         budgetItems,
+        warnings,
       },
     };
   } catch (err) {
@@ -408,6 +416,7 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
 
   const counts: EntityCounts & { noClient: number } = { created: 0, updated: 0, skipped: 0, noClient: 0 };
   const budgetItems: EntityCounts = { created: 0, updated: 0, skipped: 0 };
+  const warnings: SyncWarning[] = [];
   const unmatched: Record<string, number> = {
     pipelineStage: 0,
     constructionPhase: 0,
@@ -506,6 +515,7 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
         : null;
       if (!client) {
         counts.noClient++;
+        warnings.push({ kind: "job-no-client", label: j.name, jobtreadJobId: j.id });
         continue;
       }
       const code = await codeFor(null);
@@ -554,7 +564,7 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
       }
     }
   }
-  return { counts, unmatched, budgetItems };
+  return { counts, unmatched, budgetItems, warnings };
 }
 
 async function fetchJobCostItems(jobtreadJobId: string): Promise<JTJobCostItem[]> {
@@ -621,14 +631,17 @@ export async function syncJobTreadDailyLogs(): Promise<SyncActionResult> {
   if (!me) return { ok: false, error: "Not authorized" };
   try {
     const cf = await loadCFLookup();
-    const counts = await dailyLogsSync(cf, me.user.id);
-    return { ok: true, summary: { ranAt: new Date().toISOString(), dailyLogs: counts } };
+    const { counts, warnings } = await dailyLogsSync(cf, me.user.id);
+    return { ok: true, summary: { ranAt: new Date().toISOString(), dailyLogs: counts, warnings } };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Daily log sync failed" };
   }
 }
 
-async function dailyLogsSync(cf: CFLookup, syncUserId: string): Promise<EntityCounts> {
+async function dailyLogsSync(
+  cf: CFLookup,
+  syncUserId: string,
+): Promise<{ counts: EntityCounts; warnings: SyncWarning[] }> {
   const logs = await jtOrgListAll<JTDailyLog>(
     "dailyLogs",
     { id: {}, date: {}, notes: {}, job: { id: {} }, customFieldValues: CFV_SHAPE },
@@ -636,12 +649,18 @@ async function dailyLogsSync(cf: CFLookup, syncUserId: string): Promise<EntityCo
   );
 
   const counts: EntityCounts = { created: 0, updated: 0, skipped: 0, noProject: 0 };
+  const warnings: SyncWarning[] = [];
   for (const l of logs) {
     const project = l.job?.id
       ? await prisma.project.findUnique({ where: { jobtreadJobId: l.job.id } })
       : null;
     if (!project) {
       counts.noProject++;
+      warnings.push({
+        kind: "daily-log-no-project",
+        label: `Daily log ${str(l.date) ?? l.id}`,
+        jobtreadJobId: l.job?.id,
+      });
       continue;
     }
 
@@ -676,7 +695,7 @@ async function dailyLogsSync(cf: CFLookup, syncUserId: string): Promise<EntityCo
       counts.created++;
     }
   }
-  return counts;
+  return { counts, warnings };
 }
 
 // ── 5. Estimates (JT customerOrder documents → Hub estimates, job-linked) ────
@@ -961,7 +980,9 @@ export async function syncAllJobTread(): Promise<SyncActionResult> {
     summary.jobs = jobsRes.counts;
     summary.unmatchedTaxonomy = jobsRes.unmatched;
     summary.budgetItems = jobsRes.budgetItems;
-    summary.dailyLogs = await dailyLogsSync(cf, me.user.id);
+    const logsRes = await dailyLogsSync(cf, me.user.id);
+    summary.dailyLogs = logsRes.counts;
+    summary.warnings = [...jobsRes.warnings, ...logsRes.warnings];
     summary.estimates = await estimatesSync(me.user.id);
     summary.catalog = await catalogSync();
     summary.todos = { count: await todosCount() };

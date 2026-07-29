@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { Loader2 } from "lucide-react";
 import {
   saveHenleyTasksConfig,
@@ -147,8 +148,10 @@ export default function HenleyTasksCard({
         </>
       )}
 
-      {/* Configure / Edit sheet */}
-      {sheetOpen && (
+      {/* Configure / Edit sheet — portaled: hh-panel/hh-row ancestors carry
+          hover transforms + backdrop-filter, which trap position:fixed. */}
+      {sheetOpen &&
+        createPortal(
         <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/55" onClick={() => setSheetOpen(false)} />
           <div className="hh-panel relative w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-[20px]">
@@ -214,11 +217,13 @@ export default function HenleyTasksCard({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Disconnect confirm */}
-      {confirmDisconnect && (
+      {confirmDisconnect &&
+        createPortal(
         <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/55"
@@ -256,7 +261,8 @@ export default function HenleyTasksCard({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
