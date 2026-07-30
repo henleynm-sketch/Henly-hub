@@ -1,0 +1,267 @@
+/* ============================================================================
+   HENLEY CONTRACTING — PORTABLE BRAND KIT  (henley-brand.css)
+   ----------------------------------------------------------------------------
+   The single, framework-agnostic source of truth for the Henley visual system.
+   Distilled from the Henley Hub design system (apps/web/src/app/globals.css) so
+   the Hub, Henley Tasks, and Henley Design Discovery can all share one look.
+
+   Drop-in usage (no build step, no Tailwind required):
+     <link rel="stylesheet" href="henley-brand.css">
+     <body class="hh"> ... </body>
+
+   Default is the canonical DARK theme. Add class="hh hh-light" on <html> or
+   <body> for the light theme.
+
+   Fonts: Inter (body) + Space Grotesk (display). Load them however the host
+   site prefers (self-host or CDN); a system stack is the fallback below.
+   ========================================================================== */
+
+/* ---- Design tokens ------------------------------------------------------- */
+.hh {
+  color-scheme: dark;
+
+  /* Ground + brand accent */
+  --hh-canvas:        #0A0B0D;   /* app background */
+  --hh-panel:         #151619;   /* solid card fallback */
+  --hh-accent:        #4C7DFF;   /* primary actions, active nav */
+  --hh-accent-hover:  #3A6BF0;
+  --hh-accent-focus:  rgba(76, 125, 255, 0.45);
+  --hh-accent-glow:   rgba(76, 125, 255, 0.50);
+
+  /* Brand greys (architectural: black / charcoal / grey / white) */
+  --hh-ink:           #000000;
+  --hh-charcoal:      #58595B;
+  --hh-grey:          #808080;
+  --hh-paper:         #FFFFFF;
+
+  /* Text ramp */
+  --hh-text:          #F4F5F7;
+  --hh-text-2:        #A7ABB4;
+  --hh-text-3:        #71767F;
+
+  /* Surfaces + lines */
+  --hh-panel-glass:   linear-gradient(155deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.034) 55%, rgba(255,255,255,0.016) 100%);
+  --hh-panel-highlight: rgba(255,255,255,0.30);
+  --hh-border:        rgba(255,255,255,0.08);
+  --hh-border-strong: rgba(255,255,255,0.26);
+  --hh-divider:       rgba(255,255,255,0.14);
+  --hh-row:           rgba(255,255,255,0.045);
+  --hh-row-hover:     rgba(255,255,255,0.08);
+  --hh-tile:          linear-gradient(160deg, rgba(255,255,255,0.13), rgba(255,255,255,0.045));
+  --hh-tile-edge:     rgba(255,255,255,0.18);
+  --hh-tile-hi:       rgba(255,255,255,0.28);
+  --hh-chip-bg:       rgba(255,255,255,0.08);
+  --hh-chip-text:     #A7ABB4;
+  --hh-input-bg:      rgba(255,255,255,0.03);
+  --hh-input-focus-bg: rgba(255,255,255,0.10);
+
+  /* Status ramp (semantic — distinct from the blue accent) */
+  --hh-success:       #12B886;
+  --hh-warning:       #FAB005;
+  --hh-danger:        #FA5252;
+  --hh-info:          #228BE6;
+  --hh-dot-green:     #3DDC84;
+  --hh-dot-orange:    #FFB020;
+  --hh-dot-red:       #FF5C5C;
+  --hh-dot-blue:      #4C7DFF;
+  --hh-dot-purple:    #A855F7;
+
+  /* Elevation */
+  --hh-shadow:        0 20px 50px rgba(0,0,0,0.55);
+  --hh-lift-shadow:   0 30px 66px rgba(0,0,0,0.62);
+  --hh-glow-soft:     rgba(255,255,255,0.16);
+
+  /* Radius */
+  --hh-radius-sm:     6px;
+  --hh-radius-md:     12px;
+  --hh-radius-lg:     16px;
+  --hh-radius-xl:     24px;
+  --hh-radius-panel:  20px;
+  --hh-radius-pill:   9999px;
+
+  /* Motion */
+  --hh-t-fast:        150ms;
+  --hh-t-normal:      250ms;
+  --hh-ease:          cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Type */
+  --hh-font-body:     "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --hh-font-display:  "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --hh-font-mono:     ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+
+  background: var(--hh-canvas);
+  color: var(--hh-text);
+  font-family: var(--hh-font-body);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* ---- Light theme --------------------------------------------------------- */
+.hh.hh-light,
+.hh-light {
+  color-scheme: light;
+  --hh-canvas:        #F4F5F7;
+  --hh-panel:         #FFFFFF;
+  --hh-panel-glass:   #FFFFFF;
+  --hh-panel-highlight: transparent;
+  --hh-text:          #111318;
+  --hh-text-2:        #5B616E;
+  --hh-text-3:        #8A8F98;
+  --hh-border:        #E9EAEE;
+  --hh-border-strong: #D8DAE0;
+  --hh-divider:       #E9EAEE;
+  --hh-row:           #F4F5F7;
+  --hh-row-hover:     #EDEEF1;
+  --hh-tile:          #F4F5F7;
+  --hh-tile-edge:     #E9EAEE;
+  --hh-tile-hi:       transparent;
+  --hh-chip-bg:       #EEF0F3;
+  --hh-chip-text:     #5B616E;
+  --hh-input-bg:      #FFFFFF;
+  --hh-input-focus-bg: #FFFFFF;
+  --hh-shadow:        0 1px 2px rgba(16,17,20,0.05), 0 2px 8px rgba(16,17,20,0.07);
+  --hh-lift-shadow:   0 8px 24px rgba(16,17,20,0.10);
+  background: var(--hh-canvas);
+  color: var(--hh-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hh { --hh-t-fast: 0ms; --hh-t-normal: 0ms; }
+}
+
+/* ---- Typography ---------------------------------------------------------- */
+.hh-display   { font-family: var(--hh-font-display); letter-spacing: -0.02em; }
+.hh-value     { font-family: var(--hh-font-display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.hh-label     { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hh-text-3); }
+.hh-caption   { font-size: 12px; color: var(--hh-text-3); }
+.hh-muted     { color: var(--hh-text-2); }
+
+/* ---- Panels / cards ------------------------------------------------------ */
+.hh-panel {
+  background: var(--hh-panel);
+  border: 1px solid var(--hh-border);
+  border-radius: var(--hh-radius-panel);
+  box-shadow: var(--hh-shadow);
+  padding: 20px;
+  transition: transform var(--hh-t-normal) var(--hh-ease),
+              box-shadow var(--hh-t-normal) var(--hh-ease),
+              border-color var(--hh-t-normal) var(--hh-ease);
+}
+@supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .hh:not(.hh-light) .hh-panel {
+    background: var(--hh-panel-glass);
+    -webkit-backdrop-filter: blur(26px) saturate(155%);
+    backdrop-filter: blur(26px) saturate(155%);
+    box-shadow: var(--hh-shadow), inset 0 1px 0 var(--hh-panel-highlight);
+  }
+}
+.hh-panel--interactive:hover {
+  transform: translateY(-3px);
+  border-color: var(--hh-border-strong);
+  box-shadow: var(--hh-lift-shadow), 0 0 22px var(--hh-glow-soft);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-panel--interactive:hover { transform: none; }
+}
+
+/* ---- Buttons ------------------------------------------------------------- */
+.hh-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 36px; padding: 8px 16px;
+  font-family: inherit; font-size: 14px; font-weight: 500; white-space: nowrap;
+  border: 1px solid transparent; border-radius: var(--hh-radius-md);
+  cursor: pointer;
+  transition: transform var(--hh-t-fast) var(--hh-ease),
+              background-color var(--hh-t-fast) var(--hh-ease),
+              box-shadow var(--hh-t-fast) var(--hh-ease),
+              color var(--hh-t-fast) var(--hh-ease);
+}
+.hh-btn:hover      { transform: translateY(-1.5px); }
+.hh-btn:active     { transform: scale(0.97); }
+.hh-btn:disabled   { opacity: 0.5; pointer-events: none; }
+.hh-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--hh-canvas), 0 0 0 4px var(--hh-accent-focus);
+}
+
+.hh-btn--primary {
+  background: var(--hh-accent); border-color: var(--hh-accent-hover); color: #fff;
+  box-shadow: 0 4px 14px var(--hh-accent-focus), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+.hh-btn--primary:hover { background: var(--hh-accent-hover); }
+
+.hh-btn--secondary {
+  background: var(--hh-tile); color: var(--hh-text);
+  box-shadow: inset 0 1px 0 var(--hh-tile-hi), inset 0 0 0 0.5px var(--hh-tile-edge);
+}
+
+.hh-btn--ghost { color: var(--hh-text-2); }
+.hh-btn--ghost:hover { background: var(--hh-row-hover); color: var(--hh-text); }
+
+.hh-btn--destructive {
+  background: rgba(250,82,82,0.15); border-color: rgba(250,82,82,0.25); color: #FF8787;
+}
+.hh-btn--destructive:hover { background: rgba(250,82,82,0.25); color: #fff; }
+
+/* ---- Inputs -------------------------------------------------------------- */
+.hh-input, .hh-select, .hh-textarea {
+  width: 100%; padding: 8px 12px;
+  font-family: inherit; font-size: 14px; color: var(--hh-text);
+  background: var(--hh-input-bg);
+  border: 1px solid var(--hh-border); border-radius: var(--hh-radius-md);
+  transition: border-color var(--hh-t-fast) var(--hh-ease),
+              box-shadow var(--hh-t-fast) var(--hh-ease),
+              background-color var(--hh-t-fast) var(--hh-ease);
+}
+.hh-input::placeholder, .hh-textarea::placeholder { color: var(--hh-text-3); }
+.hh-input:focus, .hh-select:focus, .hh-textarea:focus {
+  outline: none;
+  background: var(--hh-input-focus-bg);
+  border-color: var(--hh-accent);
+  box-shadow: 0 0 0 2px var(--hh-accent-focus);
+}
+
+/* ---- Badges / pills ------------------------------------------------------ */
+.hh-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: var(--hh-radius-pill);
+  color: var(--hh-accent);
+  border: 1px solid color-mix(in srgb, var(--hh-accent) 22%, transparent);
+  background: color-mix(in srgb, var(--hh-accent) 12%, transparent);
+}
+.hh-badge--success { color: var(--hh-dot-green);  border-color: color-mix(in srgb, var(--hh-dot-green) 24%, transparent);  background: color-mix(in srgb, var(--hh-dot-green) 13%, transparent); }
+.hh-badge--warning { color: var(--hh-dot-orange); border-color: color-mix(in srgb, var(--hh-dot-orange) 26%, transparent); background: color-mix(in srgb, var(--hh-dot-orange) 14%, transparent); }
+.hh-badge--danger  { color: var(--hh-dot-red);    border-color: color-mix(in srgb, var(--hh-dot-red) 24%, transparent);    background: color-mix(in srgb, var(--hh-dot-red) 13%, transparent); }
+.hh-light .hh-badge          { color: color-mix(in srgb, var(--hh-accent) 72%, black); }
+.hh-light .hh-badge--success { color: color-mix(in srgb, var(--hh-dot-green) 72%, black); }
+.hh-light .hh-badge--warning { color: color-mix(in srgb, var(--hh-dot-orange) 72%, black); }
+.hh-light .hh-badge--danger  { color: color-mix(in srgb, var(--hh-dot-red) 72%, black); }
+
+/* ---- Chips (monospace tags) ---------------------------------------------- */
+.hh-chip {
+  font-family: var(--hh-font-mono); font-size: 11px;
+  color: var(--hh-chip-text); background: var(--hh-chip-bg);
+  border-radius: var(--hh-radius-sm); padding: 2px 6px;
+}
+
+/* ---- Status dots --------------------------------------------------------- */
+.hh-dot { display: inline-block; width: 10px; height: 10px; border-radius: 9999px; flex-shrink: 0; }
+.hh-dot--green  { background: var(--hh-dot-green); }
+.hh-dot--orange { background: var(--hh-dot-orange); }
+.hh-dot--red    { background: var(--hh-dot-red); }
+.hh-dot--blue   { background: var(--hh-dot-blue); }
+.hh-dot--purple { background: var(--hh-dot-purple); }
+
+/* ---- List rows ----------------------------------------------------------- */
+.hh-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--hh-row); border-radius: var(--hh-radius-md); padding: 12px 14px;
+  transition: background var(--hh-t-fast) var(--hh-ease), transform var(--hh-t-fast) var(--hh-ease);
+}
+.hh-row--interactive { cursor: pointer; }
+.hh-row--interactive:hover { background: var(--hh-row-hover); transform: translateX(3px); }
+@media (prefers-reduced-motion: reduce) { .hh-row--interactive:hover { transform: none; } }
+
+/* ---- Divider ------------------------------------------------------------- */
+.hh-divider { border: 0; border-top: 1px solid var(--hh-divider); margin: 16px 0; }
