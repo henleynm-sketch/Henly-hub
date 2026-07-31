@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { Loader2 } from "lucide-react";
 import { createApiKey, rotateApiKey, revokeApiKey, updateApiKeyScopes } from "@/app/(app)/settings/apiKeyActions";
 
@@ -228,7 +229,10 @@ export default function ApiKeysManager({
         </div>
       )}
 
-      {createOpen && (
+      {/* Portaled: hh-panel ancestors carry hover transforms + backdrop-filter,
+          which trap position:fixed. */}
+      {createOpen &&
+        createPortal(
         <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/55" onClick={() => setCreateOpen(false)} />
           <div className="hh-panel relative w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-[20px]">
@@ -272,7 +276,8 @@ export default function ApiKeysManager({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {reveal && <RevealModal keyValue={reveal} onClose={() => setReveal(null)} />}
@@ -291,7 +296,7 @@ function Row({ k, v }: { k: string; v: string }) {
 
 function RevealModal({ keyValue, onClose }: { keyValue: string; onClose: () => void }) {
   const [copied, setCopied] = useState(false);
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60" />
       <div className="hh-panel relative w-full max-w-md">
@@ -308,7 +313,8 @@ function RevealModal({ keyValue, onClose }: { keyValue: string; onClose: () => v
           <button className="btn-primary text-xs" onClick={onClose}>Done</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

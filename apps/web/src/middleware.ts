@@ -52,6 +52,9 @@ export default auth((req) => {
   if (isLoggedIn && !isPendingUser && onPending) {
     return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
+  if (nextUrl.pathname.startsWith("/settings/import") && req.auth?.user?.role !== "CEO") {
+    return NextResponse.redirect(new URL("/settings", nextUrl));
+  }
   return NextResponse.next();
 });
 

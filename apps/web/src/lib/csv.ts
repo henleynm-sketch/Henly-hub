@@ -62,32 +62,6 @@ function parseRow(line: string): string[] {
   return cells;
 }
 
-const FIELD_ALIASES: Record<string, string[]> = {
-  name: ["name", "full name", "company name", "client", "customer", "display name"],
-  firstName: ["first name", "given name", "fname"],
-  lastName: ["last name", "surname", "lname", "family name"],
-  email: ["email", "email address", "primary email", "e-mail"],
-  phone: ["phone", "phone number", "primary phone", "mobile", "cell", "telephone"],
-  address: ["address", "street address", "address line 1", "street"],
-  city: ["city", "town"],
-  state: ["state", "state/region", "region", "province"],
-  zip: ["zip", "zip code", "postal code", "postcode"],
-  source: ["source", "lead source", "original source", "original traffic source"],
-  stage: ["stage", "lifecycle stage", "deal stage", "status"],
-  notes: ["notes", "description", "comments", "about"],
-};
-
-export function inferMapping(headers: string[]): Record<string, string | null> {
-  const lowerToOriginal = new Map<string, string>();
-  for (const h of headers) lowerToOriginal.set(h.toLowerCase().trim(), h);
-  const mapping: Record<string, string | null> = {};
-  for (const [field, aliases] of Object.entries(FIELD_ALIASES)) {
-    const hit = aliases.find((a) => lowerToOriginal.has(a));
-    mapping[field] = hit ? lowerToOriginal.get(hit)! : null;
-  }
-  return mapping;
-}
-
 const STAGE_MAP: Record<string, string> = {
   subscriber: "LEAD",
   lead: "LEAD",
@@ -116,41 +90,6 @@ export function normalizeStage(raw: string | undefined | null): string {
   const valid = ["LEAD", "QUALIFIED", "PROPOSAL", "WON", "LOST", "ACTIVE", "PAST"];
   if (valid.includes(upper)) return upper;
   return "LEAD";
-}
-
-export function buildClientFromRow(
-  row: CsvRow,
-  mapping: Record<string, string | null>
-): {
-  name: string;
-  primaryEmail: string | null;
-  primaryPhone: string | null;
-  address: string | null;
-  city: string | null;
-  state: string | null;
-  zip: string | null;
-  source: string | null;
-  stage: string;
-  notes: string | null;
-} | null {
-  const get = (k: string) => (mapping[k] ? row[mapping[k]!] : "") || "";
-  const nameDirect = get("name").trim();
-  const first = get("firstName").trim();
-  const last = get("lastName").trim();
-  const name = nameDirect || [first, last].filter(Boolean).join(" ").trim();
-  if (!name) return null;
-  return {
-    name,
-    primaryEmail: get("email").trim() || null,
-    primaryPhone: get("phone").trim() || null,
-    address: get("address").trim() || null,
-    city: get("city").trim() || null,
-    state: get("state").trim() || null,
-    zip: get("zip").trim() || null,
-    source: get("source").trim() || null,
-    stage: normalizeStage(get("stage")),
-    notes: get("notes").trim() || null,
-  };
 }
 
 // Normalizes a raw "Deal Stage" string from a HubSpot deal CSV to a Henley

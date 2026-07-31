@@ -108,3 +108,102 @@ export async function detachJob(jobId: string): Promise<EngagementActionResult> 
   revalidatePath(`/jobs/${jobId}`);
   return { ok: true };
 }
+
+export type BulkEngagementResult = {
+  ok: boolean;
+  error?: string;
+  created?: number;
+  linked?: number;
+  skipped?: number;
+};
+
+// Already-linked jobs are always skipped and counted — never silently
+// re-linked to a different project.
+
+export async function bulkCreateEngagementPerJob(jobIds: string[]): Promise<BulkEngagementResult> {
+  const me = await office();
+  if (!me) return { ok: false, error: "Not authorized" };
+  const ids = [...new Set(jobIds.map(String).filter(Boolean))];
+  if (ids.length === 0) return { ok: false, error: "No jobs selected" };
+
+  let created = 0;
+  let linked = 0;
+  let skipped = 0;
+  for (const id of ids) {
+    const job = await prisma.project.findUnique({ where: { id } });
+    if (!job || job.engagementId) {
+      skipped++;
+      continue;
+    }
+    const e = await prisma.engagement.create({
+      data: {
+        name: job.name,
+        clientId: job.clientId,
+        description: job.description,
+        status: job.status === "CLOSED" ? "COMPLETE" : "ACTIVE",
+      },
+    });
+    // Guarded write: only claims a still-unlinked job, so a concurrent link
+    // elsewhere is skipped instead of overwritten.
+    const claimed = await prisma.project.updateMany({
+      where: { id: job.id, engagementId: null },
+      data: { engagementId: e.id },
+    });
+    if (claimed.count === 0) {
+      await prisma.engagement.delete({ where: { id: e.id } }).catch(() => {});
+      skipped++;
+      continue;
+    }
+    created++;
+    linked++;
+  }
+  revalidatePath("/jobs/projects");
+  revalidatePath("/jobs/list");
+  revalidatePath("/jobs");
+  return { ok: true, created, linked, skipped };
+}
+
+export async function bulkGroupIntoEngagement(
+  jobIds: string[],
+  name: string,
+): Promise<BulkEngagementResult> {
+  const me = await office();
+  if (!me) return { ok: false, error: "Not authorized" };
+  const trimmed = name.trim();
+  if (!trimmed) return { ok: false, error: "Project name is required" };
+  const ids = [...new Set(jobIds.map(String).filter(Boolean))];
+  if (ids.length === 0) return { ok: false, error: "No jobs selected" };
+
+  const jobs = await prisma.project.findMany({ where: { id: { in: ids } } });
+  const eligible = jobs.filter((j) => !j.engagementId);
+  const skipped = ids.length - eligible.length;
+  if (eligible.length === 0) {
+    return { ok: false, error: "All selected jobs are already linked to a project" };
+  }
+  const clientIds = new Set(eligible.map((j) => j.clientId));
+  if (clientIds.size > 1) {
+    return { ok: false, error: "Selected jobs belong to different clients — a project has one client" };
+  }
+
+  const e = await prisma.engagement.create({
+    data: { name: trimmed, clientId: eligible[0].clientId },
+  });
+  let linked = 0;
+  for (const j of eligible) {
+    // Guarded write — a job linked concurrently since the eligibility read is
+    // skipped, never stolen into the new project.
+    const claimed = await prisma.project.updateMany({
+      where: { id: j.id, engagementId: null },
+      data: { engagementId: e.id },
+    });
+    linked += claimed.count;
+  }
+  if (linked === 0) {
+    await prisma.engagement.delete({ where: { id: e.id } }).catch(() => {});
+    return { ok: false, error: "All selected jobs are already linked to a project" };
+  }
+  revalidatePath("/jobs/projects");
+  revalidatePath("/jobs/list");
+  revalidatePath("/jobs");
+  return { ok: true, created: 1, linked, skipped: skipped + (eligible.length - linked) };
+}

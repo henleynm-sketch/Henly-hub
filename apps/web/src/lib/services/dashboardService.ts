@@ -96,7 +96,7 @@ export async function getDashboardAnalytics(): Promise<DashboardAnalytics> {
     }),
     prisma.estimate.findMany({
       where: { status: { in: ["DRAFT", "SENT"] } },
-      select: { clientId: true, totalCents: true },
+      select: { clientId: true, totalCents: true, project: { select: { pipelineStage: true } } },
     }),
     prisma.project.findMany({
       where: { pipelineStage: { not: null }, archivedAt: null },
@@ -158,10 +158,10 @@ export async function getDashboardAnalytics(): Promise<DashboardAnalytics> {
   const warrantyMap = sum((g) => g.warrantyPhase);
   const stageCountMap = sum((g) => g.pipelineStage);
 
-  // Pipeline $ by stage: open (draft+sent) estimate totals attributed via the
-  // client's staged jobs. A client with several staged jobs attributes to its
-  // most-advanced stage; estimates with no staged client job land in
-  // "Unstaged" — attribution rule is shown in the panel hint.
+  // Pipeline $ by stage: open (draft+sent) estimate totals. An estimate linked
+  // directly to a staged job attributes to that job's stage; otherwise it
+  // falls back to the client's most-advanced staged job. Estimates with
+  // neither land in "Unstaged" — attribution rule is shown in the panel hint.
   const clientStage = new Map<string, number>();
   for (const j of stagedJobs) {
     const idx = PIPELINE_STAGE.indexOf(j.pipelineStage as (typeof PIPELINE_STAGE)[number]);
@@ -172,7 +172,10 @@ export async function getDashboardAnalytics(): Promise<DashboardAnalytics> {
   const stageValue = new Array(PIPELINE_STAGE.length).fill(0);
   let unstagedPipelineCents = 0;
   for (const e of openEstimates) {
-    const idx = clientStage.get(e.clientId);
+    const direct = e.project?.pipelineStage
+      ? PIPELINE_STAGE.indexOf(e.project.pipelineStage as (typeof PIPELINE_STAGE)[number])
+      : -1;
+    const idx = direct >= 0 ? direct : clientStage.get(e.clientId);
     if (idx === undefined) unstagedPipelineCents += e.totalCents;
     else stageValue[idx] += e.totalCents;
   }
