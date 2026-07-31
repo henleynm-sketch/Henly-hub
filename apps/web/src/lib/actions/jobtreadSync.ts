@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageTeam, type Role } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
-import { jtOrgListAll, parseFieldMap, type JobTreadFieldMap } from "@/lib/jobtread";
+import { jtQuery, jtOrgListAll, parseFieldMap, type JobTreadFieldMap } from "@/lib/jobtread";
 import {
   isValidJobStatus,
   isValidPipelineStage,
@@ -52,6 +52,29 @@ type JTJob = {
   description?: string | null;
   location?: { address?: string | null; latitude?: number | null; longitude?: number | null; account?: { id: string } | null } | null;
   customFieldValues?: { nodes?: CFV[] };
+  projectedPrice?: number | null;
+  projectedPriceWithTax?: number | null;
+  projectedCost?: number | null;
+  actualCost?: number | null;
+  costItems?: { count?: number; costSum?: number | null; priceWithTaxSum?: number | null };
+};
+
+type JTJobCostItem = {
+  id: string;
+  name: string;
+  cost?: number | null;
+  costCode?: { name?: string | null } | null;
+};
+
+type JTDocument = {
+  id: string;
+  name: string;
+  number?: number | null;
+  status?: string | null;
+  price?: number | null;
+  priceWithTax?: number | null;
+  tax?: number | null;
+  job?: { id: string } | null;
 };
 
 type JTDailyLog = {
@@ -69,6 +92,12 @@ export type EntityCounts = {
   [k: string]: number;
 };
 
+export type SyncWarning = {
+  kind: "job-no-client" | "daily-log-no-project";
+  label: string;
+  jobtreadJobId?: string;
+};
+
 export type JobTreadSyncSummary = {
   ranAt: string;
   customers?: EntityCounts;
@@ -77,7 +106,10 @@ export type JobTreadSyncSummary = {
   unmatchedTaxonomy?: Record<string, number>;
   dailyLogs?: EntityCounts;
   catalog?: { costTypes: EntityCounts; costCodes: EntityCounts; costItems: EntityCounts };
+  budgetItems?: EntityCounts;
+  estimates?: EntityCounts & { linked: number; noProject: number };
   todos?: { count: number };
+  warnings?: SyncWarning[];
   error?: string;
 };
 
@@ -323,10 +355,16 @@ export async function syncJobTreadJobs(): Promise<SyncActionResult> {
   try {
     const cf = await loadCFLookup();
     const fieldMap = await loadFieldMap();
-    const { counts, unmatched } = await jobsSync(cf, fieldMap);
+    const { counts, unmatched, budgetItems, warnings } = await jobsSync(cf, fieldMap);
     return {
       ok: true,
-      summary: { ranAt: new Date().toISOString(), jobs: counts, unmatchedTaxonomy: unmatched },
+      summary: {
+        ranAt: new Date().toISOString(),
+        jobs: counts,
+        unmatchedTaxonomy: unmatched,
+        budgetItems,
+        warnings,
+      },
     };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Job sync failed" };
@@ -348,6 +386,11 @@ const AXIS_VALIDATORS = {
 } as const;
 
 async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
+  // Money fields verified against the live Pave schema (introspected 2026-07):
+  // job-level projectedPrice/projectedPriceWithTax/projectedCost/actualCost
+  // exist but return null even for budgeted jobs, while the per-job costItems
+  // connection provably carries the budget (cost / priceWithTax sums). Prefer
+  // the job-level field when present, fall back to the sums.
   const jobs = await jtOrgListAll<JTJob>(
     "jobs",
     {
@@ -358,11 +401,22 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
       description: {},
       location: { address: {}, latitude: {}, longitude: {}, account: { id: {} } },
       customFieldValues: CFV_SHAPE,
+      projectedPrice: {},
+      projectedPriceWithTax: {},
+      projectedCost: {},
+      actualCost: {},
+      costItems: {
+        count: {},
+        costSum: { _: "sum", $: "cost" },
+        priceWithTaxSum: { _: "sum", $: "priceWithTax" },
+      },
     },
     { size: 25 },
   );
 
   const counts: EntityCounts & { noClient: number } = { created: 0, updated: 0, skipped: 0, noClient: 0 };
+  const budgetItems: EntityCounts = { created: 0, updated: 0, skipped: 0 };
+  const warnings: SyncWarning[] = [];
   const unmatched: Record<string, number> = {
     pipelineStage: 0,
     constructionPhase: 0,
@@ -397,6 +451,21 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
       else unmatched.status++;
     }
 
+    // Contract / projected cost — JobTread wins when it has a value at all
+    // (a budgeted job whose price sums to 0 IS a JT value of 0); jobs with no
+    // budget and no job-level figure leave the Hub fields untouched.
+    const hasBudget = (j.costItems?.count ?? 0) > 0;
+    if (j.projectedPriceWithTax != null) {
+      data.contractCents = cents(j.projectedPriceWithTax);
+    } else if (hasBudget) {
+      data.contractCents = cents(j.costItems?.priceWithTaxSum);
+    }
+    if (j.projectedCost != null) {
+      data.budgetCents = cents(j.projectedCost);
+    } else if (hasBudget) {
+      data.budgetCents = cents(j.costItems?.costSum);
+    }
+
     const existing = await prisma.project.findUnique({ where: { jobtreadJobId: j.id } });
 
     // Job number → Project.code, only when Hub hasn't assigned one (and the
@@ -409,7 +478,9 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
       return number;
     }
 
+    let hubProjectId: string | null = null;
     if (existing) {
+      hubProjectId = existing.id;
       const code = await codeFor(existing.code);
       if (code) data.code = code;
       const addressChanged =
@@ -444,6 +515,7 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
         : null;
       if (!client) {
         counts.noClient++;
+        warnings.push({ kind: "job-no-client", label: j.name, jobtreadJobId: j.id });
         continue;
       }
       const code = await codeFor(null);
@@ -455,17 +527,101 @@ async function jobsSync(cf: CFLookup, fieldMap: JobTreadFieldMap) {
         data.geocodedAt = new Date();
         data.geocodeSource = "jobtread";
       }
-      await prisma.project.create({
+      const created = await prisma.project.create({
         data: {
           ...(data as object),
           clientId: client.id,
           name: j.name,
         } as Parameters<typeof prisma.project.create>[0]["data"],
       });
+      hubProjectId = created.id;
+      counts.created++;
+    }
+
+    if (hubProjectId && hasBudget) {
+      await jobBudgetItemsSync(j.id, hubProjectId, budgetItems);
+    }
+    // Job-level actual cost has no per-item breakdown in JT — it lands on one
+    // aggregate row so /financials actuals stay honest without double-counting.
+    if (hubProjectId && j.actualCost != null) {
+      const actualData = {
+        projectId: hubProjectId,
+        category: "JobTread",
+        description: "Actual cost to date (JobTread)",
+        actualCents: cents(j.actualCost),
+      };
+      const row = await prisma.budgetItem.findUnique({ where: { jobtreadId: `${j.id}:actual` } });
+      if (row) {
+        if (changed(row as unknown as Record<string, unknown>, actualData)) {
+          await prisma.budgetItem.update({ where: { id: row.id }, data: actualData });
+          budgetItems.updated++;
+        } else {
+          budgetItems.skipped++;
+        }
+      } else {
+        await prisma.budgetItem.create({ data: { ...actualData, jobtreadId: `${j.id}:actual` } });
+        budgetItems.created++;
+      }
+    }
+  }
+  return { counts, unmatched, budgetItems, warnings };
+}
+
+async function fetchJobCostItems(jobtreadJobId: string): Promise<JTJobCostItem[]> {
+  const out: JTJobCostItem[] = [];
+  let page: string | undefined;
+  for (let i = 0; i < 20; i++) {
+    const $: Record<string, unknown> = { size: 50 };
+    if (page) $.page = page;
+    const res = await jtQuery<{
+      job?: { costItems?: { nodes?: JTJobCostItem[]; nextPage?: string | null } };
+    }>({
+      job: {
+        $: { id: jobtreadJobId },
+        costItems: {
+          $,
+          nextPage: {},
+          nodes: { id: {}, name: {}, cost: {}, costCode: { name: {} } },
+        },
+      },
+    });
+    const conn = res.job?.costItems;
+    if (!conn) break;
+    out.push(...(conn.nodes ?? []));
+    if (!conn.nextPage || (conn.nodes ?? []).length < 50) break;
+    page = conn.nextPage;
+  }
+  return out;
+}
+
+// Upserts keyed on the JT cost-item id. estimateCents mirrors JT projected
+// cost; actualCents is never touched here — actuals belong to QBO/Hub.
+async function jobBudgetItemsSync(
+  jobtreadJobId: string,
+  projectId: string,
+  counts: EntityCounts,
+): Promise<void> {
+  const items = await fetchJobCostItems(jobtreadJobId);
+  for (const it of items) {
+    const data = {
+      projectId,
+      category: str(it.costCode?.name) ?? "JobTread",
+      description: it.name,
+      estimateCents: cents(it.cost),
+    };
+    const existing = await prisma.budgetItem.findUnique({ where: { jobtreadId: it.id } });
+    if (existing) {
+      if (changed(existing as unknown as Record<string, unknown>, data)) {
+        await prisma.budgetItem.update({ where: { id: existing.id }, data });
+        counts.updated++;
+      } else {
+        counts.skipped++;
+      }
+    } else {
+      await prisma.budgetItem.create({ data: { ...data, jobtreadId: it.id } });
       counts.created++;
     }
   }
-  return { counts, unmatched };
 }
 
 // ── 4. Daily logs ────────────────────────────────────────────────────────────
@@ -475,14 +631,17 @@ export async function syncJobTreadDailyLogs(): Promise<SyncActionResult> {
   if (!me) return { ok: false, error: "Not authorized" };
   try {
     const cf = await loadCFLookup();
-    const counts = await dailyLogsSync(cf, me.user.id);
-    return { ok: true, summary: { ranAt: new Date().toISOString(), dailyLogs: counts } };
+    const { counts, warnings } = await dailyLogsSync(cf, me.user.id);
+    return { ok: true, summary: { ranAt: new Date().toISOString(), dailyLogs: counts, warnings } };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Daily log sync failed" };
   }
 }
 
-async function dailyLogsSync(cf: CFLookup, syncUserId: string): Promise<EntityCounts> {
+async function dailyLogsSync(
+  cf: CFLookup,
+  syncUserId: string,
+): Promise<{ counts: EntityCounts; warnings: SyncWarning[] }> {
   const logs = await jtOrgListAll<JTDailyLog>(
     "dailyLogs",
     { id: {}, date: {}, notes: {}, job: { id: {} }, customFieldValues: CFV_SHAPE },
@@ -490,12 +649,18 @@ async function dailyLogsSync(cf: CFLookup, syncUserId: string): Promise<EntityCo
   );
 
   const counts: EntityCounts = { created: 0, updated: 0, skipped: 0, noProject: 0 };
+  const warnings: SyncWarning[] = [];
   for (const l of logs) {
     const project = l.job?.id
       ? await prisma.project.findUnique({ where: { jobtreadJobId: l.job.id } })
       : null;
     if (!project) {
       counts.noProject++;
+      warnings.push({
+        kind: "daily-log-no-project",
+        label: `Daily log ${str(l.date) ?? l.id}`,
+        jobtreadJobId: l.job?.id,
+      });
       continue;
     }
 
@@ -530,10 +695,124 @@ async function dailyLogsSync(cf: CFLookup, syncUserId: string): Promise<EntityCo
       counts.created++;
     }
   }
+  return { counts, warnings };
+}
+
+// ── 5. Estimates (JT customerOrder documents → Hub estimates, job-linked) ────
+
+const DOC_STATUS_MAP: Record<string, string> = {
+  draft: "DRAFT",
+  pending: "SENT",
+  approved: "ACCEPTED",
+  denied: "DECLINED",
+};
+
+export async function syncJobTreadEstimates(): Promise<SyncActionResult> {
+  const me = await ceo();
+  if (!me) return { ok: false, error: "Not authorized" };
+  try {
+    const counts = await estimatesSync(me.user.id);
+    return { ok: true, summary: { ranAt: new Date().toISOString(), estimates: counts } };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Estimate sync failed" };
+  }
+}
+
+async function estimatesSync(syncUserId: string): Promise<EntityCounts & { linked: number; noProject: number }> {
+  const counts: EntityCounts & { linked: number; noProject: number } = {
+    created: 0,
+    updated: 0,
+    skipped: 0,
+    linked: 0,
+    noProject: 0,
+  };
+
+  // Document type/status values verified against the live Pave schema:
+  // documentType oneOf bidRequest|customerInvoice|customerOrder|vendorBill|
+  // vendorOrder — customerOrder is the JT estimate/proposal; documentStatus
+  // oneOf draft|pending|approved|denied.
+  const docs = await jtOrgListAll<JTDocument>(
+    "documents",
+    {
+      id: {},
+      name: {},
+      number: {},
+      status: {},
+      price: {},
+      priceWithTax: {},
+      tax: {},
+      job: { id: {} },
+    },
+    { where: ["type", "=", "customerOrder"], size: 25 },
+  );
+
+  for (const d of docs) {
+    const project = d.job?.id
+      ? await prisma.project.findUnique({
+          where: { jobtreadJobId: d.job.id },
+          select: { id: true, clientId: true },
+        })
+      : null;
+    if (!project) {
+      counts.noProject++;
+      continue;
+    }
+
+    const data = {
+      clientId: project.clientId,
+      projectId: project.id,
+      title: d.name,
+      status: DOC_STATUS_MAP[String(d.status ?? "").toLowerCase()] ?? "DRAFT",
+      subtotalCents: cents(d.price),
+      taxCents: cents(d.tax),
+      totalCents: cents(d.priceWithTax),
+    };
+    const existing = await prisma.estimate.findUnique({ where: { jobtreadDocumentId: d.id } });
+    if (existing) {
+      if (changed(existing as unknown as Record<string, unknown>, data)) {
+        await prisma.estimate.update({ where: { id: existing.id }, data });
+        counts.updated++;
+      } else {
+        counts.skipped++;
+      }
+    } else {
+      const base = `JT-${d.number ?? d.id}`;
+      const taken = await prisma.estimate.findUnique({ where: { number: base }, select: { id: true } });
+      await prisma.estimate.create({
+        data: {
+          ...data,
+          jobtreadDocumentId: d.id,
+          number: taken ? `JT-${d.id}` : base,
+          authorId: syncUserId,
+        },
+      });
+      counts.created++;
+    }
+  }
+
+  // Deterministic backfill for Hub-native estimates: a client with exactly one
+  // live job is unambiguous — link so the pipeline chart can attribute the
+  // estimate to that job's stage. Multi-job or job-less clients stay unlinked
+  // ("unstaged" stays honest).
+  const unlinked = await prisma.estimate.findMany({
+    where: { projectId: null },
+    select: { id: true, clientId: true },
+  });
+  for (const e of unlinked) {
+    const jobs = await prisma.project.findMany({
+      where: { clientId: e.clientId, archivedAt: null },
+      select: { id: true },
+      take: 2,
+    });
+    if (jobs.length === 1) {
+      await prisma.estimate.update({ where: { id: e.id }, data: { projectId: jobs[0].id } });
+      counts.linked++;
+    }
+  }
   return counts;
 }
 
-// ── 5. To-dos (display-only — never persisted; Henley Tasks is the master) ───
+// ── 6. To-dos (display-only — never persisted; Henley Tasks is the master) ───
 
 async function todosCount(): Promise<number> {
   const todos = await jtOrgListAll<{ id: string }>(
@@ -700,7 +979,11 @@ export async function syncAllJobTread(): Promise<SyncActionResult> {
     const jobsRes = await jobsSync(cf, fieldMap);
     summary.jobs = jobsRes.counts;
     summary.unmatchedTaxonomy = jobsRes.unmatched;
-    summary.dailyLogs = await dailyLogsSync(cf, me.user.id);
+    summary.budgetItems = jobsRes.budgetItems;
+    const logsRes = await dailyLogsSync(cf, me.user.id);
+    summary.dailyLogs = logsRes.counts;
+    summary.warnings = [...jobsRes.warnings, ...logsRes.warnings];
+    summary.estimates = await estimatesSync(me.user.id);
     summary.catalog = await catalogSync();
     summary.todos = { count: await todosCount() };
   } catch (err) {
@@ -725,5 +1008,8 @@ export async function syncAllJobTread(): Promise<SyncActionResult> {
   revalidatePath("/clients");
   revalidatePath("/jobs");
   revalidatePath("/jobs/catalog");
+  revalidatePath("/financials");
+  revalidatePath("/estimates");
+  revalidatePath("/dashboard");
   return summary.error ? { ok: false, error: summary.error, summary } : { ok: true, summary };
 }

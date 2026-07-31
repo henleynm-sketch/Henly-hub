@@ -66,6 +66,7 @@ export default async function JobsListPage({
             pipelineStage: p.pipelineStage,
             constructionPhase: p.constructionPhase,
             jobtread: Boolean(p.jobtreadJobId),
+            hasProject: Boolean(p.engagementId),
           }))}
         />
       </div>

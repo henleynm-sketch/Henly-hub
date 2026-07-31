@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { Loader2 } from "lucide-react";
 import {
   saveM365Config,
@@ -174,7 +175,8 @@ export default function M365Card({
       )}
 
       {/* Configure / Edit sheet */}
-      {sheetOpen && (
+      {sheetOpen &&
+        createPortal(
         <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/55" onClick={() => setSheetOpen(false)} />
           <div className="hh-panel relative w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-[20px]">
@@ -235,11 +237,13 @@ export default function M365Card({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Disconnect confirm */}
-      {confirmDisconnect && (
+      {confirmDisconnect &&
+        createPortal(
         <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/55" onClick={() => setConfirmDisconnect(false)} />
           <div className="hh-panel relative w-full max-w-sm">
@@ -266,7 +270,8 @@ export default function M365Card({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

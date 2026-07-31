@@ -2,8 +2,9 @@ import PageHeader from "@/components/PageHeader";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { canViewAllProjects, type Role } from "@/lib/roles";
-import { prisma } from "@/lib/prisma";
-import { parseCsv, inferMapping, buildClientFromRow, normalizePipelineStage, projectStatusForStage } from "@/lib/csv";
+import { parseCsv } from "@/lib/csv";
+import { inferImportMapping } from "@/lib/importPresets";
+import { runImport } from "@/lib/services/importService";
 import { revalidatePath } from "next/cache";
 
 export default async function ImportPage({
@@ -16,6 +17,7 @@ export default async function ImportPage({
     pc?: string;
     ps?: string;
     sn?: string;
+    us?: string;
   }>;
 }) {
   const session = await auth();
@@ -33,107 +35,20 @@ export default async function ImportPage({
     const file = formData.get("file") as File | null;
     if (!file) return;
     const text = await file.text();
-    const { headers, rows } = parseCsv(text);
-    const m = inferMapping(headers);
-
-    let clientsCreated = 0;
-    let clientsFound = 0;
-    let projectsCreated = 0;
-    let projectsSkipped = 0;
-    let skippedNoName = 0;
-
-    for (const row of rows) {
-      const data = buildClientFromRow(row, m);
-      if (!data) {
-        skippedNoName++;
-        continue;
-      }
-
-      // Normalize pipeline stage from "Deal Stage" / "Stage" column
-      const rawStage = m["stage"] ? (row[m["stage"]!] ?? "") : "";
-      const pipelineStage = normalizePipelineStage(rawStage) ?? "New Lead";
-      const status = projectStatusForStage(pipelineStage);
-
-      // Find or create client -- always import if name present, email optional
-      let clientId: string;
-      if (data.primaryEmail) {
-        const existing = await prisma.client.findFirst({
-          where: { primaryEmail: data.primaryEmail },
-          select: { id: true },
-        });
-        if (existing) {
-          clientId = existing.id;
-          clientsFound++;
-        } else {
-          const created = await prisma.client.create({
-            data: {
-              name: data.name,
-              primaryEmail: data.primaryEmail,
-              primaryPhone: data.primaryPhone,
-              address: data.address,
-              city: data.city,
-              state: data.state,
-              zip: data.zip,
-              source: data.source,
-              leadSource: data.source,
-              stage: data.stage,
-              notes: data.notes,
-            },
-          });
-          clientId = created.id;
-          clientsCreated++;
-        }
-      } else {
-        const created = await prisma.client.create({
-          data: {
-            name: data.name,
-            primaryEmail: data.primaryEmail,
-            primaryPhone: data.primaryPhone,
-            address: data.address,
-            city: data.city,
-            state: data.state,
-            zip: data.zip,
-            source: data.source,
-            leadSource: data.source,
-            stage: data.stage,
-            notes: data.notes,
-          },
-        });
-        clientId = created.id;
-        clientsCreated++;
-      }
-
-      // Idempotency: skip if project with this name already exists for client
-      const projectName = data.name;
-      const existingProject = await prisma.project.findFirst({
-        where: { clientId, name: projectName },
-        select: { id: true },
-      });
-      if (existingProject) {
-        projectsSkipped++;
-      } else {
-        await prisma.project.create({
-          data: {
-            clientId,
-            name: projectName,
-            pipelineStage,
-            status,
-            description: data.notes,
-          },
-        });
-        projectsCreated++;
-      }
-    }
+    const { headers } = parseCsv(text);
+    const mapping = inferImportMapping(headers, "generic");
+    const summary = await runImport(text, mapping, { write: true });
 
     revalidatePath("/clients");
     revalidatePath("/crm");
     const params = new URLSearchParams({
       result: "ok",
-      cc: String(clientsCreated),
-      cf: String(clientsFound),
-      pc: String(projectsCreated),
-      ps: String(projectsSkipped),
-      sn: String(skippedNoName),
+      cc: String(summary.clientsCreated),
+      cf: String(summary.clientsMatched),
+      pc: String(summary.jobsCreated),
+      ps: String(summary.jobsSkipped),
+      sn: String(summary.skipped.length),
+      us: String(summary.unstaged),
     });
     redirect(`/import?${params.toString()}`);
   }
@@ -160,7 +75,7 @@ export default async function ImportPage({
                 className="input input-file mt-1"
               />
               <p className="mt-2 hh-caption">
-                Must include a header row. Each row creates a client (or matches by email) and a pipeline project. Re-importing the same file is safe.
+                Must include a header row. Each row creates a client (or matches by email, phone, or exact name) and a pipeline project. Re-importing the same file is safe. For source presets, column mapping, and a dry-run preview, use Settings &rarr; Data import.
               </p>
             </div>
             <button className="btn-primary" type="submit">Import</button>
@@ -182,6 +97,9 @@ export default async function ImportPage({
                 </p>
                 {sp.sn !== "0" && (
                   <p>Skipped {sp.sn} row{sp.sn === "1" ? "" : "s"} with no name.</p>
+                )}
+                {sp.us !== "0" && (
+                  <p>{sp.us} row{sp.us === "1" ? "" : "s"} had no recognizable stage and imported as unstaged.</p>
                 )}
               </div>
             )}
@@ -214,6 +132,7 @@ export default async function ImportPage({
               <li>New Lead through Negotiation &rarr; <code>PRESALE</code></li>
               <li>Closed Won &rarr; <code>OPEN</code></li>
               <li>Closed Lost &rarr; <code>CLOSED</code></li>
+              <li>Unrecognized stages import as unstaged (never guessed)</li>
             </ul>
           </section>
         </aside>

@@ -18,13 +18,22 @@ const TASKS_UPDATE_PATH = (id: string) => `/tasks/${encodeURIComponent(id)}`;
 const TASKS_DELETE_METHOD = "DELETE";
 const TASKS_DELETE_PATH = (id: string) => `/tasks/${encodeURIComponent(id)}`;
 
+// The DB row is what Settings → Test connection saves, so it always wins; the
+// env var is a fallback for fresh installs only. An empty or relative value
+// (e.g. HENLEY_TASKS_API_URL= left blank in .env) must never reach fetch —
+// Node's fetch rejects relative URLs with "Failed to parse URL".
+function normalizeBase(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed || !/^https?:\/\//i.test(trimmed)) return null;
+  return trimmed.replace(/\/+$/, "");
+}
+
 async function getCredentials(): Promise<{ apiBaseUrl: string; apiKey: string } | null> {
   const row = await prisma.henleyTasksConfig.findUnique({ where: { id: "singleton" } }).catch(() => null);
   const apiKey = row?.apiKey ?? process.env.HENLEY_TASKS_API_KEY ?? null;
   if (!apiKey) return null;
-  const apiBaseUrl = (row?.apiBaseUrl && row.apiBaseUrl !== DEFAULT_BASE)
-    ? row.apiBaseUrl
-    : (process.env.HENLEY_TASKS_API_URL ?? row?.apiBaseUrl ?? DEFAULT_BASE);
+  const apiBaseUrl =
+    normalizeBase(row?.apiBaseUrl) ?? normalizeBase(process.env.HENLEY_TASKS_API_URL) ?? DEFAULT_BASE;
   return { apiBaseUrl, apiKey };
 }
 
