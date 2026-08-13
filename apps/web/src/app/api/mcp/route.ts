@@ -1,12 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { getUserForBearer } from "@/lib/oauth";
 import { prisma } from "@/lib/prisma";
 import { toolsForRole, type ToolCtx } from "@/lib/assistant/tools";
 import { rateLimit } from "@/lib/api/rateLimit";
+import { canonicalOrigin } from "@/lib/base-url";
 
 /**
  * Remote MCP endpoint (streamable HTTP, JSON response mode) exposing the SAME
- * role-scoped tool registry as the in-Hub assistant — one registry, two
+ * role-scoped tool registry as the in-Hub assistant â€” one registry, two
  * transports. The bearer token maps to a Hub user; every call executes under
  * that user's role exactly like a session. The client (Claude) is never
  * trusted: role filtering + server-side scoping both apply.
@@ -28,7 +29,7 @@ const rpcError = (id: number | string | null, code: number, message: string) =>
   NextResponse.json({ jsonrpc: "2.0", id, error: { code, message } });
 
 function unauthorized(req: NextRequest) {
-  const origin = req.nextUrl.origin;
+  const origin = canonicalOrigin(req.nextUrl.origin);
   return new NextResponse(JSON.stringify({ error: "unauthorized" }), {
     status: 401,
     headers: {
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
   const rl = rateLimit(`mcp:${bearer.userId}`, "write");
   if (!rl.ok) {
     return NextResponse.json(
-      { jsonrpc: "2.0", id: null, error: { code: -32000, message: `Rate limited — retry in ${rl.retryAfterSec}s` } },
+      { jsonrpc: "2.0", id: null, error: { code: -32000, message: `Rate limited â€” retry in ${rl.retryAfterSec}s` } },
       { status: 429 },
     );
   }
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest) {
           capabilities: { tools: { listChanged: false } },
           serverInfo: { name: "henley-hub", title: "Henley Hub", version: "1.0.0" },
           instructions:
-            'Henley Hub for Henley Contracting. NAMING: a "Project" is a client engagement grouping Jobs; a "Job" is the operational jobsite. You act as the signed-in Hub user — role limits apply server-side. Only real data; money values are integer cents.',
+            'Henley Hub for Henley Contracting. NAMING: a "Project" is a client engagement grouping Jobs; a "Job" is the operational jobsite. You act as the signed-in Hub user â€” role limits apply server-side. Only real data; money values are integer cents.',
         },
       });
 
@@ -151,7 +152,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Streamable HTTP: GET without an SSE stream requirement → 405 is compliant.
+// Streamable HTTP: GET without an SSE stream requirement â†’ 405 is compliant.
 export function GET() {
   return new NextResponse(null, { status: 405 });
 }

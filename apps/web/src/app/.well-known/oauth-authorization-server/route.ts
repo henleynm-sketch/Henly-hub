@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { canonicalOrigin } from "@/lib/base-url";
 
 // RFC 8414 Authorization Server Metadata. OAuth 2.1 posture: code + PKCE S256
 // only, public clients, no implicit/password grants.
 export function GET(req: NextRequest) {
-  const origin = req.nextUrl.origin;
+  const origin = canonicalOrigin(req.nextUrl.origin);
   return NextResponse.json({
     issuer: origin,
     authorization_endpoint: `${origin}/oauth/authorize`,
