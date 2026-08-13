@@ -92,12 +92,18 @@ export default async function AuthorizePage({ searchParams }: { searchParams: Pr
     await prisma.auditLog.create({
       data: { actorId: me.user.id, action: "oauth.grant", target: client!.name },
     });
-    redirect(back({ code }));
+    const u = new URL(redirectUri);
+    u.searchParams.set("code", code);
+    if (state) u.searchParams.set("state", state);
+    redirect(u.toString());
   }
 
   async function deny() {
     "use server";
-    redirect(back({ error: "access_denied" }));
+    const u = new URL(redirectUri);
+    u.searchParams.set("error", "access_denied");
+    if (state) u.searchParams.set("state", state);
+    redirect(u.toString());
   }
 
   return (
