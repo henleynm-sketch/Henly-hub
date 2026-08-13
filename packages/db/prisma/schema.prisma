@@ -45,6 +45,7 @@ model User {
   apiKeyAudits   ApiKeyAudit[] @relation("ApiKeyAudit")
   scheduleTasks  ScheduleTask[] @relation("ScheduleTaskAssignee")
   crmActivities  CrmActivity[] @relation("CrmActivityAuthor")
+  checklistSteps ProjectChecklistStep[] @relation("ChecklistAssignee")
   createdAt   DateTime @default(now())
 }
 
@@ -142,6 +143,7 @@ model Project {
   changeOrders ChangeOrder[]
   warrantyItems WarrantyItem[]
   estimates    Estimate[] @relation("ProjectEstimates")
+  checklistSteps ProjectChecklistStep[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -918,4 +920,79 @@ model BrandingConfig {
   scrim             Int      @default(40)      // 0-70 overlay darkness %
   mode              String   @default("light") // light | dark | both
   updatedAt         DateTime @updatedAt
+}
+
+// ============================================================================
+// SOP CHECKLIST ENGINE
+// Gated, stage-based process from Henley's Project SOP. Seeded from
+// packages/db/prisma/data/henley-sop.json (the ADDRESS Project Checklists
+// workbook). A ChecklistTemplate is one SOP step; its items are the tasks;
+// isGate marks the GO/NO-GO gate that must pass before a project advances a
+// stage. Replaces the ungated pipelineStage/constructionPhase dropdowns as the
+// mechanism that actually drives a job through the process.
+// ============================================================================
+
+model ChecklistTemplate {
+  id           String   @id @default(cuid())
+  stage        String   // e.g. "1 · Lead → Design"
+  step         String   @unique // SOP step id, e.g. "1.1", "2.03"
+  title        String
+  ownerRole    String?  // SOP assignee role (Client Experience Concierge, GM, ...)
+  target       String?  // free-text target (e.g. "Complete within 24 hours")
+  orderIndex   Int      @default(0)
+  isGate       Boolean  @default(true) // every SOP step ends in a GO/NO-GO gate
+  gateTitle    String?
+  items        ChecklistTemplateItem[]
+  projectSteps ProjectChecklistStep[]
+  createdAt    DateTime @default(now())
+
+  @@index([stage])
+}
+
+model ChecklistTemplateItem {
+  id         String            @id @default(cuid())
+  templateId String
+  template   ChecklistTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  section    String?
+  task       String
+  orderIndex Int               @default(0)
+
+  @@index([templateId])
+}
+
+// Per-project instance of an SOP step. A stage cannot advance until every gate
+// step in the prior stage has gatePassedAt set (enforced in the service layer).
+model ProjectChecklistStep {
+  id           String                 @id @default(cuid())
+  projectId    String
+  project      Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  templateId   String
+  template     ChecklistTemplate      @relation(fields: [templateId], references: [id])
+  status       String                 @default("PENDING") // PENDING | IN_PROGRESS | DONE | SKIPPED | NO_GO
+  assigneeId   String?
+  assignee     User?                  @relation("ChecklistAssignee", fields: [assigneeId], references: [id])
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  gatePassedAt DateTime?              // set when the GO/NO-GO gate passes
+  notes        String?
+  items        ProjectChecklistItem[]
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  @@unique([projectId, templateId])
+  @@index([projectId])
+}
+
+model ProjectChecklistItem {
+  id          String               @id @default(cuid())
+  stepId      String
+  step        ProjectChecklistStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  section     String?
+  task        String
+  checked     Boolean              @default(false)
+  checkedAt   DateTime?
+  checkedById String?
+  orderIndex  Int                  @default(0)
+
+  @@index([stepId])
 }
