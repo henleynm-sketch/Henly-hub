@@ -11,6 +11,7 @@
     "db:seed:quo": "dotenv -e ../../.env -- tsx prisma/seed-quo-messages.ts",
     "db:seed:real": "dotenv -e ../../.env -- tsx prisma/seed-real-data.ts",
     "db:seed:bt": "dotenv -e ../../.env -- tsx prisma/seed-bt.ts",
+    "db:seed:sop": "dotenv -e ../../.env -- tsx prisma/seed-sop.ts",
     "db:reset": "dotenv -e ../../.env -- prisma db push --force-reset && npm run db:seed"
   },
   "prisma": {

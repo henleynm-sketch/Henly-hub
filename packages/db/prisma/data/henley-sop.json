@@ -1,0 +1,3775 @@
+{
+ "source": "ADDRESS__Project_Checklists.xlsx",
+ "stages": [
+  "1 \u00b7 Lead \u2192 Design",
+  "2 \u00b7 Design & Selections",
+  "2.5 \u00b7 Coordination & Permits",
+  "3 \u00b7 Construction",
+  "4 \u00b7 Interior Finishing",
+  "5 \u00b7 Cleanup & Handoff"
+ ],
+ "steps": [
+  {
+   "stage": "1 \u00b7 Lead \u2192 Design",
+   "step": "1.1",
+   "title": "LEAD INTAKE & QUALIFYING FORM",
+   "ownerRole": "Client Experience Concierge",
+   "targetDays": "Complete within 24 hours of lead inflow",
+   "items": [
+    {
+     "section": "INITIAL CONTACT",
+     "task": "Call lead using Lead Intake Script"
+    },
+    {
+     "section": "INITIAL CONTACT",
+     "task": "If no answer: send follow-up text/email per script"
+    },
+    {
+     "section": "INITIAL CONTACT",
+     "task": "Log communication attempts in Buildertrend Lead"
+    },
+    {
+     "section": "INITIAL CONTACT",
+     "task": "Log Quo AI Summary in Buildertrend Lead"
+    },
+    {
+     "section": "INITIAL CONTACT",
+     "task": "Record referral source"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Full Name"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Phone Number"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Email Address"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Street Address"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "City / Town"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Scope Category"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Budget Range"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Desired Start Timeline"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Referral Source"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "\"Why\" & Urgency Notes"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Project Type (e.g. addition, renovation, new build)"
+    },
+    {
+     "section": "CLIENT DATA CAPTURE",
+     "task": "Major Elements (e.g. bathroom, bedrooms, fireplace)"
+    },
+    {
+     "section": "CONTACT & AUTHORITY GATE",
+     "task": "Live contact made? (phone or real email exchange)"
+    },
+    {
+     "section": "CONTACT & AUTHORITY GATE",
+     "task": "Contact is the decision-maker? (homeowner / authorized)"
+    },
+    {
+     "section": "CONTACT & AUTHORITY GATE",
+     "task": "Scope clearly defined at high level?"
+    },
+    {
+     "section": "DESIGN PHASE ACCEPTANCE",
+     "task": "Client acknowledges design + permit phase required BEFORE construction pricing"
+    },
+    {
+     "section": "DESIGN PHASE ACCEPTANCE",
+     "task": "Client accepts design budget range ($10k\u2013$15k+)"
+    },
+    {
+     "section": "FINANCIAL REALISM CHECK",
+     "task": "Client comfortable with construction starting around six figures"
+    },
+    {
+     "section": "NEXT ACTION COMMITMENT",
+     "task": "Next step booked (site visit / paid consult / declined)"
+    },
+    {
+     "section": "NEXT ACTION COMMITMENT",
+     "task": "Connected with client on Pinterest"
+    },
+    {
+     "section": "NEXT ACTION COMMITMENT",
+     "task": "On-Site Consultation date/time"
+    },
+    {
+     "section": "BUILDERTREND UPDATE",
+     "task": "All required fields logged in Buildertrend Lead"
+    },
+    {
+     "section": "BUILDERTREND UPDATE",
+     "task": "Lead status set to:"
+    },
+    {
+     "section": "BUILDERTREND UPDATE",
+     "task": "Owner assigned to lead"
+    }
+   ],
+   "gate": "GO / NO-GO DECISION"
+  },
+  {
+   "stage": "1 \u00b7 Lead \u2192 Design",
+   "step": "1.2",
+   "title": "ON-SITE PROJECT CONSULTATION",
+   "ownerRole": "General Manager",
+   "targetDays": "Complete within 7 days of lead intake (D",
+   "items": [
+    {
+     "section": "ARRIVAL & CONTEXT",
+     "task": "Confirm homeowner(s) present and decision-maker(s) identified"
+    },
+    {
+     "section": "ARRIVAL & CONTEXT",
+     "task": "Reconfirm high-level scope: project type, addition area(s), major elements"
+    },
+    {
+     "section": "ARRIVAL & CONTEXT",
+     "task": "Restate purpose: \"Today is about confirming feasibility and constraints.\""
+    },
+    {
+     "section": "SPACE & SCOPE WALKTHROUGH",
+     "task": "Estimated square footage"
+    },
+    {
+     "section": "SPACE & SCOPE WALKTHROUGH",
+     "task": "Lot size (acres)"
+    },
+    {
+     "section": "SPACE & SCOPE WALKTHROUGH",
+     "task": "Number of rooms"
+    },
+    {
+     "section": "SPACE & SCOPE WALKTHROUGH",
+     "task": "Bathroom(s) count"
+    },
+    {
+     "section": "SPACE & SCOPE WALKTHROUGH",
+     "task": "Ceiling heights"
+    },
+    {
+     "section": "SPACE & SCOPE WALKTHROUGH",
+     "task": "Structural indicators (bearing walls, spans, garage framing)"
+    },
+    {
+     "section": "SPACE & SCOPE WALKTHROUGH",
+     "task": "Client must-haves (limit to 3\u20135)"
+    },
+    {
+     "section": "SPACE & SCOPE WALKTHROUGH",
+     "task": "Client nice-to-haves"
+    },
+    {
+     "section": "CONSTRAINTS & RISK CAPTURE (CRITICAL)",
+     "task": "Access limitations (driveway, staging, neighbors)"
+    },
+    {
+     "section": "CONSTRAINTS & RISK CAPTURE (CRITICAL)",
+     "task": "Structural risks (framing adequacy, foundations)"
+    },
+    {
+     "section": "CONSTRAINTS & RISK CAPTURE (CRITICAL)",
+     "task": "Zoning risks (setbacks, height, lot coverage)"
+    },
+    {
+     "section": "CONSTRAINTS & RISK CAPTURE (CRITICAL)",
+     "task": "Mechanical constraints (HVAC routing, plumbing, electrical capacity)"
+    },
+    {
+     "section": "CONSTRAINTS & RISK CAPTURE (CRITICAL)",
+     "task": "Environmental risk: age of home, asbestos likelihood"
+    },
+    {
+     "section": "CONSTRAINTS & RISK CAPTURE (CRITICAL)",
+     "task": "Anything that could kill the project or spike cost"
+    },
+    {
+     "section": "BUDGET & REALISM CHECK (ON-SITE)",
+     "task": "Reconfirm design phase required before construction pricing"
+    },
+    {
+     "section": "BUDGET & REALISM CHECK (ON-SITE)",
+     "task": "Reconfirm financial range (six figures+)"
+    },
+    {
+     "section": "BUDGET & REALISM CHECK (ON-SITE)",
+     "task": "Client reaction (Comfortable / Hesitant / Pushback)"
+    },
+    {
+     "section": "PHOTOS & DOCUMENTATION",
+     "task": "Photos taken: elevations, garage, structural, mechanical, site access"
+    },
+    {
+     "section": "PHOTOS & DOCUMENTATION",
+     "task": "Photos uploaded to Buildertrend lead same day"
+    },
+    {
+     "section": "PHOTOS & DOCUMENTATION",
+     "task": "Estimating worksheet fully filled"
+    },
+    {
+     "section": "PHOTOS & DOCUMENTATION",
+     "task": "Trade List provided to Concierge"
+    },
+    {
+     "section": "FEASIBILITY DECISION",
+     "task": "Feasibility decision: GO / NO-GO / NEEDS MORE INFO"
+    },
+    {
+     "section": "FEASIBILITY DECISION",
+     "task": "If NO-GO: reason code"
+    },
+    {
+     "section": "NEXT STEP LOCK-IN (BEFORE LEAVING SITE)",
+     "task": "Design Proposal Review Call booked within 48 hours"
+    },
+    {
+     "section": "NEXT STEP LOCK-IN (BEFORE LEAVING SITE)",
+     "task": "Date/time confirmed with client"
+    },
+    {
+     "section": "NEXT STEP LOCK-IN (BEFORE LEAVING SITE)",
+     "task": "Status updated in Buildertrend"
+    },
+    {
+     "section": "NEXT STEP LOCK-IN (BEFORE LEAVING SITE)",
+     "task": "If call not booked before leaving \u2192 FAIL"
+    }
+   ],
+   "gate": "GO / NO-GO DECISION"
+  },
+  {
+   "stage": "1 \u00b7 Lead \u2192 Design",
+   "step": "1.3",
+   "title": "DESIGN PROPOSAL PRESENTATION",
+   "ownerRole": "Concierge & General Manager",
+   "targetDays": "Within 7 days of consultation (Day 15)",
+   "items": [
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "Design Proposal generated from Estimating Worksheet + Fee Calculator"
+    },
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "Scope summary written in plain language"
+    },
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "Construction cost shown as range (not fixed), with assumptions stated"
+    },
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "Inclusions listed clearly"
+    },
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "Exclusions listed explicitly"
+    },
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "Design + estimating fee clearly shown (from calculator above)"
+    },
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "Timeline shown as range with dependencies"
+    },
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "Unknowns documented: Electrical, HVAC, Structural, Insulation, Abatement, Municipal"
+    },
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "Change order process included (1 paragraph max)"
+    },
+    {
+     "section": "PROPOSAL PREP (BEFORE THE CALL)",
+     "task": "If ANY item above is missing \u2192 DO NOT PRESENT"
+    },
+    {
+     "section": "LIVE PRESENTATION (REQUIRED)",
+     "task": "Proposal presented live (Zoom or in-person) \u2014 no email-and-wait"
+    },
+    {
+     "section": "LIVE PRESENTATION (REQUIRED)",
+     "task": "Client walked through: Scope, Budget range, Timeline, Unknowns, Design fee"
+    },
+    {
+     "section": "LIVE PRESENTATION (REQUIRED)",
+     "task": "Client questions answered live on the call"
+    },
+    {
+     "section": "BUDGET & REALITY CONFIRMATION",
+     "task": "Cost range confirmed verbally"
+    },
+    {
+     "section": "BUDGET & REALITY CONFIRMATION",
+     "task": "Timeline confirmed verbally"
+    },
+    {
+     "section": "BUDGET & REALITY CONFIRMATION",
+     "task": "Client confirms understanding of unknowns and change order process"
+    },
+    {
+     "section": "BUDGET & REALITY CONFIRMATION",
+     "task": "Objections logged verbatim"
+    },
+    {
+     "section": "DECISION CAPTURE (MANDATORY)",
+     "task": "Decision captured ON THE CALL: PROCEED / THINK / NO"
+    },
+    {
+     "section": "DECISION CAPTURE (MANDATORY)",
+     "task": "If PROCEED: client agrees to design fee, approval documented"
+    },
+    {
+     "section": "DECISION CAPTURE (MANDATORY)",
+     "task": "If THINK: follow-up call booked (max 7-day deadline)"
+    },
+    {
+     "section": "DECISION CAPTURE (MANDATORY)",
+     "task": "If NO: lead closed, reason logged"
+    },
+    {
+     "section": "DECISION CAPTURE (MANDATORY)",
+     "task": "If no decision captured \u2192 FAIL"
+    },
+    {
+     "section": "NEXT STEP LOCK-IN",
+     "task": "If Proceed \u2192 Design agreement sent same day"
+    },
+    {
+     "section": "NEXT STEP LOCK-IN",
+     "task": "If Think \u2192 Follow-up call date/time"
+    },
+    {
+     "section": "NEXT STEP LOCK-IN",
+     "task": "Status updated correctly in Buildertrend"
+    }
+   ],
+   "gate": "GO / THINK / NO DECISION"
+  },
+  {
+   "stage": "1 \u00b7 Lead \u2192 Design",
+   "step": "1.4",
+   "title": "DESIGN PROPOSAL CLOSE",
+   "ownerRole": "Client Experience Concierge",
+   "targetDays": "Within 5 days of presentation (Day 20)",
+   "items": [
+    {
+     "section": "FOLLOW-UP MANAGEMENT",
+     "task": "Follow-up call/email sent within 24 hours (if THINK outcome)"
+    },
+    {
+     "section": "FOLLOW-UP MANAGEMENT",
+     "task": "Follow-up cadence: Day 1, Day 3, Day 5 (max 3 attempts)"
+    },
+    {
+     "section": "FOLLOW-UP MANAGEMENT",
+     "task": "All outstanding client questions documented and answered"
+    },
+    {
+     "section": "FOLLOW-UP MANAGEMENT",
+     "task": "If objections raised, use objection-handling script"
+    },
+    {
+     "section": "FOLLOW-UP MANAGEMENT",
+     "task": "If shopping: acknowledge, restate Henley value, do not discount"
+    },
+    {
+     "section": "PROPOSAL FINALIZATION",
+     "task": "All open questions resolved and logged in Buildertrend"
+    },
+    {
+     "section": "PROPOSAL FINALIZATION",
+     "task": "Any proposal revisions made and re-sent (if applicable)"
+    },
+    {
+     "section": "PROPOSAL FINALIZATION",
+     "task": "Start date expectations aligned with client"
+    },
+    {
+     "section": "CONTRACT EXECUTION",
+     "task": "Signed Design Proposal Form received from client"
+    },
+    {
+     "section": "CONTRACT EXECUTION",
+     "task": "Signed copy uploaded to Buildertrend lead record"
+    },
+    {
+     "section": "HANDOFF & INVOICING TRIGGER",
+     "task": "Deposit invoice sent immediately (or payment link sent)"
+    },
+    {
+     "section": "HANDOFF & INVOICING TRIGGER",
+     "task": "Email Mel to set up client in QuickBooks and issue invoice"
+    },
+    {
+     "section": "HANDOFF & INVOICING TRIGGER",
+     "task": "Email Lead team to set up PMO project orientation call"
+    },
+    {
+     "section": "HANDOFF & INVOICING TRIGGER",
+     "task": "Buildertrend status updated"
+    }
+   ],
+   "gate": "CLOSE DECISION"
+  },
+  {
+   "stage": "1 \u00b7 Lead \u2192 Design",
+   "step": "1.5",
+   "title": "PAYMENT RECEIVED",
+   "ownerRole": "Project Admin",
+   "targetDays": "Same day as payment receipt (Day 20)",
+   "items": [
+    {
+     "section": "PAYMENT VERIFICATION",
+     "task": "Deposit payment received and confirmed (check, e-transfer, credit card)"
+    },
+    {
+     "section": "PAYMENT VERIFICATION",
+     "task": "Payment amount matches signed Design Proposal terms"
+    },
+    {
+     "section": "ACCOUNTING & RECEIPTS",
+     "task": "Payment marked as paid in QuickBooks"
+    },
+    {
+     "section": "ACCOUNTING & RECEIPTS",
+     "task": "Receipt issued to client"
+    },
+    {
+     "section": "ACCOUNTING & RECEIPTS",
+     "task": "Payment receipt filed in client record"
+    },
+    {
+     "section": "SYSTEM UPDATES",
+     "task": "Buildertrend financial status updated (deposit received)"
+    },
+    {
+     "section": "SYSTEM UPDATES",
+     "task": "Notify Concierge and GM that payment confirmed \u2192 ready for Step 1.6"
+    }
+   ],
+   "gate": "PAYMENT CONFIRMED"
+  },
+  {
+   "stage": "1 \u00b7 Lead \u2192 Design",
+   "step": "1.6",
+   "title": "DESIGN PROJECT SETUP",
+   "ownerRole": "Concierge & Design Coordinator",
+   "targetDays": "Within 1 day of payment (Day 21)",
+   "items": [
+    {
+     "section": "ACCOUNTING & CLIENT SETUP",
+     "task": "Set up client account and billing information in QuickBooks"
+    },
+    {
+     "section": "ACCOUNTING & CLIENT SETUP",
+     "task": "Link QuickBooks account to Buildertrend account"
+    },
+    {
+     "section": "ACCOUNTING & CLIENT SETUP",
+     "task": "Issue first invoice per Design Proposal payment terms"
+    },
+    {
+     "section": "BUILDERTREND CONVERSION",
+     "task": "Convert lead to job in Buildertrend (status: \"Presale\")"
+    },
+    {
+     "section": "BUILDERTREND CONVERSION",
+     "task": "Job metadata: project type (reno, new build, etc.)"
+    },
+    {
+     "section": "BUILDERTREND CONVERSION",
+     "task": "Job metadata: rough square footage"
+    },
+    {
+     "section": "BUILDERTREND CONVERSION",
+     "task": "Job metadata: target start date"
+    },
+    {
+     "section": "BUILDERTREND CONVERSION",
+     "task": "Copy over standard Buildertrend templates to new job"
+    },
+    {
+     "section": "FILE & FOLDER SETUP",
+     "task": "Create client SharePoint folder from template"
+    },
+    {
+     "section": "FILE & FOLDER SETUP",
+     "task": "Verify subfolders: Cost Codes, Drawings, Quotes, Invoices"
+    },
+    {
+     "section": "FILE & FOLDER SETUP",
+     "task": "Move Outlook folder from Prospective to Active"
+    },
+    {
+     "section": "HANDOFF CONFIRMATION",
+     "task": "Concierge confirms all admin setup complete"
+    },
+    {
+     "section": "HANDOFF CONFIRMATION",
+     "task": "Design Coordinator confirms folder/file setup complete"
+    },
+    {
+     "section": "HANDOFF CONFIRMATION",
+     "task": "Formal handoff to Design team \u2014 project ready for Phase 2.0"
+    }
+   ],
+   "gate": "DESIGN PROJECT SETUP COMPLETE"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.0",
+   "title": "PRELIMINARY DESIGN CONCEPTS",
+   "ownerRole": "Design Coordinator",
+   "targetDays": "Complete within 14 days",
+   "items": [
+    {
+     "section": "AI DESIGN GENERATION",
+     "task": "Gather all inputs from Step 1.2 (site visit notes, photos, measurements)"
+    },
+    {
+     "section": "AI DESIGN GENERATION",
+     "task": "Review CLIENT VISION & DESIGN INTAKE form for style preferences"
+    },
+    {
+     "section": "AI DESIGN GENERATION",
+     "task": "Generate AI floorplan concepts (minimum 2 options)"
+    },
+    {
+     "section": "AI DESIGN GENERATION",
+     "task": "Generate AI elevation concepts (front, rear, sides as applicable)"
+    },
+    {
+     "section": "AI DESIGN GENERATION",
+     "task": "Generate AI interior finish/mood concepts based on client style"
+    },
+    {
+     "section": "AI DESIGN GENERATION",
+     "task": "Review Pinterest board for alignment with generated concepts"
+    },
+    {
+     "section": "AI DESIGN GENERATION",
+     "task": "Internal QC review \u2014 Design Coordinator checks plans against site constraints"
+    },
+    {
+     "section": "AI DESIGN GENERATION",
+     "task": "Flag any structural, zoning, or budget concerns in concepts"
+    },
+    {
+     "section": "DESIGN PACKAGE PREPARATION",
+     "task": "Compile design package: floorplans, elevations, finish concepts"
+    },
+    {
+     "section": "DESIGN PACKAGE PREPARATION",
+     "task": "Add annotations and callouts for key design features"
+    },
+    {
+     "section": "DESIGN PACKAGE PREPARATION",
+     "task": "Prepare comparison summary if multiple options generated"
+    },
+    {
+     "section": "DESIGN PACKAGE PREPARATION",
+     "task": "Include preliminary room dimensions and square footage estimates"
+    },
+    {
+     "section": "DESIGN PACKAGE PREPARATION",
+     "task": "Note areas requiring client decision (layout options, feature upgrades)"
+    },
+    {
+     "section": "DESIGN PACKAGE PREPARATION",
+     "task": "GM review of design package before client presentation"
+    },
+    {
+     "section": "UPSELL IDENTIFICATION",
+     "task": "Identify potential upsell opportunities based on design concepts"
+    },
+    {
+     "section": "UPSELL IDENTIFICATION",
+     "task": "Ceiling height upgrades (9', 10', vaulted)"
+    },
+    {
+     "section": "UPSELL IDENTIFICATION",
+     "task": "Additional windows or larger openings"
+    },
+    {
+     "section": "UPSELL IDENTIFICATION",
+     "task": "Bonus room / flex space additions"
+    },
+    {
+     "section": "UPSELL IDENTIFICATION",
+     "task": "Exterior feature upgrades (covered porch, deck, pergola)"
+    },
+    {
+     "section": "UPSELL IDENTIFICATION",
+     "task": "Prepare upsell talking points with ballpark cost impacts"
+    }
+   ],
+   "gate": "DESIGN CONCEPTS READY FOR CLIENT"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.1",
+   "title": "CLIENT TOUCH POINT: REVIEW & FINALIZE PRELIMINARY DESIGNS",
+   "ownerRole": "Design Coordinator & General Manager",
+   "targetDays": "14 days (2 meetings)",
+   "items": [
+    {
+     "section": "PRE-MEETING PREPARATION",
+     "task": "Send preliminary design package to client 2-3 days before meeting"
+    },
+    {
+     "section": "PRE-MEETING PREPARATION",
+     "task": "Include Floorplan Focus FAQ / checklist with package"
+    },
+    {
+     "section": "PRE-MEETING PREPARATION",
+     "task": "Prepare presentation materials (printed plans, screen share setup)"
+    },
+    {
+     "section": "PRE-MEETING PREPARATION",
+     "task": "Prepare upsell talking points from Step 2.0"
+    },
+    {
+     "section": "PRE-MEETING PREPARATION",
+     "task": "Review client's original vision/style preferences from intake"
+    },
+    {
+     "section": "MEETING 1 \u2014 FLOORPLAN & ELEVATION REVIEW",
+     "task": "Walk through floorplan layouts and flow with client"
+    },
+    {
+     "section": "MEETING 1 \u2014 FLOORPLAN & ELEVATION REVIEW",
+     "task": "Review room sizes, adjacencies, and circulation paths"
+    },
+    {
+     "section": "MEETING 1 \u2014 FLOORPLAN & ELEVATION REVIEW",
+     "task": "Discuss elevation options \u2014 exterior style and massing"
+    },
+    {
+     "section": "MEETING 1 \u2014 FLOORPLAN & ELEVATION REVIEW",
+     "task": "Address client questions using FAQ checklist"
+    },
+    {
+     "section": "MEETING 1 \u2014 FLOORPLAN & ELEVATION REVIEW",
+     "task": "Document all client feedback and requested changes"
+    },
+    {
+     "section": "MEETING 1 \u2014 FLOORPLAN & ELEVATION REVIEW",
+     "task": "Identify and present relevant upsell opportunities"
+    },
+    {
+     "section": "MEETING 1 \u2014 FLOORPLAN & ELEVATION REVIEW",
+     "task": "Confirm which layout option(s) to carry forward"
+    },
+    {
+     "section": "MEETING 1 \u2014 FLOORPLAN & ELEVATION REVIEW",
+     "task": "Meeting 1 date completed"
+    },
+    {
+     "section": "DESIGN REVISIONS (IF REQUIRED)",
+     "task": "Incorporate client feedback into revised floorplans/elevations"
+    },
+    {
+     "section": "DESIGN REVISIONS (IF REQUIRED)",
+     "task": "Internal QC review of revisions"
+    },
+    {
+     "section": "DESIGN REVISIONS (IF REQUIRED)",
+     "task": "Send revised package to client for review before Meeting 2"
+    },
+    {
+     "section": "MEETING 2 \u2014 FINALIZATION & SIGN-OFF",
+     "task": "Present final floorplans and elevations"
+    },
+    {
+     "section": "MEETING 2 \u2014 FINALIZATION & SIGN-OFF",
+     "task": "Confirm all client feedback has been addressed"
+    },
+    {
+     "section": "MEETING 2 \u2014 FINALIZATION & SIGN-OFF",
+     "task": "Lock scope \u2014 no further layout changes after sign-off"
+    },
+    {
+     "section": "MEETING 2 \u2014 FINALIZATION & SIGN-OFF",
+     "task": "Confirm upsell items accepted or declined"
+    },
+    {
+     "section": "MEETING 2 \u2014 FINALIZATION & SIGN-OFF",
+     "task": "Client signs off on finalized design package"
+    },
+    {
+     "section": "MEETING 2 \u2014 FINALIZATION & SIGN-OFF",
+     "task": "Meeting 2 date completed"
+    }
+   ],
+   "gate": "CLIENT DESIGN APPROVAL"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.8",
+   "title": "SELECTIONS KICKOFF & DESIGN DIRECTION",
+   "ownerRole": "Design Coordinator & General Manager",
+   "targetDays": "Complete within 7 days",
+   "items": [
+    {
+     "section": "KICKOFF MEETING PREPARATION",
+     "task": "Schedule Selections Kickoff Meeting with client"
+    },
+    {
+     "section": "KICKOFF MEETING PREPARATION",
+     "task": "Review CLIENT VISION & DESIGN INTAKE form \u2014 if not completed, walk through live"
+    },
+    {
+     "section": "KICKOFF MEETING PREPARATION",
+     "task": "Prepare visual inspiration materials and style references"
+    },
+    {
+     "section": "KICKOFF MEETING PREPARATION",
+     "task": "Create budget allocation worksheet by selection category"
+    },
+    {
+     "section": "DESIGN DIRECTION",
+     "task": "Establish architectural style (Modern, Traditional, Rustic, Transitional, etc.)"
+    },
+    {
+     "section": "DESIGN DIRECTION",
+     "task": "Confirm mood/atmosphere (warm & cozy, bright & airy, luxurious, minimalist)"
+    },
+    {
+     "section": "DESIGN DIRECTION",
+     "task": "Document specific influences (coastal, farmhouse, urban chic, etc.)"
+    },
+    {
+     "section": "DESIGN DIRECTION",
+     "task": "Review Pinterest board \u2014 collaborate on visual inspiration"
+    },
+    {
+     "section": "DESIGN DIRECTION",
+     "task": "Identify client's splurge vs. save priorities by category"
+    },
+    {
+     "section": "BUDGET & TRACKING SETUP",
+     "task": "Set budget allocation by selection category"
+    },
+    {
+     "section": "BUDGET & TRACKING SETUP",
+     "task": "Create Selections Tracker in Buildertrend"
+    },
+    {
+     "section": "BUDGET & TRACKING SETUP",
+     "task": "Configure tracker statuses: Not Started \u2192 In Progress \u2192 Selected \u2192 Ordered \u2192 Received"
+    },
+    {
+     "section": "BUDGET & TRACKING SETUP",
+     "task": "Discuss lead times and ordering timeline with client"
+    },
+    {
+     "section": "BUDGET & TRACKING SETUP",
+     "task": "Emphasize long-lead items must be decided first (windows, cabinets, appliances)"
+    },
+    {
+     "section": "MEETING CADENCE & SCHEDULE",
+     "task": "Set recurring selection meeting cadence (weekly or bi-weekly)"
+    },
+    {
+     "section": "MEETING CADENCE & SCHEDULE",
+     "task": "Create recurring meeting agenda template"
+    },
+    {
+     "section": "MEETING CADENCE & SCHEDULE",
+     "task": "Confirm selection phase sequence: Structural \u2192 Mechanical \u2192 Finishes"
+    },
+    {
+     "section": "MEETING CADENCE & SCHEDULE",
+     "task": "Provide client with selections timeline overview"
+    }
+   ],
+   "gate": "SELECTIONS KICKOFF COMPLETE"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.9",
+   "title": "WINDOWS, EXTERIOR DOORS & GARAGE DOORS",
+   "ownerRole": "Design Coordinator & Client LONG LEAD \u2014 8-16 weeks typical",
+   "targetDays": null,
+   "items": [
+    {
+     "section": "WINDOWS & SLIDERS",
+     "task": "Select window type: wood, vinyl, aluminum, fiberglass"
+    },
+    {
+     "section": "WINDOWS & SLIDERS",
+     "task": "Choose size, style, and color for each opening"
+    },
+    {
+     "section": "WINDOWS & SLIDERS",
+     "task": "Confirm energy rating and glass package (low-E, triple pane, etc.)"
+    },
+    {
+     "section": "WINDOWS & SLIDERS",
+     "task": "Review flashing/waterproofing requirements"
+    },
+    {
+     "section": "WINDOWS & SLIDERS",
+     "task": "Window brand / manufacturer"
+    },
+    {
+     "section": "WINDOWS & SLIDERS",
+     "task": "Window schedule cross-referenced to architectural plans"
+    },
+    {
+     "section": "EXTERIOR DOORS",
+     "task": "Front door: material (wood, fiberglass, steel), style, color"
+    },
+    {
+     "section": "EXTERIOR DOORS",
+     "task": "Rear/side doors: material and style"
+    },
+    {
+     "section": "EXTERIOR DOORS",
+     "task": "Sliding/patio doors: material, size, configuration"
+    },
+    {
+     "section": "EXTERIOR DOORS",
+     "task": "Hardware & lockset finish (matte black, brushed nickel, brass, etc.)"
+    },
+    {
+     "section": "EXTERIOR DOORS",
+     "task": "Smart lock integration (if applicable)"
+    },
+    {
+     "section": "EXTERIOR DOORS",
+     "task": "Sidelights / transoms: style and glass type"
+    },
+    {
+     "section": "OVERHEAD / GARAGE DOORS",
+     "task": "Style and finish (wood, steel, custom design)"
+    },
+    {
+     "section": "OVERHEAD / GARAGE DOORS",
+     "task": "Color preference"
+    },
+    {
+     "section": "OVERHEAD / GARAGE DOORS",
+     "task": "Opener type and smart home integration"
+    },
+    {
+     "section": "OVERHEAD / GARAGE DOORS",
+     "task": "Insulation rating (R-value)"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Place purchase orders with suppliers"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Confirm delivery dates aligned with construction schedule"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Log all selections in Buildertrend Tracker"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Provide spec sheets to framing crew for rough openings"
+    }
+   ],
+   "gate": "WINDOWS & EXTERIOR DOORS LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.10",
+   "title": "INTERIOR DOORS, TRIM, STAIRS & RAILINGS",
+   "ownerRole": "Design Coordinator & Client",
+   "targetDays": "Complete within 4 days",
+   "items": [
+    {
+     "section": "INTERIOR DOORS",
+     "task": "Door style: panel doors (2, 3, 5 panel), flat/flush, glass inserts"
+    },
+    {
+     "section": "INTERIOR DOORS",
+     "task": "Pocket doors: locations and hardware"
+    },
+    {
+     "section": "INTERIOR DOORS",
+     "task": "Barn doors: locations, track finish, door material"
+    },
+    {
+     "section": "INTERIOR DOORS",
+     "task": "French doors / glass doors: locations"
+    },
+    {
+     "section": "INTERIOR DOORS",
+     "task": "Closet doors: bifold, sliding, standard swing"
+    },
+    {
+     "section": "INTERIOR DOORS",
+     "task": "Door finish: paint grade (white, color) or stain grade (wood species)"
+    },
+    {
+     "section": "INTERIOR DOORS",
+     "task": "Create door schedule by room (type, swing direction, hardware)"
+    },
+    {
+     "section": "TRIM & MOLDING",
+     "task": "Baseboard style: step bevel, simple/modern, traditional"
+    },
+    {
+     "section": "TRIM & MOLDING",
+     "task": "Baseboard height: 3.5 in, 5.5 in, 7+ in"
+    },
+    {
+     "section": "TRIM & MOLDING",
+     "task": "Crown molding: rooms and profile style"
+    },
+    {
+     "section": "TRIM & MOLDING",
+     "task": "Door/window casings: step bevel, simple, craftsman"
+    },
+    {
+     "section": "TRIM & MOLDING",
+     "task": "Chair rail or picture rail (if applicable)"
+    },
+    {
+     "section": "TRIM & MOLDING",
+     "task": "Wainscoting, shiplap, or beadboard locations"
+    },
+    {
+     "section": "STAIRCASES & RAILINGS",
+     "task": "Stair finish: stained treads or paint grade"
+    },
+    {
+     "section": "STAIRCASES & RAILINGS",
+     "task": "Riser finish: painted or stained"
+    },
+    {
+     "section": "STAIRCASES & RAILINGS",
+     "task": "Spindles/balusters: wood, iron, glass"
+    },
+    {
+     "section": "STAIRCASES & RAILINGS",
+     "task": "Railing style and finish"
+    },
+    {
+     "section": "STAIRCASES & RAILINGS",
+     "task": "Newel post design"
+    },
+    {
+     "section": "STAIRCASES & RAILINGS",
+     "task": "Open or closed stringer"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Compile spec sheet for finish carpenter"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Confirm paint grade vs. stain grade decisions"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Place POs for custom millwork (if applicable)"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Log all selections in Buildertrend Tracker"
+    }
+   ],
+   "gate": "INTERIOR DOORS, TRIM & STAIRS LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.11",
+   "title": "FIREPLACE, WALL TREATMENTS & CEILINGS",
+   "ownerRole": "Design Coordinator & Client",
+   "targetDays": "Complete within 3 days",
+   "items": [
+    {
+     "section": "FIREPLACE(S)",
+     "task": "Fuel type: wood burning, gas, electric"
+    },
+    {
+     "section": "FIREPLACE(S)",
+     "task": "Surround material: stone, tile, shiplap, wood mantel, concrete"
+    },
+    {
+     "section": "FIREPLACE(S)",
+     "task": "Mantel style and material"
+    },
+    {
+     "section": "FIREPLACE(S)",
+     "task": "Built-in shelving or cabinetry flanking fireplace"
+    },
+    {
+     "section": "FIREPLACE(S)",
+     "task": "Hearth design: raised, flush, material"
+    },
+    {
+     "section": "FIREPLACE(S)",
+     "task": "Outdoor fireplace/fire pit (if applicable)"
+    },
+    {
+     "section": "WALL TREATMENTS",
+     "task": "Accent walls: wood slat, stone veneer, wallpaper, tile, shiplap"
+    },
+    {
+     "section": "WALL TREATMENTS",
+     "task": "Wall paneling: wainscoting, board and batten, shiplap, beadboard"
+    },
+    {
+     "section": "WALL TREATMENTS",
+     "task": "Feature walls: locations and materials"
+    },
+    {
+     "section": "WALL TREATMENTS",
+     "task": "Wallpaper: rooms and patterns"
+    },
+    {
+     "section": "CEILING FINISHES",
+     "task": "Texture: smooth, textured, knockdown"
+    },
+    {
+     "section": "CEILING FINISHES",
+     "task": "Coffered ceilings: rooms and profile"
+    },
+    {
+     "section": "CEILING FINISHES",
+     "task": "Tray ceilings: rooms, lighting integration"
+    },
+    {
+     "section": "CEILING FINISHES",
+     "task": "Vaulted ceilings: exposed beams or clean"
+    },
+    {
+     "section": "CEILING FINISHES",
+     "task": "Accent features: decorative beams (real or faux), tongue and groove"
+    },
+    {
+     "section": "CEILING FINISHES",
+     "task": "Crown molding integration with ceiling design"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Compile material specs for applicable trades"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Identify structural requirements (beam support, gas lines, venting)"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Place POs for specialty materials"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Log all selections in Buildertrend Tracker"
+    }
+   ],
+   "gate": "FIREPLACE, WALLS & CEILINGS LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.12",
+   "title": "SUSTAINABILITY, HVAC & EXTERIOR MATERIALS",
+   "ownerRole": "Design Coordinator & General Manager",
+   "targetDays": "Complete within 6 days",
+   "items": [
+    {
+     "section": "HVAC SYSTEM",
+     "task": "Heat pump or traditional furnace/AC"
+    },
+    {
+     "section": "HVAC SYSTEM",
+     "task": "In-slab hydronic heating (if applicable)"
+    },
+    {
+     "section": "HVAC SYSTEM",
+     "task": "Zoning requirements"
+    },
+    {
+     "section": "HVAC SYSTEM",
+     "task": "HRV/ERV ventilation system"
+    },
+    {
+     "section": "HVAC SYSTEM",
+     "task": "Make-up air requirements (coordinated with range hood selection)"
+    },
+    {
+     "section": "SUSTAINABILITY FEATURES",
+     "task": "Solar panels: roof-mount or ground-mount, system size"
+    },
+    {
+     "section": "SUSTAINABILITY FEATURES",
+     "task": "Energy-efficient design features (insulation upgrades, air sealing)"
+    },
+    {
+     "section": "SUSTAINABILITY FEATURES",
+     "task": "Eco-friendly materials preferences"
+    },
+    {
+     "section": "SUSTAINABILITY FEATURES",
+     "task": "Rainwater collection or water-saving systems"
+    },
+    {
+     "section": "SUSTAINABILITY FEATURES",
+     "task": "EnerGuide or ENERGY STAR targets"
+    },
+    {
+     "section": "EXTERIOR MATERIALS",
+     "task": "Siding: wood, vinyl, cement board, brick, stone, stucco"
+    },
+    {
+     "section": "EXTERIOR MATERIALS",
+     "task": "Siding orientation: horizontal, board & batten, mixed"
+    },
+    {
+     "section": "EXTERIOR MATERIALS",
+     "task": "Siding color preferences"
+    },
+    {
+     "section": "EXTERIOR MATERIALS",
+     "task": "Stone/masonry detailing: skirting, accent walls, columns"
+    },
+    {
+     "section": "EXTERIOR MATERIALS",
+     "task": "Roofing material: asphalt shingles, metal; color"
+    },
+    {
+     "section": "EXTERIOR MATERIALS",
+     "task": "Trim & fascia: wood, PVC, metal; color"
+    },
+    {
+     "section": "EXTERIOR MATERIALS",
+     "task": "Soffit material and style"
+    },
+    {
+     "section": "EXTERIOR MATERIALS",
+     "task": "Exterior color scheme (body, trim, accent)"
+    },
+    {
+     "section": "EXTERIOR STRUCTURES",
+     "task": "Patio, deck, porch, pergola: materials and finishes"
+    },
+    {
+     "section": "EXTERIOR STRUCTURES",
+     "task": "Railing: wood, metal, glass, cable"
+    },
+    {
+     "section": "EXTERIOR STRUCTURES",
+     "task": "Exterior lighting integration (coordinate with Step 2.15)"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Create HVAC system comparison worksheet"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Create exterior material/color board"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Provide specs to relevant trades (HVAC, roofer, siding, mason)"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Place POs for long-lead exterior materials"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Log all selections in Buildertrend Tracker"
+    }
+   ],
+   "gate": "HVAC, SUSTAINABILITY & EXTERIOR LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.13",
+   "title": "PLUMBING FIXTURES & FITTINGS",
+   "ownerRole": "Design Coordinator & Client CRITICAL \u2014 Rough-in specs needed before framing closes",
+   "targetDays": null,
+   "items": [
+    {
+     "section": "FAUCETS & FIXTURES",
+     "task": "Finish: stainless, polished chrome, matte black, brass/gold"
+    },
+    {
+     "section": "FAUCETS & FIXTURES",
+     "task": "Style: modern, transitional, vintage"
+    },
+    {
+     "section": "FAUCETS & FIXTURES",
+     "task": "Kitchen: 1-hole or 3-hole faucet configuration"
+    },
+    {
+     "section": "FAUCETS & FIXTURES",
+     "task": "Bathroom: widespread, single-hole, or wall-mount per room"
+    },
+    {
+     "section": "SHOWERHEADS & TUBS",
+     "task": "Showerhead type: rainfall, handheld, combo, body jets"
+    },
+    {
+     "section": "SHOWERHEADS & TUBS",
+     "task": "Tub: freestanding, soaking, drop-in, alcove"
+    },
+    {
+     "section": "SHOWERHEADS & TUBS",
+     "task": "Shower configuration: curbless, glass partition, fully enclosed"
+    },
+    {
+     "section": "SHOWERHEADS & TUBS",
+     "task": "Shower niche: size, tile, placement"
+    },
+    {
+     "section": "SINKS",
+     "task": "Kitchen: single or divided; undermount, farmhouse; finish"
+    },
+    {
+     "section": "SINKS",
+     "task": "Bathroom: undermount, vessel, integrated per room"
+    },
+    {
+     "section": "SINKS",
+     "task": "Prep sink and pot filler behind stove (if applicable)"
+    },
+    {
+     "section": "EXTRA KITCHEN PLUMBING",
+     "task": "Prep sink location and style"
+    },
+    {
+     "section": "EXTRA KITCHEN PLUMBING",
+     "task": "Pot filler: yes/no, finish to match faucet"
+    },
+    {
+     "section": "EXTRA KITCHEN PLUMBING",
+     "task": "Instant hot water dispenser"
+    },
+    {
+     "section": "EXTRA KITCHEN PLUMBING",
+     "task": "Water filtration system"
+    },
+    {
+     "section": "TOILETS",
+     "task": "Style: elongated, comfort height, wall-mount"
+    },
+    {
+     "section": "TOILETS",
+     "task": "Color: white, biscuit, custom"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Compile rough-in specification sheet for plumber"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Create plumbing fixture spec sheet by room"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Place POs for all fixtures"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Confirm delivery dates"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Log all selections in Buildertrend Tracker"
+    }
+   ],
+   "gate": "PLUMBING FIXTURES LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.14",
+   "title": "APPLIANCES",
+   "ownerRole": "Design Coordinator & Client LONG LEAD \u2014 4-12 weeks typical",
+   "targetDays": null,
+   "items": [
+    {
+     "section": "KITCHEN APPLIANCES",
+     "task": "Refrigerator: size, style (French door, side-by-side, column), finish"
+    },
+    {
+     "section": "KITCHEN APPLIANCES",
+     "task": "Range/Cooktop: gas, electric, induction; slide-in or freestanding; size"
+    },
+    {
+     "section": "KITCHEN APPLIANCES",
+     "task": "Wall Oven: single or double; convection; microwave combo"
+    },
+    {
+     "section": "KITCHEN APPLIANCES",
+     "task": "Dishwasher: brand, panel-ready or finished, noise level"
+    },
+    {
+     "section": "KITCHEN APPLIANCES",
+     "task": "Microwave: built-in, drawer, over-the-range, or countertop"
+    },
+    {
+     "section": "KITCHEN APPLIANCES",
+     "task": "Range hood/ventilation: CFM requirements based on cooktop"
+    },
+    {
+     "section": "KITCHEN APPLIANCES",
+     "task": "Coordinate make-up air with HVAC if hood >400 CFM"
+    },
+    {
+     "section": "KITCHEN APPLIANCES",
+     "task": "Wine fridge / beverage centre: size, location"
+    },
+    {
+     "section": "KITCHEN APPLIANCES",
+     "task": "Garbage disposal"
+    },
+    {
+     "section": "LAUNDRY APPLIANCES",
+     "task": "Washer/dryer: front load or top load; stacked or side-by-side"
+    },
+    {
+     "section": "LAUNDRY APPLIANCES",
+     "task": "Size requirements based on laundry room layout"
+    },
+    {
+     "section": "SPECIALTY",
+     "task": "Outdoor kitchen appliances (if applicable)"
+    },
+    {
+     "section": "SPECIALTY",
+     "task": "Central vacuum system"
+    },
+    {
+     "section": "SPECIALTY",
+     "task": "Water softener / filtration"
+    },
+    {
+     "section": "TRADE COORDINATION",
+     "task": "Provide spec sheets to electrician for circuit requirements"
+    },
+    {
+     "section": "TRADE COORDINATION",
+     "task": "Provide spec sheets to plumber for water/drain connections"
+    },
+    {
+     "section": "TRADE COORDINATION",
+     "task": "Notify cabinet shop of appliance dimensions for cutouts"
+    },
+    {
+     "section": "TRADE COORDINATION",
+     "task": "Notify HVAC contractor of ventilation requirements"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Place POs with suppliers \u2014 record model numbers"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Confirm delivery dates and staging with schedule"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Log all selections in Buildertrend Tracker"
+    }
+   ],
+   "gate": "APPLIANCES LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.15",
+   "title": "LIGHTING, ELECTRICAL & SMART HOME",
+   "ownerRole": "Design Coordinator & Client CRITICAL \u2014 Drives electrical rough-in plan",
+   "targetDays": null,
+   "items": [
+    {
+     "section": "ELECTRICAL ROUGH-IN",
+     "task": "EV charging port: location, amperage (Level 1 vs Level 2)"
+    },
+    {
+     "section": "ELECTRICAL ROUGH-IN",
+     "task": "Hot tub: location, electrical requirements"
+    },
+    {
+     "section": "ELECTRICAL ROUGH-IN",
+     "task": "Back-up generator: whole house or partial; transfer switch"
+    },
+    {
+     "section": "ELECTRICAL ROUGH-IN",
+     "task": "Panel sizing based on total electrical load"
+    },
+    {
+     "section": "GENERAL LIGHTING",
+     "task": "Recessed lighting layout by room"
+    },
+    {
+     "section": "GENERAL LIGHTING",
+     "task": "Chandeliers: location, style, size"
+    },
+    {
+     "section": "GENERAL LIGHTING",
+     "task": "Pendant lights: kitchen island, dining, entryway"
+    },
+    {
+     "section": "GENERAL LIGHTING",
+     "task": "Ceiling fans: rooms and styles"
+    },
+    {
+     "section": "TASK LIGHTING",
+     "task": "Under-cabinet lighting: LED strips or puck lights"
+    },
+    {
+     "section": "TASK LIGHTING",
+     "task": "Passage lights on staircases"
+    },
+    {
+     "section": "TASK LIGHTING",
+     "task": "LED backlit vanity mirrors"
+    },
+    {
+     "section": "TASK LIGHTING",
+     "task": "Closet lighting"
+    },
+    {
+     "section": "ACCENT LIGHTING",
+     "task": "Wall sconces: location and style"
+    },
+    {
+     "section": "ACCENT LIGHTING",
+     "task": "Artwork/display lighting"
+    },
+    {
+     "section": "ACCENT LIGHTING",
+     "task": "Exterior accent lighting"
+    },
+    {
+     "section": "ACCENT LIGHTING",
+     "task": "Landscape lighting (coordinate with exterior plan)"
+    },
+    {
+     "section": "SMART HOME INTEGRATION",
+     "task": "AV system: whole-home audio, TV locations, pre-wire"
+    },
+    {
+     "section": "SMART HOME INTEGRATION",
+     "task": "Home automation platform (Control4, Savant, Google, Alexa)"
+    },
+    {
+     "section": "SMART HOME INTEGRATION",
+     "task": "Lighting automation: dimmers, smart switches, scenes"
+    },
+    {
+     "section": "SMART HOME INTEGRATION",
+     "task": "Security: smart locks, cameras, alarm system"
+    },
+    {
+     "section": "SMART HOME INTEGRATION",
+     "task": "Motorized blinds/shades"
+    },
+    {
+     "section": "SMART HOME INTEGRATION",
+     "task": "Structured wiring: CAT6, coax, HDMI runs"
+    },
+    {
+     "section": "SWITCH & OUTLET PLAN",
+     "task": "Switch plate style and finish (Decora, toggle, smart)"
+    },
+    {
+     "section": "SWITCH & OUTLET PLAN",
+     "task": "Outlet placement including USB/USB-C"
+    },
+    {
+     "section": "SWITCH & OUTLET PLAN",
+     "task": "Dedicated circuits for appliances"
+    },
+    {
+     "section": "SWITCH & OUTLET PLAN",
+     "task": "Outdoor outlets and weatherproof covers"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Create electrical plan with all fixture locations"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Create smart home scope worksheet"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Compile spec package for electrician"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Place fixture POs"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Log all selections in Buildertrend Tracker"
+    }
+   ],
+   "gate": "LIGHTING, ELECTRICAL & SMART HOME LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.16",
+   "title": "CABINETS, BUILT-INS & HARDWARE",
+   "ownerRole": "Design Coordinator & Client LONG LEAD \u2014 6-12 weeks typical",
+   "targetDays": null,
+   "items": [
+    {
+     "section": "KITCHEN CABINETS",
+     "task": "Material: wood stained or painted"
+    },
+    {
+     "section": "KITCHEN CABINETS",
+     "task": "Color: uppers and lowers same or different; island accent color"
+    },
+    {
+     "section": "KITCHEN CABINETS",
+     "task": "Style: flat, raised panel, shaker, custom"
+    },
+    {
+     "section": "KITCHEN CABINETS",
+     "task": "Floating shelves: yes/no, location"
+    },
+    {
+     "section": "KITCHEN CABINETS",
+     "task": "Pantry design and layout"
+    },
+    {
+     "section": "RANGE HOOD",
+     "task": "Style, finish, color"
+    },
+    {
+     "section": "RANGE HOOD",
+     "task": "Integrated with cabinetry or feature piece"
+    },
+    {
+     "section": "BATHROOM CABINETS",
+     "task": "Material, style, finishes"
+    },
+    {
+     "section": "BATHROOM CABINETS",
+     "task": "Custom built-in or stand-alone vanity"
+    },
+    {
+     "section": "BATHROOM CABINETS",
+     "task": "Each bathroom specified individually"
+    },
+    {
+     "section": "STORAGE SOLUTIONS",
+     "task": "Built-in shelving locations and design"
+    },
+    {
+     "section": "STORAGE SOLUTIONS",
+     "task": "Pantry organization system"
+    },
+    {
+     "section": "STORAGE SOLUTIONS",
+     "task": "Closet organization (walk-in, reach-in, custom)"
+    },
+    {
+     "section": "STORAGE SOLUTIONS",
+     "task": "Mudroom/laundry built-ins"
+    },
+    {
+     "section": "HARDWARE",
+     "task": "Knobs, handles, pulls: style and finish"
+    },
+    {
+     "section": "HARDWARE",
+     "task": "Match or complement door hardware finish"
+    },
+    {
+     "section": "HARDWARE",
+     "task": "Consistent throughout or varied by room"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Cabinet layout confirmed with shop drawings"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Hardware selection matrix (style x finish x room)"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Place cabinet supplier PO"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Confirm delivery date aligned with schedule"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Log all selections in Buildertrend Tracker"
+    }
+   ],
+   "gate": "CABINETS & HARDWARE LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.17",
+   "title": "COUNTERTOPS, BACKSPLASH & SURFACES",
+   "ownerRole": "Design Coordinator & Client",
+   "targetDays": "Complete within 5 days",
+   "items": [
+    {
+     "section": "KITCHEN COUNTERTOPS",
+     "task": "Material: granite, quartz, marble, butcher block, concrete"
+    },
+    {
+     "section": "KITCHEN COUNTERTOPS",
+     "task": "Color preference: light or dark; simple or character/veins"
+    },
+    {
+     "section": "KITCHEN COUNTERTOPS",
+     "task": "Finish: polished, honed, leathered"
+    },
+    {
+     "section": "KITCHEN COUNTERTOPS",
+     "task": "Edge profile selection"
+    },
+    {
+     "section": "KITCHEN COUNTERTOPS",
+     "task": "Island: same material or accent (butcher block, waterfall, etc.)"
+    },
+    {
+     "section": "BATHROOM COUNTERTOPS",
+     "task": "Material preferences per bathroom"
+    },
+    {
+     "section": "BATHROOM COUNTERTOPS",
+     "task": "Finish and edge profile"
+    },
+    {
+     "section": "BATHROOM COUNTERTOPS",
+     "task": "Integrated sink vs. undermount vs. vessel"
+    },
+    {
+     "section": "BACKSPLASH",
+     "task": "Tile or countertop material extended up"
+    },
+    {
+     "section": "BACKSPLASH",
+     "task": "Color and pattern selection"
+    },
+    {
+     "section": "BACKSPLASH",
+     "task": "Grout color"
+    },
+    {
+     "section": "BACKSPLASH",
+     "task": "Height: standard 4 inches or full height to uppers"
+    },
+    {
+     "section": "OTHER SURFACES",
+     "task": "Laundry room countertops"
+    },
+    {
+     "section": "OTHER SURFACES",
+     "task": "Built-in desk or bar surfaces"
+    },
+    {
+     "section": "OTHER SURFACES",
+     "task": "Window sills (natural stone, quartz, wood)"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Schedule slab yard visit for client"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Create countertop spec sheet by room"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Place fabricator deposit"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Schedule templating date (post-cabinet install)"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Log all selections in Buildertrend Tracker"
+    }
+   ],
+   "gate": "COUNTERTOPS & SURFACES LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.18",
+   "title": "FLOORING & TILE",
+   "ownerRole": "Design Coordinator & Client",
+   "targetDays": "Complete within 6 days",
+   "items": [
+    {
+     "section": "FLOORING",
+     "task": "Material by area: engineered hardwood, LVP, tile, carpet"
+    },
+    {
+     "section": "FLOORING",
+     "task": "Main living areas flooring selection"
+    },
+    {
+     "section": "FLOORING",
+     "task": "Bedrooms flooring selection"
+    },
+    {
+     "section": "FLOORING",
+     "task": "Hallways and stairs flooring selection"
+    },
+    {
+     "section": "FLOORING",
+     "task": "Color: light, medium, dark wood tones; gray, neutral, or bold"
+    },
+    {
+     "section": "FLOORING",
+     "task": "Style: wide plank, chevron, herringbone, standard plank"
+    },
+    {
+     "section": "FLOORING",
+     "task": "Finish: matte, glossy, satin, wire-brushed"
+    },
+    {
+     "section": "FLOORING",
+     "task": "Transitions between flooring types"
+    },
+    {
+     "section": "TILE",
+     "task": "Bathroom floor tile: material, size, pattern, color"
+    },
+    {
+     "section": "TILE",
+     "task": "Bathroom wall tile: shower surround, accent walls, wainscot height"
+    },
+    {
+     "section": "TILE",
+     "task": "Kitchen tile (if applicable): floor or accent areas"
+    },
+    {
+     "section": "TILE",
+     "task": "Mudroom/laundry/utility tile"
+    },
+    {
+     "section": "TILE",
+     "task": "Grout color selections"
+    },
+    {
+     "section": "TILE",
+     "task": "Tile layout patterns (subway, herringbone, stacked, mosaic)"
+    },
+    {
+     "section": "HEATED FLOORS",
+     "task": "Radiant heat locations (master bath, ensuite, other baths)"
+    },
+    {
+     "section": "HEATED FLOORS",
+     "task": "Electric mat or hydronic system"
+    },
+    {
+     "section": "HEATED FLOORS",
+     "task": "Thermostat placement"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Create flooring/tile selection matrix by room"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Calculate quantities with 10% waste factor"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Coordinate heated floor specs with electrician"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Place POs with suppliers"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Confirm delivery dates"
+    },
+    {
+     "section": "DOCUMENTATION & ORDERING",
+     "task": "Log all selections in Buildertrend Tracker"
+    }
+   ],
+   "gate": "FLOORING & TILE LOCKED"
+  },
+  {
+   "stage": "2 \u00b7 Design & Selections",
+   "step": "2.19",
+   "title": "PAINT, STAIN & FINISH SELECTIONS",
+   "ownerRole": "Design Coordinator & General Manager",
+   "targetDays": "1 comprehensive review meeting",
+   "items": [
+    {
+     "section": "INTERIOR PAINT",
+     "task": "Whole-house base color selection"
+    },
+    {
+     "section": "INTERIOR PAINT",
+     "task": "Accent wall colors by room"
+    },
+    {
+     "section": "INTERIOR PAINT",
+     "task": "Ceiling color (flat white standard or custom)"
+    },
+    {
+     "section": "INTERIOR PAINT",
+     "task": "Trim/door/casing paint color (confirm shade)"
+    },
+    {
+     "section": "INTERIOR PAINT",
+     "task": "Finish by area: flat (ceilings), eggshell (walls), semi-gloss (trim/wet areas)"
+    },
+    {
+     "section": "INTERIOR PAINT",
+     "task": "Feature areas: powder rooms, mudroom, laundry, kids rooms"
+    },
+    {
+     "section": "STAIN SELECTIONS",
+     "task": "Stair treads stain color and finish"
+    },
+    {
+     "section": "STAIN SELECTIONS",
+     "task": "Beam stain (if real wood beams)"
+    },
+    {
+     "section": "STAIN SELECTIONS",
+     "task": "Door stain (if stain-grade doors selected)"
+    },
+    {
+     "section": "STAIN SELECTIONS",
+     "task": "Cabinet stain (if stain-grade cabinets)"
+    },
+    {
+     "section": "STAIN SELECTIONS",
+     "task": "Exterior wood stain: deck, fence, pergola"
+    },
+    {
+     "section": "EXTERIOR PAINT",
+     "task": "Body color"
+    },
+    {
+     "section": "EXTERIOR PAINT",
+     "task": "Trim and fascia color"
+    },
+    {
+     "section": "EXTERIOR PAINT",
+     "task": "Accent color (front door, shutters, garage door)"
+    },
+    {
+     "section": "EXTERIOR PAINT",
+     "task": "Foundation/parge coat color"
+    },
+    {
+     "section": "LIFESTYLE & MAINTENANCE",
+     "task": "Pet-friendly or high-traffic finishes (washable, scrubbable)"
+    },
+    {
+     "section": "LIFESTYLE & MAINTENANCE",
+     "task": "Low-VOC or zero-VOC paint preferences"
+    },
+    {
+     "section": "LIFESTYLE & MAINTENANCE",
+     "task": "Mildew-resistant for bathrooms"
+    },
+    {
+     "section": "DOCUMENTATION",
+     "task": "Create paint/stain schedule by room"
+    },
+    {
+     "section": "DOCUMENTATION",
+     "task": "Order sample pots/fan decks for client review"
+    },
+    {
+     "section": "DOCUMENTATION",
+     "task": "Create exterior color board mockup"
+    },
+    {
+     "section": "DOCUMENTATION",
+     "task": "Compile complete paint schedule for painter"
+    },
+    {
+     "section": "DOCUMENTATION",
+     "task": "Log all selections in Buildertrend Tracker"
+    },
+    {
+     "section": "PHASE 1 STRUCTURAL REVIEW",
+     "task": "Windows, Exterior Doors & Garage Doors (2.9) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 1 STRUCTURAL REVIEW",
+     "task": "Interior Doors, Trim, Stairs & Railings (2.10) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 1 STRUCTURAL REVIEW",
+     "task": "Fireplace, Wall Treatments & Ceilings (2.11) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 1 STRUCTURAL REVIEW",
+     "task": "Sustainability, HVAC & Exterior Materials (2.12) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 2 MECHANICAL REVIEW",
+     "task": "Plumbing Fixtures & Fittings (2.13) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 2 MECHANICAL REVIEW",
+     "task": "Appliances (2.14) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 2 MECHANICAL REVIEW",
+     "task": "Lighting, Electrical & Smart Home (2.15) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 3 FINISHES REVIEW",
+     "task": "Cabinets, Built-Ins & Hardware (2.16) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 3 FINISHES REVIEW",
+     "task": "Countertops, Backsplash & Surfaces (2.17) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 3 FINISHES REVIEW",
+     "task": "Flooring & Tile (2.18) \u2014 confirmed"
+    },
+    {
+     "section": "PHASE 3 FINISHES REVIEW",
+     "task": "Paint, Stain & Finish Selections (2.19) \u2014 confirmed"
+    },
+    {
+     "section": "TRACKER & BUDGET RECONCILIATION",
+     "task": "Review complete Selections Tracker for any gaps"
+    },
+    {
+     "section": "TRACKER & BUDGET RECONCILIATION",
+     "task": "Confirm all POs placed and delivery dates aligned"
+    },
+    {
+     "section": "TRACKER & BUDGET RECONCILIATION",
+     "task": "Compare selections total vs. original budget allocation"
+    },
+    {
+     "section": "TRACKER & BUDGET RECONCILIATION",
+     "task": "Flag any allowance items vs. confirmed selections"
+    },
+    {
+     "section": "TRACKER & BUDGET RECONCILIATION",
+     "task": "Document budget variance and get client approval"
+    },
+    {
+     "section": "SIGN-OFF & HANDOFF",
+     "task": "Client signs Selections Sign-Off document"
+    },
+    {
+     "section": "SIGN-OFF & HANDOFF",
+     "task": "Create complete Selections Package"
+    },
+    {
+     "section": "SIGN-OFF & HANDOFF",
+     "task": "Hand off Selections Package to Construction PM for estimating"
+    },
+    {
+     "section": "SIGN-OFF & HANDOFF",
+     "task": "Create budget variance summary"
+    },
+    {
+     "section": "SIGN-OFF & HANDOFF",
+     "task": "Archive all selection records and PO documentation"
+    }
+   ],
+   "gate": "PAINT, STAIN & FINISHES LOCKED"
+  },
+  {
+   "stage": "2.5 \u00b7 Coordination & Permits",
+   "step": "2.2",
+   "title": "HIRE ARCHITECT & STRUCTURAL ENGINEER",
+   "ownerRole": "General Manager",
+   "targetDays": "14 days",
+   "items": [
+    {
+     "section": "SCOPE DEVELOPMENT & RFP",
+     "task": "Develop project scope document from finalized designs (Step 2.1)"
+    },
+    {
+     "section": "SCOPE DEVELOPMENT & RFP",
+     "task": "Define structural vs. architectural scope (load-bearing, additions, etc.)"
+    },
+    {
+     "section": "SCOPE DEVELOPMENT & RFP",
+     "task": "Confirm if MEP engineering is needed (mechanical/electrical/plumbing)"
+    },
+    {
+     "section": "SCOPE DEVELOPMENT & RFP",
+     "task": "Prepare Request for Proposal (RFP) packages"
+    },
+    {
+     "section": "SCOPE DEVELOPMENT & RFP",
+     "task": "Distribute RFPs to qualified architects (minimum 2 proposals)"
+    },
+    {
+     "section": "SCOPE DEVELOPMENT & RFP",
+     "task": "Distribute RFPs to qualified structural engineers (minimum 2 proposals)"
+    },
+    {
+     "section": "PROPOSAL REVIEW & SELECTION",
+     "task": "Receive and review architect proposals (scope, fee, timeline)"
+    },
+    {
+     "section": "PROPOSAL REVIEW & SELECTION",
+     "task": "Receive and review structural engineer proposals"
+    },
+    {
+     "section": "PROPOSAL REVIEW & SELECTION",
+     "task": "Compare proposals \u2014 cost, timeline, experience with similar projects"
+    },
+    {
+     "section": "PROPOSAL REVIEW & SELECTION",
+     "task": "Check references and past project quality"
+    },
+    {
+     "section": "PROPOSAL REVIEW & SELECTION",
+     "task": "Select architect \u2014 document rationale"
+    },
+    {
+     "section": "PROPOSAL REVIEW & SELECTION",
+     "task": "Select structural engineer \u2014 document rationale"
+    },
+    {
+     "section": "CONTRACTING & ONBOARDING",
+     "task": "Execute architect contract (scope, fee schedule, deliverables, timeline)"
+    },
+    {
+     "section": "CONTRACTING & ONBOARDING",
+     "task": "Execute structural engineer contract"
+    },
+    {
+     "section": "CONTRACTING & ONBOARDING",
+     "task": "Verify insurance certificates (E&O, general liability)"
+    },
+    {
+     "section": "CONTRACTING & ONBOARDING",
+     "task": "Distribute finalized design package to both consultants"
+    },
+    {
+     "section": "CONTRACTING & ONBOARDING",
+     "task": "Conduct kickoff meeting \u2014 review scope, timeline, deliverables"
+    },
+    {
+     "section": "CONTRACTING & ONBOARDING",
+     "task": "Confirm drawing delivery schedule and milestone dates"
+    },
+    {
+     "section": "CONTRACTING & ONBOARDING",
+     "task": "Set up project communication channel (email group / portal)"
+    }
+   ],
+   "gate": "CONSULTANTS UNDER CONTRACT"
+  },
+  {
+   "stage": "2.5 \u00b7 Coordination & Permits",
+   "step": "2.3",
+   "title": "CONSTRUCTION DRAWINGS & GM REVIEW",
+   "ownerRole": "General Manager",
+   "targetDays": "30-45 days (drawing development)",
+   "items": [
+    {
+     "section": "ARCHITECTURAL DRAWINGS",
+     "task": "Receive initial architectural drawing set from architect"
+    },
+    {
+     "section": "ARCHITECTURAL DRAWINGS",
+     "task": "Verify floorplans match approved designs from Step 2.1"
+    },
+    {
+     "section": "ARCHITECTURAL DRAWINGS",
+     "task": "Review dimensions, room layouts, door/window schedules"
+    },
+    {
+     "section": "ARCHITECTURAL DRAWINGS",
+     "task": "Review exterior elevations and roof plans"
+    },
+    {
+     "section": "ARCHITECTURAL DRAWINGS",
+     "task": "Confirm code compliance notes and ADA requirements (if applicable)"
+    },
+    {
+     "section": "ARCHITECTURAL DRAWINGS",
+     "task": "GM redline markup \u2014 document all corrections needed"
+    },
+    {
+     "section": "ARCHITECTURAL DRAWINGS",
+     "task": "Return markups to architect with revision deadline"
+    },
+    {
+     "section": "STRUCTURAL DRAWINGS",
+     "task": "Receive structural drawing set from engineer"
+    },
+    {
+     "section": "STRUCTURAL DRAWINGS",
+     "task": "Review foundation plan and details"
+    },
+    {
+     "section": "STRUCTURAL DRAWINGS",
+     "task": "Review framing plans \u2014 floor, wall, roof structure"
+    },
+    {
+     "section": "STRUCTURAL DRAWINGS",
+     "task": "Verify beam sizing, point loads, and connections"
+    },
+    {
+     "section": "STRUCTURAL DRAWINGS",
+     "task": "Confirm structural notes align with architectural plans"
+    },
+    {
+     "section": "STRUCTURAL DRAWINGS",
+     "task": "GM redline markup \u2014 document corrections needed"
+    },
+    {
+     "section": "STRUCTURAL DRAWINGS",
+     "task": "Return markups to structural engineer"
+    },
+    {
+     "section": "MEP COORDINATION (IF APPLICABLE)",
+     "task": "Receive MEP drawings (mechanical/electrical/plumbing)"
+    },
+    {
+     "section": "MEP COORDINATION (IF APPLICABLE)",
+     "task": "Cross-check MEP against architectural & structural plans"
+    },
+    {
+     "section": "MEP COORDINATION (IF APPLICABLE)",
+     "task": "Verify HVAC layout, electrical panel locations, plumbing runs"
+    },
+    {
+     "section": "MEP COORDINATION (IF APPLICABLE)",
+     "task": "Flag conflicts or coordination issues"
+    },
+    {
+     "section": "MEP COORDINATION (IF APPLICABLE)",
+     "task": "Distribute coordination comments to all consultants"
+    },
+    {
+     "section": "FINAL DRAWING SET APPROVAL",
+     "task": "Receive revised drawings from all consultants"
+    },
+    {
+     "section": "FINAL DRAWING SET APPROVAL",
+     "task": "Verify all markups have been addressed"
+    },
+    {
+     "section": "FINAL DRAWING SET APPROVAL",
+     "task": "Confirm drawing set is complete for permit submission"
+    },
+    {
+     "section": "FINAL DRAWING SET APPROVAL",
+     "task": "GM final sign-off on construction drawing package"
+    },
+    {
+     "section": "FINAL DRAWING SET APPROVAL",
+     "task": "Archive final drawing set (digital & physical copies)"
+    }
+   ],
+   "gate": "CONSTRUCTION DRAWINGS APPROVED"
+  },
+  {
+   "stage": "2.5 \u00b7 Coordination & Permits",
+   "step": "2.4",
+   "title": "CONSULTANT START & SCHEDULE TRACKING",
+   "ownerRole": "General Manager & Project Coordinator",
+   "targetDays": "Ongoing \u2014 monitor weekly",
+   "items": [
+    {
+     "section": "DISTRIBUTION & KICKOFF",
+     "task": "Distribute approved construction drawings to all trades/consultants"
+    },
+    {
+     "section": "DISTRIBUTION & KICKOFF",
+     "task": "Confirm receipt from each consultant (architect, structural, MEP)"
+    },
+    {
+     "section": "DISTRIBUTION & KICKOFF",
+     "task": "Send project schedule with key milestone dates"
+    },
+    {
+     "section": "DISTRIBUTION & KICKOFF",
+     "task": "Distribute updated contact list for all project stakeholders"
+    },
+    {
+     "section": "SCHEDULE MANAGEMENT",
+     "task": "Create master consultant schedule with all deliverable deadlines"
+    },
+    {
+     "section": "SCHEDULE MANAGEMENT",
+     "task": "Set bi-weekly check-in cadence with architect"
+    },
+    {
+     "section": "SCHEDULE MANAGEMENT",
+     "task": "Set bi-weekly check-in cadence with structural engineer"
+    },
+    {
+     "section": "SCHEDULE MANAGEMENT",
+     "task": "Set check-in cadence with MEP consultant (if applicable)"
+    },
+    {
+     "section": "SCHEDULE MANAGEMENT",
+     "task": "Track drawing revision submissions vs. deadlines"
+    },
+    {
+     "section": "SCHEDULE MANAGEMENT",
+     "task": "Track RFI (Request for Information) responses and turnaround times"
+    },
+    {
+     "section": "SCHEDULE MANAGEMENT",
+     "task": "Escalate delays > 5 business days to GM immediately"
+    },
+    {
+     "section": "COORDINATION & ISSUE RESOLUTION",
+     "task": "Hold coordination meetings as needed for cross-discipline conflicts"
+    },
+    {
+     "section": "COORDINATION & ISSUE RESOLUTION",
+     "task": "Maintain RFI log with status tracking"
+    },
+    {
+     "section": "COORDINATION & ISSUE RESOLUTION",
+     "task": "Document change orders from consultant revisions"
+    },
+    {
+     "section": "COORDINATION & ISSUE RESOLUTION",
+     "task": "Update project schedule with any timeline changes"
+    },
+    {
+     "section": "COORDINATION & ISSUE RESOLUTION",
+     "task": "Weekly status report to GM on consultant progress"
+    }
+   ],
+   "gate": "CONSULTANTS ON TRACK"
+  },
+  {
+   "stage": "2.5 \u00b7 Coordination & Permits",
+   "step": "2.5",
+   "title": "SEPTIC DESIGN & PERMIT (IF APPLICABLE)",
+   "ownerRole": "General Manager",
+   "targetDays": "30-60 days (Health Dept. timelines vary)",
+   "items": [
+    {
+     "section": "APPLICABILITY CHECK",
+     "task": "Determine if project requires new septic or modification to existing"
+    },
+    {
+     "section": "APPLICABILITY CHECK",
+     "task": "If municipal sewer available \u2014 mark N/A and skip to gate"
+    },
+    {
+     "section": "APPLICABILITY CHECK",
+     "task": "Review local Health Department requirements for septic permits"
+    },
+    {
+     "section": "APPLICABILITY CHECK",
+     "task": "Identify required soil/perc tests and site evaluations"
+    },
+    {
+     "section": "SEPTIC ENGINEER ENGAGEMENT",
+     "task": "Hire licensed septic engineer / soil scientist"
+    },
+    {
+     "section": "SEPTIC ENGINEER ENGAGEMENT",
+     "task": "Schedule and complete soil percolation test"
+    },
+    {
+     "section": "SEPTIC ENGINEER ENGAGEMENT",
+     "task": "Receive perc test results and engineer's assessment"
+    },
+    {
+     "section": "SEPTIC ENGINEER ENGAGEMENT",
+     "task": "Determine septic system type (conventional, mound, aerobic, etc.)"
+    },
+    {
+     "section": "SEPTIC ENGINEER ENGAGEMENT",
+     "task": "Review septic design for code compliance"
+    },
+    {
+     "section": "SEPTIC ENGINEER ENGAGEMENT",
+     "task": "Confirm septic location does not conflict with building footprint"
+    },
+    {
+     "section": "HEALTH DEPARTMENT SUBMISSION",
+     "task": "Prepare Health Department permit application"
+    },
+    {
+     "section": "HEALTH DEPARTMENT SUBMISSION",
+     "task": "Include perc test results, septic design, site plan"
+    },
+    {
+     "section": "HEALTH DEPARTMENT SUBMISSION",
+     "task": "Submit application to County/Local Health Department"
+    },
+    {
+     "section": "HEALTH DEPARTMENT SUBMISSION",
+     "task": "Pay application fees"
+    },
+    {
+     "section": "HEALTH DEPARTMENT SUBMISSION",
+     "task": "Track review timeline (typical 2-6 weeks)"
+    },
+    {
+     "section": "HEALTH DEPARTMENT SUBMISSION",
+     "task": "Respond to any Health Department comments or requests"
+    },
+    {
+     "section": "HEALTH DEPARTMENT SUBMISSION",
+     "task": "Receive septic permit approval"
+    },
+    {
+     "section": "HEALTH DEPARTMENT SUBMISSION",
+     "task": "File approved septic permit with project documents"
+    }
+   ],
+   "gate": "SEPTIC PERMIT APPROVED (OR N/A)"
+  },
+  {
+   "stage": "2.5 \u00b7 Coordination & Permits",
+   "step": "2.6",
+   "title": "PERMIT APPLICATION PREPARATION",
+   "ownerRole": "General Manager & Project Coordinator",
+   "targetDays": "7-14 days",
+   "items": [
+    {
+     "section": "DOCUMENT ASSEMBLY",
+     "task": "Compile final construction drawing set (architectural + structural)"
+    },
+    {
+     "section": "DOCUMENT ASSEMBLY",
+     "task": "Include MEP drawings (if required by jurisdiction)"
+    },
+    {
+     "section": "DOCUMENT ASSEMBLY",
+     "task": "Include septic permit or sewer connection approval"
+    },
+    {
+     "section": "DOCUMENT ASSEMBLY",
+     "task": "Obtain property survey / site plan with setbacks"
+    },
+    {
+     "section": "DOCUMENT ASSEMBLY",
+     "task": "Prepare scope of work narrative / project description"
+    },
+    {
+     "section": "DOCUMENT ASSEMBLY",
+     "task": "Compile energy code compliance documentation (if required)"
+    },
+    {
+     "section": "DOCUMENT ASSEMBLY",
+     "task": "Gather HOA approval letter (if applicable)"
+    },
+    {
+     "section": "APPLICATION FORMS",
+     "task": "Download building permit application from local jurisdiction"
+    },
+    {
+     "section": "APPLICATION FORMS",
+     "task": "Complete all required application fields"
+    },
+    {
+     "section": "APPLICATION FORMS",
+     "task": "Confirm contractor license information is current"
+    },
+    {
+     "section": "APPLICATION FORMS",
+     "task": "Confirm liability and workers comp insurance certificates"
+    },
+    {
+     "section": "APPLICATION FORMS",
+     "task": "Prepare fee payment (check permit fee schedule for estimate)"
+    },
+    {
+     "section": "INTERNAL REVIEW BEFORE SUBMISSION",
+     "task": "GM reviews complete permit package for accuracy"
+    },
+    {
+     "section": "INTERNAL REVIEW BEFORE SUBMISSION",
+     "task": "Verify all required attachments are included"
+    },
+    {
+     "section": "INTERNAL REVIEW BEFORE SUBMISSION",
+     "task": "Confirm owner / authorized agent signatures are in place"
+    },
+    {
+     "section": "INTERNAL REVIEW BEFORE SUBMISSION",
+     "task": "Verify project address and parcel number are correct"
+    },
+    {
+     "section": "INTERNAL REVIEW BEFORE SUBMISSION",
+     "task": "Create 2 copies of complete submission package (1 file, 1 submit)"
+    }
+   ],
+   "gate": "PERMIT PACKAGE READY FOR SUBMISSION"
+  },
+  {
+   "stage": "2.5 \u00b7 Coordination & Permits",
+   "step": "2.7",
+   "title": "PERMIT SUBMISSION & TRACKING",
+   "ownerRole": "General Manager & Sales Lead",
+   "targetDays": "1-2 meetings within 7 days",
+   "items": [
+    {
+     "section": "SUBMISSION",
+     "task": "Submit permit application to local building department"
+    },
+    {
+     "section": "SUBMISSION",
+     "task": "Pay all required permit fees \u2014 record amount and receipt"
+    },
+    {
+     "section": "SUBMISSION",
+     "task": "Obtain application/tracking number from jurisdiction"
+    },
+    {
+     "section": "SUBMISSION",
+     "task": "Confirm estimated review timeline with permit office"
+    },
+    {
+     "section": "SUBMISSION",
+     "task": "Note reviewer name and direct contact info (if available)"
+    },
+    {
+     "section": "TRACKING & FOLLOW-UP",
+     "task": "Log permit status in project tracking system"
+    },
+    {
+     "section": "TRACKING & FOLLOW-UP",
+     "task": "Check status weekly (online portal or phone)"
+    },
+    {
+     "section": "TRACKING & FOLLOW-UP",
+     "task": "Respond to plan review comments within 5 business days"
+    },
+    {
+     "section": "TRACKING & FOLLOW-UP",
+     "task": "Coordinate with architect/engineer for any required revisions"
+    },
+    {
+     "section": "TRACKING & FOLLOW-UP",
+     "task": "Resubmit revised documents if corrections requested"
+    },
+    {
+     "section": "TRACKING & FOLLOW-UP",
+     "task": "Track resubmission review timeline"
+    },
+    {
+     "section": "PERMIT ISSUANCE",
+     "task": "Receive permit approval notification"
+    },
+    {
+     "section": "PERMIT ISSUANCE",
+     "task": "Pick up / download approved permit and stamped plans"
+    },
+    {
+     "section": "PERMIT ISSUANCE",
+     "task": "Verify all conditions of approval and special inspections required"
+    },
+    {
+     "section": "PERMIT ISSUANCE",
+     "task": "Post permit on jobsite (as required by code)"
+    },
+    {
+     "section": "PERMIT ISSUANCE",
+     "task": "Distribute approved plans to all trades and consultants"
+    },
+    {
+     "section": "PERMIT ISSUANCE",
+     "task": "File original permit with project documents"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "Compile final construction cost estimate from Estimating Worksheet \u2014 verify all cost codes 1000\u20138000 are complete"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "Prepare Construction Proposal document (scope, cost, schedule)"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "Prepare Selection Packages: Exterior Package A (Standard) vs B (Premium), Interior Package A (Standard) vs B (Premium) \u2014 pull from Estimatin"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "Include allowance breakdown for all selection categories"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "Verify Package A and Package B pricing differentials are accurate and reflect actual trade quotes and material selections"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "Generate 4 total price scenarios for client: Int A/Ext A, Int A/Ext B, Int B/Ext A, Int B/Ext B"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "Include payment schedule / draw schedule"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "Include project timeline with key milestones"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "Include warranty and post-construction service terms"
+    },
+    {
+     "section": "PROPOSAL PREPARATION",
+     "task": "GM final review and approval of proposal package"
+    },
+    {
+     "section": "CLIENT PRESENTATION MEETING",
+     "task": "Schedule Construction Proposal presentation meeting with client"
+    },
+    {
+     "section": "CLIENT PRESENTATION MEETING",
+     "task": "Present scope of work \u2014 walk through all line items"
+    },
+    {
+     "section": "CLIENT PRESENTATION MEETING",
+     "task": "Present total contract price and payment terms"
+    },
+    {
+     "section": "CLIENT PRESENTATION MEETING",
+     "task": "Present project schedule and estimated completion date"
+    },
+    {
+     "section": "CLIENT PRESENTATION MEETING",
+     "task": "Present selection packages and allowance budget"
+    },
+    {
+     "section": "CLIENT PRESENTATION MEETING",
+     "task": "Walk client through Package A vs Package B differences for both interior and exterior"
+    },
+    {
+     "section": "CLIENT PRESENTATION MEETING",
+     "task": "Document client's selected package combination (Int A/Ext A, Int A/Ext B, Int B/Ext A, or Int B/Ext B)"
+    },
+    {
+     "section": "CLIENT PRESENTATION MEETING",
+     "task": "Address client questions and concerns"
+    },
+    {
+     "section": "CLIENT PRESENTATION MEETING",
+     "task": "Document all client feedback and requested changes"
+    },
+    {
+     "section": "NEGOTIATION & ADJUSTMENTS",
+     "task": "Review and address any client-requested scope changes"
+    },
+    {
+     "section": "NEGOTIATION & ADJUSTMENTS",
+     "task": "Prepare revised proposal if changes > $5,000 or scope modifications"
+    },
+    {
+     "section": "NEGOTIATION & ADJUSTMENTS",
+     "task": "Re-present revised proposal for approval (if applicable)"
+    },
+    {
+     "section": "NEGOTIATION & ADJUSTMENTS",
+     "task": "Confirm final contract price and scope"
+    },
+    {
+     "section": "CONTRACT EXECUTION",
+     "task": "Prepare final construction contract for signature"
+    },
+    {
+     "section": "CONTRACT EXECUTION",
+     "task": "Both parties sign construction contract"
+    },
+    {
+     "section": "CONTRACT EXECUTION",
+     "task": "Collect initial deposit per payment schedule"
+    },
+    {
+     "section": "CONTRACT EXECUTION",
+     "task": "Issue signed contract copy to client"
+    },
+    {
+     "section": "CONTRACT EXECUTION",
+     "task": "File executed contract with project documents"
+    },
+    {
+     "section": "CONTRACT EXECUTION",
+     "task": "Schedule pre-construction kickoff meeting date"
+    }
+   ],
+   "gate": "BUILDING PERMIT ISSUED"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.1",
+   "title": "TRADE CONTRACTS & SUBCONTRACTOR AGREEMENTS",
+   "ownerRole": "Project Coordinator",
+   "targetDays": "Complete before site mobilization",
+   "items": [
+    {
+     "section": "SCOPE & AWARD",
+     "task": "Finalize trade scope sheets for each division from drawings & selections"
+    },
+    {
+     "section": "SCOPE & AWARD",
+     "task": "Issue tender/scope packages to shortlisted subcontractors"
+    },
+    {
+     "section": "SCOPE & AWARD",
+     "task": "Level bids and confirm against estimate / cost codes"
+    },
+    {
+     "section": "SCOPE & AWARD",
+     "task": "Award trades; notify successful and unsuccessful bidders"
+    },
+    {
+     "section": "CONTRACTS & COMPLIANCE",
+     "task": "Issue subcontractor agreement (scope, price, schedule, payment terms)"
+    },
+    {
+     "section": "CONTRACTS & COMPLIANCE",
+     "task": "Collect signed agreements from all awarded trades"
+    },
+    {
+     "section": "CONTRACTS & COMPLIANCE",
+     "task": "Collect valid WSIB clearance certificate for each sub"
+    },
+    {
+     "section": "CONTRACTS & COMPLIANCE",
+     "task": "Collect Certificate of Insurance (CGL) naming Henley as additional insured"
+    },
+    {
+     "section": "CONTRACTS & COMPLIANCE",
+     "task": "Confirm licensing / qualifications (ESA electrical, TSSA gas, etc.)"
+    },
+    {
+     "section": "FILING",
+     "task": "File executed contracts, WSIB, and COIs in project folder / Buildertrend"
+    },
+    {
+     "section": "FILING",
+     "task": "Log awarded subs and contacts in project directory"
+    }
+   ],
+   "gate": "TRADE CONTRACTS & SUBCONTRACTOR AGREEMENTS"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.2",
+   "title": "PURCHASE ORDERS ISSUED",
+   "ownerRole": "Project Coordinator",
+   "targetDays": "Before material deliveries",
+   "items": [
+    {
+     "section": "PO PREPARATION",
+     "task": "Build PO list from estimate cost codes and confirmed selections"
+    },
+    {
+     "section": "PO PREPARATION",
+     "task": "Confirm supplier pricing and lead times are current"
+    },
+    {
+     "section": "PO PREPARATION",
+     "task": "Verify quantities against drawings / takeoffs (with waste factor)"
+    },
+    {
+     "section": "ISSUE & TRACK",
+     "task": "Issue POs to suppliers against correct cost codes"
+    },
+    {
+     "section": "ISSUE & TRACK",
+     "task": "Confirm PO acknowledgement and delivery dates from each supplier"
+    },
+    {
+     "section": "ISSUE & TRACK",
+     "task": "Log all POs in tracker / Buildertrend (number, cost code, amount, ETA)"
+    },
+    {
+     "section": "ISSUE & TRACK",
+     "task": "Flag any price variances vs. estimate for GM review"
+    }
+   ],
+   "gate": "PURCHASE ORDERS ISSUED"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.3",
+   "title": "MATERIAL ORDERING & LONG-LEAD PROCUREMENT",
+   "ownerRole": "Project Coordinator",
+   "targetDays": "Order long-leads immediately at buyout",
+   "items": [
+    {
+     "section": "LONG-LEAD ITEMS",
+     "task": "Identify long-lead items (windows, exterior doors, trusses/engineered floors, cabinets, appliances, specialty steel)"
+    },
+    {
+     "section": "LONG-LEAD ITEMS",
+     "task": "Place orders for all long-lead items; confirm production lead times"
+    },
+    {
+     "section": "LONG-LEAD ITEMS",
+     "task": "Map delivery dates against the construction schedule"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Order remaining materials per phase to align with sequencing"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Confirm delivery addresses, site access, and staging/storage plan"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Establish receiving & QC process (count, inspect, document on delivery)"
+    },
+    {
+     "section": "ORDERING & LOGISTICS",
+     "task": "Track outstanding orders; escalate at-risk deliveries"
+    }
+   ],
+   "gate": "MATERIAL ORDERING & LONG-LEAD PROCUREMENT"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.4",
+   "title": "CONSTRUCTION SCHEDULE & TRADE SEQUENCING",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Baseline before kickoff",
+   "items": [
+    {
+     "section": "BUILD SCHEDULE",
+     "task": "Build detailed construction schedule from cost codes and trade list"
+    },
+    {
+     "section": "BUILD SCHEDULE",
+     "task": "Sequence trades and identify the critical path"
+    },
+    {
+     "section": "BUILD SCHEDULE",
+     "task": "Overlay long-lead delivery dates and inspection hold points"
+    },
+    {
+     "section": "BUILD SCHEDULE",
+     "task": "Add client touch points and milestone dates"
+    },
+    {
+     "section": "RESOURCE & REVIEW",
+     "task": "Confirm trade availability against scheduled dates"
+    },
+    {
+     "section": "RESOURCE & REVIEW",
+     "task": "Identify resource conflicts and weather-sensitive activities"
+    },
+    {
+     "section": "RESOURCE & REVIEW",
+     "task": "GM review and baseline approval"
+    },
+    {
+     "section": "RESOURCE & REVIEW",
+     "task": "Publish schedule to team and subs (Buildertrend)"
+    }
+   ],
+   "gate": "CONSTRUCTION SCHEDULE & TRADE SEQUENCING"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.5",
+   "title": "PRE-CONSTRUCTION KICKOFF (INTERNAL HANDOFF + CLIENT MEETING)",
+   "ownerRole": "General Manager",
+   "targetDays": "Before site mobilization",
+   "items": [
+    {
+     "section": "INTERNAL HANDOFF",
+     "task": "Design/sales \u2192 construction team handoff meeting"
+    },
+    {
+     "section": "INTERNAL HANDOFF",
+     "task": "Review scope, drawings, budget, allowances, and assumptions"
+    },
+    {
+     "section": "INTERNAL HANDOFF",
+     "task": "Review approved selections package and any open items"
+    },
+    {
+     "section": "INTERNAL HANDOFF",
+     "task": "Confirm roles, responsibilities, and communication plan"
+    },
+    {
+     "section": "CLIENT PRE-CONSTRUCTION MEETING",
+     "task": "Review schedule, milestones, and start date with client"
+    },
+    {
+     "section": "CLIENT PRE-CONSTRUCTION MEETING",
+     "task": "Set communication cadence and Buildertrend portal access"
+    },
+    {
+     "section": "CLIENT PRE-CONSTRUCTION MEETING",
+     "task": "Review site rules, access, safety, and working hours"
+    },
+    {
+     "section": "CLIENT PRE-CONSTRUCTION MEETING",
+     "task": "Confirm payment / draw schedule and change-order process"
+    },
+    {
+     "section": "CLIENT PRE-CONSTRUCTION MEETING",
+     "task": "Confirm single point of contact for the client"
+    },
+    {
+     "section": "DOCUMENT",
+     "task": "Document meeting notes and decisions; distribute to team and client"
+    }
+   ],
+   "gate": "PRE-CONSTRUCTION KICKOFF (INTERNAL HANDOFF + CLIENT MEETING)"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.6",
+   "title": "SITE MOBILIZATION & LOGISTICS",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Complete before Clearing & Grading",
+   "items": [
+    {
+     "section": "PERMITS & POSTING",
+     "task": "Confirm building permit issued and posted on site"
+    },
+    {
+     "section": "PERMITS & POSTING",
+     "task": "Confirm permit drawings / site set available on site"
+    },
+    {
+     "section": "TEMPORARY SERVICES",
+     "task": "Arrange temporary power and water"
+    },
+    {
+     "section": "TEMPORARY SERVICES",
+     "task": "Place portable toilet and waste bin / dumpster"
+    },
+    {
+     "section": "TEMPORARY SERVICES",
+     "task": "Set up site storage / staging and material laydown area"
+    },
+    {
+     "section": "SITE PROTECTION & ACCESS",
+     "task": "Install site fencing / hoarding and signage"
+    },
+    {
+     "section": "SITE PROTECTION & ACCESS",
+     "task": "Establish construction access and parking"
+    },
+    {
+     "section": "SITE PROTECTION & ACCESS",
+     "task": "Install erosion & sediment controls"
+    },
+    {
+     "section": "SITE PROTECTION & ACCESS",
+     "task": "Arrange utility locates (call before you dig)"
+    },
+    {
+     "section": "SITE PROTECTION & ACCESS",
+     "task": "Confirm survey and building layout / stakeout"
+    },
+    {
+     "section": "RISK",
+     "task": "Confirm builder's risk / course-of-construction insurance active"
+    },
+    {
+     "section": "RISK",
+     "task": "Document existing site conditions (photos); notify neighbours"
+    }
+   ],
+   "gate": "SITE MOBILIZATION & LOGISTICS"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.7",
+   "title": "CLEARING & GRADING",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per construction schedule",
+   "items": [
+    {
+     "section": "SITE PREP",
+     "task": "Confirm permits posted and utility locates complete"
+    },
+    {
+     "section": "SITE PREP",
+     "task": "Install / verify erosion & sediment controls"
+    },
+    {
+     "section": "SITE PREP",
+     "task": "Clear site of vegetation, debris, and obstructions"
+    },
+    {
+     "section": "SITE PREP",
+     "task": "Stockpile topsoil for reuse"
+    },
+    {
+     "section": "GRADING & ACCESS",
+     "task": "Rough grade to engineered elevations"
+    },
+    {
+     "section": "GRADING & ACCESS",
+     "task": "Establish drainage grade / positive slope away from build"
+    },
+    {
+     "section": "GRADING & ACCESS",
+     "task": "Stabilize construction access and laydown area"
+    }
+   ],
+   "gate": "CLEARING & GRADING"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.8",
+   "title": "DEMOLITION & DISPOSAL",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule (if applicable)",
+   "items": [
+    {
+     "section": "PRE-DEMOLITION",
+     "task": "Confirm demolition permit and utility disconnects / capping verified"
+    },
+    {
+     "section": "PRE-DEMOLITION",
+     "task": "Complete hazardous materials assessment; remediate if required"
+    },
+    {
+     "section": "DEMOLITION & DISPOSAL",
+     "task": "Execute demolition per scope"
+    },
+    {
+     "section": "DEMOLITION & DISPOSAL",
+     "task": "Sort, load, and dispose of debris (track loads)"
+    },
+    {
+     "section": "DEMOLITION & DISPOSAL",
+     "task": "Confirm site cleared and safe for new construction"
+    }
+   ],
+   "gate": "DEMOLITION & DISPOSAL"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.9",
+   "title": "UTILITY CONNECTIONS & SEPTIC",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "UTILITIES",
+     "task": "Confirm utility applications (hydro, water, gas) submitted and scheduled"
+    },
+    {
+     "section": "UTILITIES",
+     "task": "Establish temporary power on site"
+    },
+    {
+     "section": "UTILITIES",
+     "task": "Confirm utility locates completed and documented"
+    },
+    {
+     "section": "SEPTIC",
+     "task": "Install septic system per approved design"
+    },
+    {
+     "section": "SEPTIC",
+     "task": "Pass Health Department / septic inspection"
+    },
+    {
+     "section": "SEPTIC",
+     "task": "File approvals in project record"
+    }
+   ],
+   "gate": "UTILITY CONNECTIONS & SEPTIC"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.10",
+   "title": "EXCAVATION",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "EXCAVATION",
+     "task": "Excavate to engineered depths and dimensions"
+    },
+    {
+     "section": "EXCAVATION",
+     "task": "Manage groundwater / dewatering as needed"
+    },
+    {
+     "section": "EXCAVATION",
+     "task": "Document soil conditions; flag variances to engineer"
+    },
+    {
+     "section": "INSPECTION",
+     "task": "Subgrade inspected and approved by engineer (if required)"
+    },
+    {
+     "section": "INSPECTION",
+     "task": "Install drainage tile / weeping system as specified"
+    }
+   ],
+   "gate": "EXCAVATION"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.11",
+   "title": "FOOTINGS & FOUNDATIONS",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "FOOTINGS",
+     "task": "Set forms and rebar per drawings"
+    },
+    {
+     "section": "FOOTINGS",
+     "task": "Pass footing inspection before pour"
+    },
+    {
+     "section": "FOOTINGS",
+     "task": "Pour footings; log mix, temperature, and cure"
+    },
+    {
+     "section": "FOUNDATION WALLS",
+     "task": "Form, reinforce, and pour foundation walls"
+    },
+    {
+     "section": "FOUNDATION WALLS",
+     "task": "Cure and strip forms; verify dimensions and squareness"
+    },
+    {
+     "section": "FOUNDATION WALLS",
+     "task": "Pass foundation inspection"
+    }
+   ],
+   "gate": "FOOTINGS & FOUNDATIONS"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.12",
+   "title": "FOUNDATION WATERPROOFING & BACKFILL",
+   "ownerRole": "Construction PM & GM",
+   "targetDays": "At foundation completion",
+   "items": [
+    {
+     "section": "WATERPROOFING & DRAINAGE",
+     "task": "Apply waterproofing membrane to foundation walls"
+    },
+    {
+     "section": "WATERPROOFING & DRAINAGE",
+     "task": "Install perimeter drainage and test"
+    },
+    {
+     "section": "WATERPROOFING & DRAINAGE",
+     "task": "Seal all penetrations"
+    },
+    {
+     "section": "BACKFILL",
+     "task": "Backfill and compact in lifts"
+    },
+    {
+     "section": "BACKFILL",
+     "task": "Confirm final grade slopes away from foundation"
+    },
+    {
+     "section": "BACKFILL",
+     "task": "Photo-document and sign off framing readiness"
+    },
+    {
+     "section": "CLIENT UPDATE",
+     "task": "Walk client through completed foundation (in person or photos/video)"
+    },
+    {
+     "section": "CLIENT UPDATE",
+     "task": "Communicate schedule update and upcoming framing phase"
+    },
+    {
+     "section": "CLIENT UPDATE",
+     "task": "Document any scope changes or concerns"
+    },
+    {
+     "section": "CLIENT UPDATE",
+     "task": "Confirm next client touch point"
+    }
+   ],
+   "gate": "FOUNDATION WATERPROOFING & BACKFILL"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.13",
+   "title": "ROUGH FRAMING",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "FRAMING",
+     "task": "Receive and QC framing materials (trusses, lumber, engineered floors)"
+    },
+    {
+     "section": "FRAMING",
+     "task": "Frame floors, walls, and roof per drawings"
+    },
+    {
+     "section": "FRAMING",
+     "task": "Verify level, plumb, and square"
+    },
+    {
+     "section": "INSPECTION",
+     "task": "Henley internal framing review"
+    },
+    {
+     "section": "INSPECTION",
+     "task": "Pass building inspector framing inspection"
+    },
+    {
+     "section": "INSPECTION",
+     "task": "Document and correct any deficiencies"
+    }
+   ],
+   "gate": "ROUGH FRAMING"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.14",
+   "title": "DECORATIVE BEAMS & STEEL",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "INSTALL",
+     "task": "Receive and inspect steel / beam deliveries"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Install structural steel and decorative beams per plan"
+    },
+    {
+     "section": "QC",
+     "task": "Confirm structural integrity and connections"
+    },
+    {
+     "section": "QC",
+     "task": "Confirm compliance with plans and code"
+    }
+   ],
+   "gate": "DECORATIVE BEAMS & STEEL"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.15",
+   "title": "WINDOWS, DOORS & OVERHEAD DOORS",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "INSTALL",
+     "task": "Receive and inspect windows/doors against selections (Step 2.9)"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Install windows, exterior doors, and overhead doors"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Adjust hardware; confirm operation"
+    },
+    {
+     "section": "WEATHERPROOFING",
+     "task": "Flash, seal, and weatherproof all openings"
+    },
+    {
+     "section": "WEATHERPROOFING",
+     "task": "Verify sealing and document"
+    }
+   ],
+   "gate": "WINDOWS, DOORS & OVERHEAD DOORS"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.16",
+   "title": "ROOFING",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "ROOFING",
+     "task": "Install roofing system per spec"
+    },
+    {
+     "section": "ROOFING",
+     "task": "Confirm alignment and securement"
+    },
+    {
+     "section": "ROOFING",
+     "task": "Leak test / water-tightness check"
+    },
+    {
+     "section": "ROOFING",
+     "task": "Clean site of debris"
+    }
+   ],
+   "gate": "ROOFING"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.17",
+   "title": "CONCRETE FLOORS & PORCH",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "CONCRETE",
+     "task": "Prep base; set forms and rebar"
+    },
+    {
+     "section": "CONCRETE",
+     "task": "Inspect formwork before pour"
+    },
+    {
+     "section": "CONCRETE",
+     "task": "Pour, finish, and cure concrete"
+    },
+    {
+     "section": "CONCRETE",
+     "task": "Strip forms; clean site"
+    }
+   ],
+   "gate": "CONCRETE FLOORS & PORCH"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.18",
+   "title": "ROUGH PLUMBING",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "ROUGH-IN",
+     "task": "Install rough plumbing per plan (fixtures match selections Step 2.13)"
+    },
+    {
+     "section": "ROUGH-IN",
+     "task": "Confirm rough-in locations against selections"
+    },
+    {
+     "section": "TEST & INSPECT",
+     "task": "Pressure test \u2014 confirm no leaks"
+    },
+    {
+     "section": "TEST & INSPECT",
+     "task": "Pass plumbing rough-in inspection"
+    }
+   ],
+   "gate": "ROUGH PLUMBING"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.19",
+   "title": "ROUGH ELECTRICAL & SMART HOME",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "ROUGH-IN",
+     "task": "Install electrical rough-in per plan"
+    },
+    {
+     "section": "ROUGH-IN",
+     "task": "Pre-wire smart home (matches plan Step 2.15) and access points"
+    },
+    {
+     "section": "ROUGH-IN",
+     "task": "Confirm outlet / switch locations sign-off"
+    },
+    {
+     "section": "INSPECT",
+     "task": "Pass electrical rough-in inspection (ESA)"
+    }
+   ],
+   "gate": "ROUGH ELECTRICAL & SMART HOME"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.20",
+   "title": "ROUGH HVAC & FIREPLACES",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "ROUGH-IN",
+     "task": "Install HVAC ductwork and equipment rough-in"
+    },
+    {
+     "section": "ROUGH-IN",
+     "task": "Install fireplace(s); complete safety test"
+    },
+    {
+     "section": "TEST & INSPECT",
+     "task": "Duct pressure test"
+    },
+    {
+     "section": "TEST & INSPECT",
+     "task": "Pass HVAC rough-in inspection"
+    }
+   ],
+   "gate": "ROUGH HVAC & FIREPLACES"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.21",
+   "title": "MASONRY",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "MASONRY",
+     "task": "Install masonry (stone / brick) per plan"
+    },
+    {
+     "section": "MASONRY",
+     "task": "Inspect alignment and strength"
+    },
+    {
+     "section": "MASONRY",
+     "task": "Confirm aesthetics per plan; clean site"
+    }
+   ],
+   "gate": "MASONRY"
+  },
+  {
+   "stage": "3 \u00b7 Construction",
+   "step": "3.22",
+   "title": "SOFFIT, FASCIA, TROUGH & SIDING",
+   "ownerRole": "Construction PM & GM",
+   "targetDays": "At rough-structure completion",
+   "items": [
+    {
+     "section": "EXTERIOR ENVELOPE",
+     "task": "Install moisture barrier; verify coverage"
+    },
+    {
+     "section": "EXTERIOR ENVELOPE",
+     "task": "Install siding, soffit, fascia, and eavestrough"
+    },
+    {
+     "section": "EXTERIOR ENVELOPE",
+     "task": "Confirm trim alignment and secure fastening"
+    },
+    {
+     "section": "EXTERIOR ENVELOPE",
+     "task": "Clean site"
+    },
+    {
+     "section": "CLIENT UPDATE",
+     "task": "Walk client through Rough Structure & Exterior progress"
+    },
+    {
+     "section": "CLIENT UPDATE",
+     "task": "Re-confirm all interior selections before finishing phase"
+    },
+    {
+     "section": "CLIENT UPDATE",
+     "task": "Document any changes"
+    },
+    {
+     "section": "CLIENT UPDATE",
+     "task": "Communicate schedule update"
+    }
+   ],
+   "gate": "SOFFIT, FASCIA, TROUGH & SIDING"
+  },
+  {
+   "stage": "4 \u00b7 Interior Finishing",
+   "step": "4.1",
+   "title": "INSULATION",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "INSTALL",
+     "task": "Install insulation per plan (walls, ceilings, sound batts)"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Air-seal and verify thermal gaps sealed"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Photo-document coverage"
+    },
+    {
+     "section": "INSPECT",
+     "task": "Pass insulation inspection"
+    }
+   ],
+   "gate": "INSULATION"
+  },
+  {
+   "stage": "4 \u00b7 Interior Finishing",
+   "step": "4.2",
+   "title": "DRYWALL",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "HANG & FINISH",
+     "task": "Moisture check before hanging"
+    },
+    {
+     "section": "HANG & FINISH",
+     "task": "Hang drywall"
+    },
+    {
+     "section": "HANG & FINISH",
+     "task": "Tape, mud, and sand to smooth finish"
+    },
+    {
+     "section": "QC",
+     "task": "Inspect for defects; track deficiencies"
+    },
+    {
+     "section": "QC",
+     "task": "Confirm ready for paint"
+    }
+   ],
+   "gate": "DRYWALL"
+  },
+  {
+   "stage": "4 \u00b7 Interior Finishing",
+   "step": "4.3",
+   "title": "PAINT",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "PAINT",
+     "task": "Confirm paint schedule by room (color, finish, # coats) \u2014 cross-ref Step 2.19"
+    },
+    {
+     "section": "PAINT",
+     "task": "Prime and paint all surfaces per selections"
+    },
+    {
+     "section": "PAINT",
+     "task": "Complete touch-ups"
+    },
+    {
+     "section": "PAINT",
+     "task": "Confirm client color selections matched"
+    }
+   ],
+   "gate": "PAINT"
+  },
+  {
+   "stage": "4 \u00b7 Interior Finishing",
+   "step": "4.4",
+   "title": "INTERIOR DOORS, TRIM & STAIRS",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "INSTALL",
+     "task": "Hang interior doors per schedule \u2014 cross-ref Step 2.10"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Install trim (baseboard, casing, crown) with tight joints"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Install stairs and railings"
+    },
+    {
+     "section": "QC",
+     "task": "Confirm doors operational; trim joints tight"
+    },
+    {
+     "section": "QC",
+     "task": "Confirm stairs / railings secure and code-compliant"
+    }
+   ],
+   "gate": "INTERIOR DOORS, TRIM & STAIRS"
+  },
+  {
+   "stage": "4 \u00b7 Interior Finishing",
+   "step": "4.5",
+   "title": "FLOORING & CERAMIC TILE",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "INSTALL",
+     "task": "Confirm subfloor level"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Install flooring per room \u2014 cross-ref Step 2.18"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Tile layout approval before setting wet areas"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Commission heated floors (cross-ref electrical)"
+    },
+    {
+     "section": "QC",
+     "task": "Confirm no gaps or defects"
+    }
+   ],
+   "gate": "FLOORING & CERAMIC TILE"
+  },
+  {
+   "stage": "4 \u00b7 Interior Finishing",
+   "step": "4.6",
+   "title": "CABINETRY, COUNTERTOPS & BACKSPLASH",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "CABINETS",
+     "task": "Install cabinets level and secure \u2014 cross-ref Step 2.16"
+    },
+    {
+     "section": "CABINETS",
+     "task": "Template countertops after cabinet install"
+    },
+    {
+     "section": "SURFACES",
+     "task": "Install and seal countertops \u2014 cross-ref Step 2.17"
+    },
+    {
+     "section": "SURFACES",
+     "task": "Install backsplash (layout approval)"
+    },
+    {
+     "section": "SURFACES",
+     "task": "Confirm client selections matched"
+    }
+   ],
+   "gate": "CABINETRY, COUNTERTOPS & BACKSPLASH"
+  },
+  {
+   "stage": "4 \u00b7 Interior Finishing",
+   "step": "4.7",
+   "title": "FINISH PLUMBING",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "INSTALL",
+     "task": "Install all fixtures \u2014 cross-ref Step 2.13"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Install shower doors, mirrors, and accessories"
+    },
+    {
+     "section": "TEST",
+     "task": "Leak test all fixtures"
+    },
+    {
+     "section": "TEST",
+     "task": "Confirm fixtures functional and secure"
+    }
+   ],
+   "gate": "FINISH PLUMBING"
+  },
+  {
+   "stage": "4 \u00b7 Interior Finishing",
+   "step": "4.8",
+   "title": "FINISH ELECTRICAL & HVAC",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "FINISH ELECTRICAL",
+     "task": "Install fixtures, plates, switches \u2014 cross-ref lighting plan Step 2.15"
+    },
+    {
+     "section": "FINISH ELECTRICAL",
+     "task": "Activate smart home system"
+    },
+    {
+     "section": "HVAC & INSPECT",
+     "task": "Commission HVAC system; confirm functional"
+    },
+    {
+     "section": "HVAC & INSPECT",
+     "task": "Pass final electrical / HVAC inspection"
+    }
+   ],
+   "gate": "FINISH ELECTRICAL & HVAC"
+  },
+  {
+   "stage": "4 \u00b7 Interior Finishing",
+   "step": "4.9",
+   "title": "APPLIANCES",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "INSTALL",
+     "task": "Deliver and install appliances \u2014 cross-ref Step 2.14"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Verify connections (electrical, plumbing, gas)"
+    },
+    {
+     "section": "HANDOFF",
+     "task": "Test all appliances"
+    },
+    {
+     "section": "HANDOFF",
+     "task": "Client orientation / walkthrough of appliance operation"
+    }
+   ],
+   "gate": "APPLIANCES"
+  },
+  {
+   "stage": "5 \u00b7 Cleanup & Handoff",
+   "step": "5.1",
+   "title": "BUILDING CLEANUP",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "CLEANUP",
+     "task": "Interior cleanup room by room (dust, floors, windows, fixtures)"
+    },
+    {
+     "section": "CLEANUP",
+     "task": "Exterior cleanup and debris removal (track loads)"
+    },
+    {
+     "section": "CLEANUP",
+     "task": "Presentation-ready walkthrough"
+    }
+   ],
+   "gate": "BUILDING CLEANUP"
+  },
+  {
+   "stage": "5 \u00b7 Cleanup & Handoff",
+   "step": "5.2",
+   "title": "LANDSCAPING",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule / season",
+   "items": [
+    {
+     "section": "LANDSCAPING",
+     "task": "Install landscaping per plan"
+    },
+    {
+     "section": "LANDSCAPING",
+     "task": "Verify final grading and drainage"
+    },
+    {
+     "section": "LANDSCAPING",
+     "task": "Coordinate landscape lighting \u2014 cross-ref Step 2.15"
+    },
+    {
+     "section": "LANDSCAPING",
+     "task": "Confirm site clean"
+    }
+   ],
+   "gate": "LANDSCAPING"
+  },
+  {
+   "stage": "5 \u00b7 Cleanup & Handoff",
+   "step": "5.3",
+   "title": "DECKS, FENCING & EXTERIOR RAILINGS",
+   "ownerRole": "Site Supervisor",
+   "targetDays": "Per schedule",
+   "items": [
+    {
+     "section": "INSTALL",
+     "task": "Install decks, fencing, and exterior railings"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Confirm structural attachment and code compliance"
+    },
+    {
+     "section": "INSTALL",
+     "task": "Pass final inspection"
+    }
+   ],
+   "gate": "DECKS, FENCING & EXTERIOR RAILINGS"
+  },
+  {
+   "stage": "5 \u00b7 Cleanup & Handoff",
+   "step": "5.4",
+   "title": "FINAL INSPECTIONS & CLIENT HANDOFF",
+   "ownerRole": "Construction PM & GM",
+   "targetDays": "Project completion",
+   "items": [
+    {
+     "section": "INSPECTIONS & PUNCH LIST",
+     "task": "Pass all municipal inspections (occupancy)"
+    },
+    {
+     "section": "INSPECTIONS & PUNCH LIST",
+     "task": "Conduct internal pre-punch walkthrough; build punch list"
+    },
+    {
+     "section": "INSPECTIONS & PUNCH LIST",
+     "task": "Resolve punch list 100%"
+    },
+    {
+     "section": "HANDOFF & CLOSEOUT",
+     "task": "Client final walkthrough and sign-off"
+    },
+    {
+     "section": "HANDOFF & CLOSEOUT",
+     "task": "Deliver handoff package (manuals, as-builts)"
+    },
+    {
+     "section": "HANDOFF & CLOSEOUT",
+     "task": "Deliver warranty documentation; review warranty process"
+    },
+    {
+     "section": "HANDOFF & CLOSEOUT",
+     "task": "Final payment / draw and project closeout"
+    }
+   ],
+   "gate": "FINAL INSPECTIONS & CLIENT HANDOFF"
+  }
+ ]
+}
